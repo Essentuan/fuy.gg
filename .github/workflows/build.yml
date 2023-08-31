@@ -48,5 +48,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "Fuy.gg [v${{ env.MOD_VERSION }}]"
+          tag_name: "v${{ env.MOD_VERSION }}"
           files: "**/build/libs/fuy-*.jar"
