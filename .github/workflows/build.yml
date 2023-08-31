@@ -43,5 +43,5 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "Fuy.gg [v${{ env.MOD_VERSION }}]"
-          files: build/libs/
+          tag_name: "v${{ env.MOD_VERSION }}"
+          files: "**/build/libs/fuy-*.jar"
