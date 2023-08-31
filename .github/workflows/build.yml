@@ -34,13 +34,14 @@ jobs:
       - name: Get Short SHA
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
 
-      - name: Rename Files
-        run: |
-          mv ./build/libs/fuy_gg-${MOD_VERSION}.jar ./build/libs/[CI-${SHORT_SHA}][${{ env.BRANCH }}]fuy_gg-${MOD_VERSION}.jar
-          mv ./build/libs/fuy_gg-${MOD_VERSION}-sources.jar ./build/libs/[CI-${SHORT_SHA}][${{ env.BRANCH }}]fuy_gg-${MOD_VERSION}-sources.jar
-
       - name: Upload build jar
         uses: actions/upload-artifact@v3
         with:
           name: "[CI-${{ env.SHORT_SHA }}][${{ env.BRANCH }}]fuy_gg.zip"
           path: build/libs/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "Fuy.gg [v${{ env.MOD_VERSION }}]"
+          files: build/libs/
