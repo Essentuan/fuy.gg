@@ -3,6 +3,7 @@ package com.busted_moments.client.features.war;
 import com.busted_moments.client.config.providers.sound.SoundProvider;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.Feature;
+import com.busted_moments.core.config.Config;
 import com.busted_moments.core.time.Duration;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
@@ -15,6 +16,7 @@ import java.util.regex.Matcher;
 
 import static com.busted_moments.client.models.war.timer.TimerModel.ATTACK_PATTERN;
 
+@Config.Category("War")
 @Feature.Definition(name = "Autoskip Dialogue", description = "Automatically skips dialogue")
 public class WarHornFeature extends Feature {
     @Dropdown(title = "Selected Sound", options = SoundProvider.class)
@@ -33,7 +35,7 @@ public class WarHornFeature extends Feature {
 
         Matcher matcher = event.getOriginalStyledText().getMatcher(ATTACK_PATTERN, PartStyle.StyleType.NONE);
         if (!matcher.matches()) return;
-        
+
         SoundUtil.playAmbient(selected, pitch, volume);
     }
 }
