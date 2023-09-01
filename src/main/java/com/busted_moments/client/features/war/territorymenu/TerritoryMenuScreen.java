@@ -9,6 +9,8 @@ import com.busted_moments.core.render.screen.ClickEvent;
 import com.busted_moments.core.render.screen.HoverEvent;
 import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.Widget;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.utils.colors.CommonColors;
@@ -54,6 +56,8 @@ public class TerritoryMenuScreen extends Screen.Element {
 
    private final TerritoryScanner scanner;
    private boolean IS_CLICKING = false;
+
+   private final Multimap<Filter, Entry> counts = MultimapBuilder.hashKeys().arrayListValues().build();
 
    public TerritoryMenuScreen(int id) {
       super(Component.literal("Manage Territories"));
@@ -131,6 +135,7 @@ public class TerritoryMenuScreen extends Screen.Element {
                     return TerritoryMenuScreen.this;
                  }
               }).onUpdate(m -> rebuild())
+              .setCounts(counts)
               .perform(menu -> {
                  this.filter_menu = menu;
 
@@ -206,6 +211,8 @@ public class TerritoryMenuScreen extends Screen.Element {
               .build();
 
       TerritoryPosition position = getTerritoryPosition(territories);
+
+      counts.clear();
 
       for (int i = 0; i < territories.size(); i++)
          new Entry(territories.get(i))
@@ -335,6 +342,8 @@ public class TerritoryMenuScreen extends Screen.Element {
 
          this.filters = Filter.getFilters(territory);
          this.acronym = StyledText.fromString(getAcronym(territory));
+
+         this.filters.forEach(filter -> counts.put(filter, this));
       }
 
       @SuppressWarnings("IntegerDivisionInFloatingPointContext")

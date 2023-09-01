@@ -5,6 +5,7 @@ import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.render.FontRenderer;
 import com.busted_moments.core.render.screen.Widget;
 import com.busted_moments.core.text.TextBuilder;
+import com.google.common.collect.Multimap;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
@@ -19,9 +20,11 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class FilterMenu extends Widget<FilterMenu> {
-   final static StyledText LEGEND = getLegend(Set.of(Filter.values()), null);
+   final static StyledText LEGEND = getLegend(null, Set.of(Filter.values()), null);
 
    private final Set<Filter> selected = new HashSet<>(List.of(Filter.values()));
+
+   private Multimap<Filter, ?> counts = null;
 
    private Consumer<FilterMenu> ON_UPDATE = m -> {
    };
@@ -53,6 +56,12 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
       return this;
    }
 
+   public FilterMenu setCounts(Multimap<Filter, ?> counts) {
+      this.counts = counts;
+
+      return this;
+   }
+
    private Optional<Filter> getHovered(double mouseY) {
       int line = ((int) (mouseY - getY()) / FontRenderer.lineHeight()) / 2;
 
@@ -78,7 +87,7 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
       if (filter.equals(Filter.PLACEHOLDER)) return false;
 
       if (Keybind.isKeyDown(InputConstants.KEY_LSHIFT) || Keybind.isKeyDown(InputConstants.KEY_RSHIFT)) {
-         selected.removeIf(f -> f != Filter.STRICT_MODE && f != Filter.PLACEHOLDER);
+         selected.removeIf(Filter::isClickable);
          selected.add(filter);
       } else toggle(filter);
 
@@ -99,17 +108,17 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
 
    @Override
    protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-      new TextBox(getLegend(selected, getHovered(mouseY).orElse(null)), getX(), getY()).setFill(0, 0, 0, 127)
+      new TextBox(getLegend(counts, selected, getHovered(mouseY).orElse(null)), getX(), getY()).setFill(0, 0, 0, 127)
               .setPadding(3, 3, 3, 3)
               .dynamic()
               .build();
    }
 
-   private static StyledText getLegend(Set<Filter> selected, Filter hovered) {
+   private static StyledText getLegend(Multimap<Filter, ?> counts, Set<Filter> selected, Filter hovered) {
       return TextBuilder.of("Filters", ChatFormatting.WHITE, ChatFormatting.BOLD)
               .line().line()
               .append(List.of(Filter.values()), (filter, builder) ->
-                      builder.append("", ChatFormatting.RESET).append(filter.toText(selected, hovered)).line()
+                      builder.append("", ChatFormatting.RESET).append(filter.toText(counts, selected, hovered)).line()
               ).build();
    }
 }
