@@ -6,7 +6,8 @@
   "description": "",
   "icon": "assets/fuy/WE_BUSTED_THE_MOMENTS.png",
   "authors": [
-    "Essentuan"
+    "Essentuan",
+    "jhil"
   ],
   "license": "GPL-3.0",
   "environment": "client",
