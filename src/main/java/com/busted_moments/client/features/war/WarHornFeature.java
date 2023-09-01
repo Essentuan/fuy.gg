@@ -4,7 +4,6 @@ import com.busted_moments.client.config.providers.sound.SoundProvider;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.Feature;
 import com.busted_moments.core.config.Config;
-import com.busted_moments.core.time.Duration;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.handlers.chat.type.RecipientType;
