@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimerModel extends Model {
-   private final static Pattern ATTACK_PATTERN = Pattern.compile("^\\[WAR\\] The war for (?<territory>.+) will start in (?<timer>.+).$");
+   public final static Pattern ATTACK_PATTERN = Pattern.compile("^\\[WAR\\] The war for (?<territory>.+) will start in (?<timer>.+).$");
    private final static Pattern DEFENSE_PATTERN = Pattern.compile("^\\[.*\\] (?<territory>.+) defense is (?<defense>.+)?$");
    private static final Pattern ATTACK_SCREEN_TITLE = Pattern.compile("Attacking: (?<territory>.+)");
 
