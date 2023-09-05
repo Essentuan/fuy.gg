@@ -5,7 +5,6 @@ import com.busted_moments.core.api.internal.RateLimit;
 import com.busted_moments.core.api.requests.player.Player;
 import com.busted_moments.core.json.Json;
 import com.busted_moments.core.json.template.JsonTemplate;
-import com.busted_moments.core.time.TimeUnit;
 import com.busted_moments.core.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -444,7 +443,7 @@ public class Guild extends JsonTemplate implements Collection<Guild.Member> {
       }
    }
 
-   @com.busted_moments.core.api.internal.Request.Definition(route = "https://thesimpleones.net/api/guild?q=%s", ratelimit = RateLimit.NONE, cache_length = 5)
+   @com.busted_moments.core.api.internal.Request.Definition(route = "https://thesimpleones.net/api/guild?q=%s", ratelimit = RateLimit.NONE, cache_length = 0)
    public static class Request extends GetRequest<Guild> {
       public Request(String guild) {
          super(guild);
