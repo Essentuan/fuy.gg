@@ -8,6 +8,7 @@ import net.minecraft.network.chat.HoverEvent;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public interface TextBuilder {
    TextBuilder append(StyledText text);
@@ -38,6 +39,12 @@ public interface TextBuilder {
          consumer.accept(iter.next());
          if (iter.hasNext()) line();
       }
+
+      return this;
+   }
+
+   default TextBuilder appendIf(Supplier<Boolean> condition, String string, ChatFormatting... styles) {
+      if (condition.get()) append(string, styles);
 
       return this;
    }
