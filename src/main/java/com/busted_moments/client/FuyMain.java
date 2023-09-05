@@ -7,6 +7,8 @@ import com.busted_moments.core.heartbeat.Heartbeat;
 import com.wynntils.core.WynntilsMod;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
 import net.minecraftforge.eventbus.api.IEventBus;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
@@ -14,6 +16,7 @@ import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 public class FuyMain implements ClientModInitializer, FuyExtension {
@@ -25,9 +28,15 @@ public class FuyMain implements ClientModInitializer, FuyExtension {
 
    private static Field EVENT_BUS;
 
+   private static ModContainer CONTAINER;
+
    @Override
-   public void onInitializeClient() {
+   public void onInitializeClient() {  
       ConfigurationBuilder builder = new ConfigurationBuilder();
+
+      CONTAINER = FabricLoader.getInstance().getModContainer("fuy_gg").orElseThrow(
+              () -> new RuntimeException("Where is fuy.gg? :(")
+      );
 
       FabricLoader.getInstance()
               .getEntrypointContainers("fuy_gg", FuyExtension.class)
@@ -55,6 +64,14 @@ public class FuyMain implements ClientModInitializer, FuyExtension {
       Heartbeat.create();
 
       new ModConfig();
+   }
+
+   public static Version getVersion() {
+      return CONTAINER.getMetadata().getVersion();
+   }
+
+   public static File getJar() {
+      return CONTAINER.getOrigin().getPaths().get(0).toFile();
    }
 
    public static IEventBus getEventBus() {

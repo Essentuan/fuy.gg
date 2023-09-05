@@ -1,6 +1,7 @@
 package com.busted_moments.client.commands;
 
 import com.busted_moments.client.features.AutoStreamFeature;
+import com.busted_moments.client.features.AutoUpdateFeature;
 import com.busted_moments.client.features.war.WeeklyWarCountOverlay;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.api.requests.Find;
@@ -14,6 +15,7 @@ import com.essentuan.acf.core.annotations.Alias;
 import com.essentuan.acf.core.annotations.Argument;
 import com.essentuan.acf.core.annotations.Command;
 import com.essentuan.acf.core.annotations.Subcommand;
+import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType;
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
@@ -23,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE;
 import static net.minecraft.ChatFormatting.*;
 
 @Alias("fy")
@@ -45,7 +48,7 @@ public class FuyCommand {
    @Subcommand("onlinemembers")
    private static void getOnlineMembers(
            CommandContext<FabricClientCommandSource> context,
-           @Argument("Guild") String string
+           @Argument("Guild") @StringType(GREEDY_PHRASE) String string
    ) {
       ChatUtil.message("Finding guild %s...".formatted(string), ChatFormatting.GREEN);
 
@@ -133,7 +136,7 @@ public class FuyCommand {
    @Subcommand("wars")
    private static void getWars(
            CommandContext<FabricClientCommandSource> context,
-           @Argument("Since") Duration range
+           @Argument("Since") @StringType(GREEDY_PHRASE) Duration range
    ) {
       long wars = WeeklyWarCountOverlay.getWars()
               .stream()
@@ -148,6 +151,14 @@ public class FuyCommand {
                       .append(range.toString(), AQUA).append(".", GRAY)
       );
    }
+
+   @Subcommand("update")
+   private static void onUpdate(CommandContext<?> context) {
+      ChatUtil.message("Attempting update...", YELLOW);
+
+      AutoUpdateFeature.update().thenAccept(result -> ChatUtil.message(result.getMessage()));
+   }
+
 
    private static void getPlayer(String string, Consumer<Player> consumer) {
       ChatUtil.message("Finding player %s...".formatted(string), ChatFormatting.GREEN);
