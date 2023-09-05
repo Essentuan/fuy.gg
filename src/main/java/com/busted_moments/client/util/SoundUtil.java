@@ -5,9 +5,9 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 
+//Can someone tell me why these mappings have speed (pitch) and volume flipped????
 public class SoundUtil {
     public static void playAmbient(SoundEvent sound, float pitch, float volume) {
         play(SimpleSoundInstance.forLocalAmbience(sound, volume, pitch));
@@ -21,5 +21,9 @@ public class SoundUtil {
 
     public static void play(SoundInstance instance) {
         Minecraft.getInstance().getSoundManager().play(instance);
+    }
+
+    static SoundEvent create(String string) {
+        return SoundEvent.createVariableRangeEvent(new ResourceLocation(string));
     }
 }

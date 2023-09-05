@@ -69,4 +69,11 @@ public class FuyMain implements ClientModInitializer, FuyExtension {
    public String getPackage() {
       return "com.busted_moments";
    }
+
+   @Override
+   public String[] getSounds() {
+      return new String[]{
+         "fuy:war.horn"
+      };
+   }
 }
