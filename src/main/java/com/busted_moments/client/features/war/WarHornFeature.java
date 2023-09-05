@@ -28,6 +28,6 @@ public class WarHornFeature extends Feature {
 
    @SubscribeEvent
    public void onTimerStart(TimerStartEvent event) {
-      if (event.getTimer().isConfident()) SoundUtil.playAmbient(selected, pitch, volume);
+      if (!event.isFromScoreboard()) SoundUtil.playAmbient(selected, pitch, volume);
    }
 }

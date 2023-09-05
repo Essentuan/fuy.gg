@@ -58,7 +58,7 @@ public class TimerModel extends Model {
 
       if (PERSONALLY_QUEUED.contains(timer.getTerritory())) timer.personal = true;
 
-      if (new TimerStartEvent(timer).post()) return;
+      if (new TimerStartEvent(timer, trust).post()) return;
 
       TIMERS.add(timer);
    }
