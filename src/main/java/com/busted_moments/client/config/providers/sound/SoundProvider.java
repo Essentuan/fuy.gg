@@ -14,24 +14,31 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SoundProvider implements Config.Dropdown.Provider<SoundEvent> {
-   private static final Map<String, SoundEvent> SOUNDS =
-           Stream.concat(FabricLoader.getInstance().getEntrypointContainers("fuy_gg", FuyExtension.class).stream()
-                           .flatMap(extension -> Stream.of(extension.getEntrypoint().getSounds()))
-                           .map(location -> SoundEvent.createVariableRangeEvent(new ResourceLocation(location))), BuiltInRegistries.SOUND_EVENT.stream())
-                   .collect(Collectors.toMap(event -> event.getLocation().toString(), event -> event));
+   private static Map<String, SoundEvent> SOUNDS = null;
 
    @Override
    public Iterable<SoundEvent> getOptions() {
-      return SOUNDS.values();
+      return getSounds().values();
    }
 
    @Override
    public @Nullable SoundEvent get(String string) throws Throwable {
-      return SOUNDS.get(string);
+      return getSounds().get(string);
    }
 
    @Override
    public Component getName(SoundEvent value) {
       return Component.literal(value.getLocation().toString());
+   }
+
+   private static Map<String, SoundEvent> getSounds() {
+      if (SOUNDS == null) {
+         SOUNDS = Stream.concat(FabricLoader.getInstance().getEntrypointContainers("fuy_gg", FuyExtension.class).stream()
+                         .flatMap(extension -> Stream.of(extension.getEntrypoint().getSounds()))
+                         .map(location -> SoundEvent.createVariableRangeEvent(new ResourceLocation(location))), BuiltInRegistries.SOUND_EVENT.stream())
+                 .collect(Collectors.toMap(event -> event.getLocation().toString(), event -> event));
+      }
+
+      return SOUNDS;
    }
 }
