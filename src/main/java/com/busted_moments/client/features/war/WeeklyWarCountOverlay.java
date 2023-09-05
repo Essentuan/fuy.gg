@@ -90,4 +90,8 @@ public class WeeklyWarCountOverlay extends Feature {
                  .build();
       }
    }
+
+   public static List<Date> getWars() {
+      return WARS;
+   }
 }

@@ -1,6 +1,7 @@
 package com.busted_moments.client.commands;
 
 import com.busted_moments.client.features.AutoStreamFeature;
+import com.busted_moments.client.features.war.WeeklyWarCountOverlay;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.api.requests.Find;
 import com.busted_moments.core.api.requests.Guild;
@@ -9,7 +10,10 @@ import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
 import com.busted_moments.core.time.TimeUnit;
-import com.essentuan.acf.core.annotations.*;
+import com.essentuan.acf.core.annotations.Alias;
+import com.essentuan.acf.core.annotations.Argument;
+import com.essentuan.acf.core.annotations.Command;
+import com.essentuan.acf.core.annotations.Subcommand;
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
@@ -28,6 +32,7 @@ public class FuyCommand {
    private static void onConfig(CommandContext<FabricClientCommandSource> context) {
       CONFIG.open();
    }
+
    @Alias("as")
    @Subcommand("autostream")
    private static void onAutoStream(
@@ -67,9 +72,9 @@ public class FuyCommand {
       ChatUtil.message("Finding player %s...".formatted(string), ChatFormatting.GREEN);
 
       new Find.Request(string).thenAccept(optional -> optional.ifPresentOrElse(player -> player.getWorld().ifPresentOrElse(world -> ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA)
-              .append(" is on ", GRAY)
-              .append(world, AQUA)), () -> ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA)
-              .append(" is not ", GRAY).append("online", AQUA))),
+                      .append(" is on ", GRAY)
+                      .append(world, AQUA)), () -> ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA)
+                      .append(" is not ", GRAY).append("online", AQUA))),
               () -> ChatUtil.message("Could not find player %s".formatted(string), ChatFormatting.RED)));
    }
 
@@ -123,6 +128,25 @@ public class FuyCommand {
             });
          }
       });
+   }
+
+   @Subcommand("wars")
+   private static void getWars(
+           CommandContext<FabricClientCommandSource> context,
+           @Argument("Since") Duration range
+   ) {
+      long wars = WeeklyWarCountOverlay.getWars()
+              .stream()
+              .filter(war -> Duration.since(war).lessThanOrEqual(range))
+              .count();
+
+      ChatUtil.message(
+              TextBuilder.of("You have entered ", GRAY)
+                      .append(wars, AQUA)
+                      .append(" wars", GRAY).appendIf(() -> wars > 1, "s", GRAY)
+                      .append(" in the past ")
+                      .append(range.toString(), AQUA).append(".", GRAY)
+      );
    }
 
    private static void getPlayer(String string, Consumer<Player> consumer) {
