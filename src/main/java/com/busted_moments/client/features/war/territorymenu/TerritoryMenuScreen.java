@@ -2,6 +2,7 @@ package com.busted_moments.client.features.war.territorymenu;
 
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
+import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.render.FontRenderer;
 import com.busted_moments.core.render.Renderer;
@@ -239,13 +240,11 @@ public class TerritoryMenuScreen extends Screen.Element {
 
    private <T> ClickEvent.Handler<T> click(int slot, boolean sound) {
       return (x, y, button, ignored) -> {
-         if (IS_CLICKING) return false;
+         if (IS_CLICKING || !ContainerHelper.Click(slot, button, TERRITORY_MENU_PATTERN)) return false;
          TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
          IS_CLICKING = true;
 
          if (sound) SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.BLOCKS, 1, 1);
-
-         ContainerUtils.clickOnSlot(slot, CONTAINER_ID, button, scanner.getContents());
 
          return true;
       };
@@ -260,11 +259,9 @@ public class TerritoryMenuScreen extends Screen.Element {
    @Override
    public void removed() {
       scanner.close();
-      TerritoryHelperMenuFeature.GUILD_MENU_ID = -1;
+      TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
 
-      if (!IS_CLICKING) {
-         ContainerUtils.closeContainer(CONTAINER_ID);
-      }
+      if (!IS_CLICKING) ContainerUtils.closeContainer(CONTAINER_ID);
    }
 
    @Override

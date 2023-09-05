@@ -1,12 +1,12 @@
 package com.busted_moments.client.models.territory.eco;
 
-import com.busted_moments.client.models.territory.eco.TerritoryEco;
+import com.busted_moments.client.models.war.WarModel;
 import com.busted_moments.client.util.ChatUtil;
+import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.core.events.EventListener;
-import com.wynntils.core.components.Managers;
 import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.mc.event.MenuEvent;
-import com.wynntils.utils.wynn.ContainerUtils;
+import com.wynntils.utils.mc.McUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -34,6 +34,8 @@ public class TerritoryScanner implements EventListener, Closeable {
       this.containerId = containerId;
    }
 
+   private boolean SCANNING = true;
+
    private Direction direction = Direction.DOWN;
    private String SELECTING_TERRITORY = null;
 
@@ -51,12 +53,7 @@ public class TerritoryScanner implements EventListener, Closeable {
          page.add(stack);
 
          if (SELECTING_TERRITORY != null && SELECTING_TERRITORY.equals(TerritoryEco.getTerritory(stack)))
-            ContainerUtils.clickOnSlot(
-                    slot,
-                    containerId,
-                    0,
-                    contents
-            );
+            ContainerHelper.Click(slot, 0, containerId);
       }
 
       if (!hasPreviousPage()) this.page = 0;
@@ -69,7 +66,7 @@ public class TerritoryScanner implements EventListener, Closeable {
               .toList()
       ));
 
-      if (!hasNextPage() && !hasPreviousPage()) Managers.TickScheduler.scheduleLater(() -> onMenuSetContents(event), 10);
+      if (!SCANNING) return;
 
       if (direction == Direction.DOWN) {
          if (!hasNextPage()) {
@@ -93,11 +90,10 @@ public class TerritoryScanner implements EventListener, Closeable {
    }
 
    private void nextPage() {
-      ContainerUtils.clickOnSlot(
+      ContainerHelper.Click(
               NEXT_PAGE,
-              containerId,
-              0,
-              contents
+               0,
+              containerId
       );
 
       page++;
@@ -110,11 +106,10 @@ public class TerritoryScanner implements EventListener, Closeable {
    }
 
    private void previousPage() {
-      ContainerUtils.clickOnSlot(
+      ContainerHelper.Click(
               PREVIOUS_PAGE,
-              containerId,
               0,
-              contents
+              containerId
       );
 
       page--;
@@ -136,6 +131,11 @@ public class TerritoryScanner implements EventListener, Closeable {
 
    public void select(ItemStack stack) {
       SELECTING_TERRITORY = TerritoryEco.getTerritory(stack);
+
+      if (WarModel.current().isEmpty()) {
+         SCANNING = false;
+         McUtils.sendCommand("gu territory %s".formatted(SELECTING_TERRITORY));
+      }
 
       if (territories.size() == 1) {
          onMenuSetContents(new ContainerSetContentEvent.Pre(
