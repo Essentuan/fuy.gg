@@ -3,6 +3,7 @@ package com.busted_moments.client.models.war.timer;
 import com.busted_moments.client.models.war.Defense;
 import com.busted_moments.client.models.territory.TerritoryModel;
 import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
+import com.busted_moments.client.models.war.timer.events.TimerStartEvent;
 import com.busted_moments.core.Model;
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
@@ -56,6 +57,8 @@ public class TimerModel extends Model {
       } else timer.defense = Defense.get(timer.getTerritory());
 
       if (PERSONALLY_QUEUED.contains(timer.getTerritory())) timer.personal = true;
+
+      if (new TimerStartEvent(timer).post()) return;
 
       TIMERS.add(timer);
    }
