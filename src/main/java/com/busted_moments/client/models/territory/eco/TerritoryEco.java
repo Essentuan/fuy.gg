@@ -20,6 +20,7 @@ import static com.wynntils.utils.mc.McUtils.player;
 
 public class TerritoryEco implements Territory {
    private static final Pattern UPGRADE_PATTERN = Pattern.compile("- (?<upgrade>.+) \\[Lv. (?<level>.+)\\]");
+   private static final Pattern PRODUCITON_PATTERN = Pattern.compile("(. )?\\+(?<production>.+) (?<resource>.+) per Hour");
    private static final Pattern STORAGE_PATTERN = Pattern.compile("(. )?(?<stored>.+)/(?<capacity>.+) stored");
    private static final Pattern TREASURY_PATTERN = Pattern.compile(". Treasury Bonus: (?<treasury>.+)%");
 
@@ -30,6 +31,7 @@ public class TerritoryEco implements Territory {
 
    private final boolean isHQ;
 
+   private final Map<ResourceType, Long> production = new HashMap<>();
    private final Map<ResourceType, Pair<Long, Long>> storage = new HashMap<>();
    private double treasury = 0;
    private final Map<UpgradeType, Upgrade> upgrades = new LinkedHashMap<>();
@@ -77,6 +79,11 @@ public class TerritoryEco implements Territory {
                        (resource != ResourceType.EMERALDS && text.startsWith(resource.getSymbol()))
                ) storage.put(resource, new Pair<>(stored, capacity));
             }
+         } else if (((matcher = PRODUCITON_PATTERN.matcher(text)).matches())) {
+            production.put(
+                    ResourceType.of(matcher.group("resource")),
+                    Long.parseLong(matcher.group("production"))
+            );
          } else if (((matcher = TREASURY_PATTERN.matcher(text)).matches())) treasury = Double.parseDouble(matcher.group("treasury"));
       }
    }
@@ -88,6 +95,14 @@ public class TerritoryEco implements Territory {
 
    public ItemStack getItem() {
       return stack;
+   }
+
+   public long getBaseProduction(ResourceType resource) {
+      return eco.getTemplate().map(template -> template.get(this).getProduction().get(resource)).orElse(0L);
+   }
+
+   public long getProduction(ResourceType resource) {
+      return production.computeIfAbsent(resource, k -> 0L);
    }
 
    public long getStored(ResourceType resourceType) {

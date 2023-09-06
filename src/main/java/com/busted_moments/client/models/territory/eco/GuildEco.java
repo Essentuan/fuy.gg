@@ -2,6 +2,7 @@ package com.busted_moments.client.models.territory.eco;
 
 import com.busted_moments.client.models.territory.TerritoryModel;
 import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.api.requests.mapstate.version.template.MapTemplate;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,8 @@ import java.util.*;
 public class GuildEco implements Territory.List<TerritoryEco> {
    private final Map<String, TerritoryEco> territories = new LinkedHashMap<>();
    private final Date timestamp = new Date();
+
+   private MapTemplate template = null;
 
    TerritoryEco HQ = null;
    public GuildEco(List<ItemStack> items) {
@@ -21,9 +24,15 @@ public class GuildEco implements Territory.List<TerritoryEco> {
       var state = TerritoryModel.getTerritoryList();
 
       state.getVersion().thenAccept(optional -> optional.ifPresent(version -> version.getTemplate().thenAccept(template -> {
+         this.template = template;
+
          Route.visit(state, template, this, false);
          Route.visit(state, template, this, true);
       })));
+   }
+
+   public Optional<MapTemplate> getTemplate() {
+      return Optional.ofNullable(template);
    }
 
    @Override
