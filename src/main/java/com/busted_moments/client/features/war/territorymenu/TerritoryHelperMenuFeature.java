@@ -24,6 +24,8 @@ import static com.wynntils.utils.mc.McUtils.mc;
 @Default(State.ENABLED)
 @Feature.Definition(name = "Territory Helper Menu")
 public class TerritoryHelperMenuFeature extends Feature {
+   @Value("Display production")
+   static boolean production = true;
 
    @SubscribeEvent(priority = EventPriority.LOWEST)
    public void onMenuOpen(MenuEvent.MenuOpenedEvent event) {

@@ -2,6 +2,7 @@ package com.busted_moments.client.features.war.territorymenu;
 
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
+import com.busted_moments.client.models.territory.eco.types.ResourceType;
 import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.render.FontRenderer;
@@ -28,6 +29,8 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -334,6 +337,8 @@ public class TerritoryMenuScreen extends Screen.Element {
       private final Set<Filter> filters;
       private final StyledText acronym;
 
+      private final List<ResourceType> production = new ArrayList<>();
+
       public Entry(TerritoryEco territory) {
          super(territory.getItem());
 
@@ -341,6 +346,14 @@ public class TerritoryMenuScreen extends Screen.Element {
          this.acronym = StyledText.fromString(getAcronym(territory));
 
          this.filters.forEach(filter -> counts.put(filter, this));
+
+         for (ResourceType resource : ResourceType.values()) {
+            long prod = territory.getBaseProduction(resource);
+
+            if (resource == ResourceType.EMERALDS) {
+               if (prod > 9000) production.add(resource);
+            } else if (prod > 0) production.addAll(Collections.nCopies((int) Math.ceil((prod / 900D) / 4D), resource));
+         }
       }
 
       @SuppressWarnings("IntegerDivisionInFloatingPointContext")
@@ -405,13 +418,53 @@ public class TerritoryMenuScreen extends Screen.Element {
          poseStack.pushPose();
          poseStack.translate(0, 0, 300);
 
+         float labelSize = 0.9F;
+
+         if (TerritoryHelperMenuFeature.production) {
+            int prodLines = (int) Math.ceil(production.size() / 2D);
+
+            if (prodLines > 1) labelSize = 0.85F;
+
+            float originX = (getX() + item_size / 2) - 1;
+            float prodY = getY() + (item_size / 2) - ((Production.SIZE * prodLines) / 2F);
+
+            int row = 0;
+            int col = 0;
+
+            int cols = 1;
+
+            for (var iter = production.iterator(); iter.hasNext(); ) {
+               var next = iter.next();
+               if (col == 0) {
+                  if (iter.hasNext()) cols = 2;
+                  else cols = 1;
+               }
+
+               float prodX = originX + (col * Production.SIZE) - (cols * Production.SIZE) / 2F;
+
+               Renderer.texture(
+                       poseStack,
+                       prodX,
+                       prodY + (row * Production.SIZE),
+                       next.getTexture()
+               );
+
+               col++;
+
+               if (col == 2) {
+                  col = 0;
+                  row++;
+               }
+            }
+         } else labelSize = 1F;
+
          Renderer.text(
                  poseStack, bufferSource,
                  acronym,
                  getX(), getY(), 0F,
                  CommonColors.ORANGE,
                  TextShadow.OUTLINE,
-                 Math.min(1F, 16 * ITEM_SCALE / FontRenderer.getWidth(acronym, 0F))
+                 Math.min(labelSize, 16 * ITEM_SCALE / FontRenderer.getWidth(acronym, 0F))
          );
 
          poseStack.popPose();
