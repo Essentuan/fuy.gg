@@ -1,12 +1,12 @@
 package com.busted_moments.core.render.screen.widgets;
 
-import com.busted_moments.client.mixin.ScreenAccessor;
 import com.busted_moments.core.render.Renderer;
 import com.busted_moments.core.render.screen.HoverEvent;
 import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.ScreenElement;
 import com.busted_moments.core.render.screen.Widget;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.wynntils.utils.render.FontRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -49,9 +49,9 @@ public abstract class ItemStackWidget<This extends ItemStackWidget<This>> extend
    }
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       Renderer.gui_item(
-              poseStack,
+              graphics.pose(),
               bufferSource,
               item.get(),
               getX(),
@@ -85,8 +85,8 @@ public abstract class ItemStackWidget<This extends ItemStackWidget<This>> extend
       }
 
       @Override
-      public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-         ((ScreenAccessor) getElement()).callRenderTooltip(poseStack, item.get(), (int) getX(), (int) getY());
+      public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+         graphics.renderTooltip(FontRenderer.getInstance().getFont(), item.get(), (int) getX(), (int) getY());
       }
    }
 }

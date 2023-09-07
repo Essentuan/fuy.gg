@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.base.TextboxScreen;
 import com.wynntils.screens.base.widgets.TextInputBoxWidget;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -37,27 +38,27 @@ public @interface Screen {
       }
 
       @Override
-      public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+      public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
          elements.clear();
 
          MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 
          onRender(
-                 poseStack,
+                 graphics,
                  buffer,
                  mouseX,
                  mouseY,
                  partialTick
          );
 
-         elements.forEach(e -> e.render(poseStack, buffer, mouseX, mouseY, partialTick));
+         elements.forEach(e -> e.render(graphics, buffer, mouseX, mouseY, partialTick));
 
          elements.clear();
 
-         widgets.forEach(widget -> widget.render(poseStack, buffer, mouseX, mouseY, partialTick));
-         elements.forEach(e -> e.render(poseStack, buffer, mouseX, mouseY, partialTick));
+         widgets.forEach(widget -> widget.render(graphics, buffer, mouseX, mouseY, partialTick));
+         elements.forEach(e -> e.render(graphics, buffer, mouseX, mouseY, partialTick));
 
-         super.render(poseStack, mouseX, mouseY, partialTick);
+         super.render(graphics, mouseX, mouseY, partialTick);
 
          buffer.endBatch();
       }
@@ -67,7 +68,7 @@ public @interface Screen {
          super.init();
       }
 
-      protected abstract void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
+      protected abstract void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
 
       @SuppressWarnings("unchecked")
       protected void addWidget(Widget<?> widget) {
@@ -189,7 +190,7 @@ public @interface Screen {
    }
 
    interface Widget<This extends Widget<This>> extends Object<This, Widget<?>>, GuiEventListener {
-      void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
+      void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
 
       default This build() {
          getElement().addWidget(this);

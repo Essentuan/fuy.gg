@@ -6,12 +6,12 @@ import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.render.overlay.elements.textbox.Padding;
 import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.ScreenElement;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
 import me.shedaniel.math.Color;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -247,7 +247,7 @@ public abstract class TextBoxElement<This extends TextBoxElement<This>> extends 
    }
 
    @Override
-   public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       float textX = getX();
       float textY = getY();
       float textWidth = getWidth();
@@ -286,10 +286,10 @@ public abstract class TextBoxElement<This extends TextBoxElement<This>> extends 
          setPosition(x, y).setSize(width, height).setVerticalAlignment(VerticalAlignment.TOP);
       }
 
-      rect.render(poseStack, bufferSource, mouseX, mouseY, partialTick);
+      rect.render(graphics, bufferSource, mouseX, mouseY, partialTick);
 
       Renderer.text(
-              poseStack,
+              graphics.pose(),
               bufferSource,
               text.text,
               (int) textX + padding.left,

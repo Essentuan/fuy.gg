@@ -2,8 +2,8 @@ package com.busted_moments.core.render.screen.elements;
 
 import com.busted_moments.core.render.FillStyle;
 import com.busted_moments.core.render.screen.ScreenElement;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.math.Color;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,9 +59,9 @@ public abstract class RectElement<This extends RectElement<This>> extends Screen
    }
 
    @Override
-   public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       style.render(
-              poseStack,
+              graphics.pose(),
               getX(),
               getY(),
               getWidth(),

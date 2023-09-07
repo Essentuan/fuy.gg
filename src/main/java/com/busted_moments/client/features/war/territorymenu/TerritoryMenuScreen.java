@@ -20,6 +20,7 @@ import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.wynn.ContainerUtils;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -282,7 +283,7 @@ public class TerritoryMenuScreen extends Screen.Element {
    private boolean IS_INSIDE = false;
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       new Texture(BACKGROUND)
               .center()
               .then(Texture::new)
@@ -389,7 +390,7 @@ public class TerritoryMenuScreen extends Screen.Element {
 
 
       @Override
-      public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          CustomColor color = null;
 
          if (IS_INSIDE && isMouseOver(mouseX, mouseY)) color = new CustomColor(255, 255, 255, 127);
@@ -403,6 +404,8 @@ public class TerritoryMenuScreen extends Screen.Element {
             }
          }
 
+         PoseStack poseStack = graphics.pose();
+
          if (color != null)
             Renderer.fill(
                     poseStack,
@@ -413,7 +416,7 @@ public class TerritoryMenuScreen extends Screen.Element {
                     color
             );
 
-         super.render(poseStack, bufferSource, mouseX, mouseY, partialTick);
+         super.render(graphics, bufferSource, mouseX, mouseY, partialTick);
 
          poseStack.pushPose();
          poseStack.translate(0, 0, 300);
@@ -479,8 +482,8 @@ public class TerritoryMenuScreen extends Screen.Element {
       }
 
       @Override
-      protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-         Renderer.mask(poseStack, getX(), getY(), MASK);
+      protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+         Renderer.mask(graphics.pose(), getX(), getY(), MASK);
       }
    }
 
@@ -492,7 +495,7 @@ public class TerritoryMenuScreen extends Screen.Element {
       }
 
       @Override
-      protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          Renderer.clear_mask();
       }
    }

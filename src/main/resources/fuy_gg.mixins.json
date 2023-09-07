@@ -13,7 +13,6 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "BossHealthOverlayAccessor",
-    "ScreenAccessor"
+    "BossHealthOverlayAccessor"
   ]
 }

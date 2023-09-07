@@ -1,16 +1,14 @@
 package com.busted_moments.core.render.screen.widgets;
 
-import com.busted_moments.core.render.FillStyle;
 import com.busted_moments.core.render.screen.Screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.screens.base.TextboxScreen;
 import com.wynntils.screens.base.widgets.SearchWidget;
-import me.shedaniel.math.Color;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class SearchBoxWidget<This extends SearchBoxWidget<This>> extends SearchWidget implements Screen.Widget<This> {
    private float scale = 1;
@@ -66,9 +64,11 @@ public abstract class SearchBoxWidget<This extends SearchBoxWidget<This>> extend
    }
 
    @Override
-   public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       this.width = originalWidth;
       this.height = originalHeight;
+
+      PoseStack poseStack = graphics.pose();
 
       poseStack.pushPose();
       poseStack.scale(scale, scale, 1);
@@ -80,7 +80,7 @@ public abstract class SearchBoxWidget<This extends SearchBoxWidget<This>> extend
       setY((int) (originalY / scale));
 
       bufferSource.endLastBatch();
-      render(poseStack, mouseX, mouseY, partialTick);
+      render(graphics, mouseX, mouseY, partialTick);
 
       poseStack.popPose();
 

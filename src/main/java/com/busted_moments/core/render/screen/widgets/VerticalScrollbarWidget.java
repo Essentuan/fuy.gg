@@ -1,11 +1,10 @@
 package com.busted_moments.core.render.screen.widgets;
 
-import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.render.TextureInfo;
 import com.busted_moments.core.render.screen.Widget;
 import com.busted_moments.core.tuples.Pair;
-import com.mojang.blaze3d.vertex.PoseStack;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -144,7 +143,7 @@ public abstract class VerticalScrollbarWidget<This extends VerticalScrollbarWidg
    }
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       new Texture(texture).setPosition(getX(), getSliderY()).build();
 
       if (progress != null) progress.update();

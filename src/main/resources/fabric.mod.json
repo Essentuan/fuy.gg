@@ -28,7 +28,7 @@
   "accessWidener" : "fuy_gg.accesswidener",
   "depends": {
     "wynntils": ">=${artemis_version}",
-    "cloth-config": ">=10.1.105",
+    "cloth-config": ">=${cloth_config_version}",
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
