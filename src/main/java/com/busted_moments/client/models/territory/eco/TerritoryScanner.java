@@ -1,12 +1,11 @@
 package com.busted_moments.client.models.territory.eco;
 
-import com.busted_moments.client.models.war.WarModel;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.core.events.EventListener;
+import com.busted_moments.core.heartbeat.Scheduler;
 import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.mc.event.MenuEvent;
-import com.wynntils.utils.mc.McUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -18,30 +17,32 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-public class TerritoryScanner implements EventListener, Closeable {
+public abstract class TerritoryScanner implements Scheduler, EventListener, Closeable {
    private static final int PREVIOUS_PAGE = 9;
    private static final int NEXT_PAGE = 27;
 
-   private final int containerId;
+   protected final int containerId;
    private List<ItemStack> contents = new ArrayList<>();
    private int page = 0;
 
-   private final List<List<ItemStack>> territories = new CopyOnWriteArrayList<>();
-   private Consumer<GuildEco> UPDATE_CONSUMER = e -> {};
+   private final List<List<ItemStack>> pages = new CopyOnWriteArrayList<>();
+   private Consumer<GuildEco> UPDATE_CONSUMER = e -> {
+   };
 
    public TerritoryScanner(int containerId) {
       REGISTER_EVENTS();
+         REGISTER_TASKS();
       this.containerId = containerId;
    }
 
-   private boolean SCANNING = true;
+   public boolean SCANNING = true;
 
    private Direction direction = Direction.DOWN;
-   private String SELECTING_TERRITORY = null;
 
    @SubscribeEvent(priority = EventPriority.HIGHEST)
    public void onMenuSetContents(ContainerSetContentEvent.Pre event) {
       if (event.getContainerId() != containerId || event.getItems() == null) return;
+
       contents = event.getItems();
 
       List<ItemStack> page = new ArrayList<>();
@@ -52,18 +53,21 @@ public class TerritoryScanner implements EventListener, Closeable {
 
          page.add(stack);
 
-         if (SELECTING_TERRITORY != null && SELECTING_TERRITORY.equals(TerritoryEco.getTerritory(stack)))
-            ContainerHelper.Click(slot, 0, containerId);
+         if (process(
+                 TerritoryEco.getTerritory(stack),
+                 stack,
+                 slot
+         )) return;
       }
 
-      if (!hasPreviousPage()) this.page = 0;
+      if (!hasPreviousPage() || this.page < 0) this.page = 0;
 
-      if (territories.size() <= this.page) territories.add(page);
-      else territories.set(this.page, page);
+      if (pages.size() <= this.page) pages.add(page);
+      else pages.set(this.page, page);
       UPDATE_CONSUMER.accept(new GuildEco(
-              territories.stream()
-              .flatMap(List::stream)
-              .toList()
+              pages.stream()
+                      .flatMap(List::stream)
+                      .toList()
       ));
 
       if (!SCANNING) return;
@@ -71,7 +75,7 @@ public class TerritoryScanner implements EventListener, Closeable {
       if (direction == Direction.DOWN) {
          if (!hasNextPage()) {
             direction = Direction.UP;
-            if (territories.size() > this.page + 1) territories.subList(this.page + 1, territories.size()).clear();
+            if (pages.size() > this.page + 1) pages.subList(this.page + 1, pages.size()).clear();
 
             previousPage();
          } else nextPage();
@@ -86,20 +90,35 @@ public class TerritoryScanner implements EventListener, Closeable {
 
    @SubscribeEvent(priority = EventPriority.HIGHEST)
    public void onMenuOpen(MenuEvent.MenuOpenedEvent event) {
-      UNREGISTER_EVENTS();
+      close();
+   }
+
+   public List<List<ItemStack>> getPages() {
+      return pages;
+   }
+
+   protected abstract boolean process(String territory, ItemStack stack, int slot);
+
+   public void rescan() {
+      onMenuSetContents(new ContainerSetContentEvent.Pre(
+              contents,
+              null,
+              containerId,
+              0
+      ));
    }
 
    private void nextPage() {
       ContainerHelper.Click(
               NEXT_PAGE,
-               0,
+              0,
               containerId
       );
 
       page++;
    }
 
-   private boolean hasNextPage() {
+   protected boolean hasNextPage() {
       var next = contents.get(NEXT_PAGE);
 
       return !next.isEmpty() && ChatUtil.strip(next.getDisplayName().getString()).contains("Next Page");
@@ -115,7 +134,7 @@ public class TerritoryScanner implements EventListener, Closeable {
       page--;
    }
 
-   private boolean hasPreviousPage() {
+   protected boolean hasPreviousPage() {
       var previous = contents.get(PREVIOUS_PAGE);
 
       return !previous.isEmpty() && ChatUtil.strip(previous.getDisplayName().getString()).contains("Previous Page");
@@ -129,26 +148,10 @@ public class TerritoryScanner implements EventListener, Closeable {
       this.UPDATE_CONSUMER = consumer;
    }
 
-   public void select(ItemStack stack) {
-      SELECTING_TERRITORY = TerritoryEco.getTerritory(stack);
-
-      if (WarModel.current().isEmpty()) {
-         SCANNING = false;
-         McUtils.sendCommand("gu territory %s".formatted(SELECTING_TERRITORY));
-      }
-
-      if (territories.size() == 1) {
-         onMenuSetContents(new ContainerSetContentEvent.Pre(
-                 contents,
-                 null,
-                 containerId,
-                 0
-         ));
-      }
-   }
-
    @Override
    public void close() {
+      SCANNING = false;
       UNREGISTER_EVENTS();
+      REGISTER_TASKS();
    }
 }

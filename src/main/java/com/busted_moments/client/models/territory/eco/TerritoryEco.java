@@ -9,7 +9,6 @@ import com.busted_moments.core.tuples.Pair;
 import com.wynntils.core.components.Models;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.*;
@@ -154,7 +153,16 @@ public class TerritoryEco implements Territory {
    }
 
    public static boolean isTerritory(ItemStack stack) {
-      return stack.getItem() == Items.PAPER || stack.getItem() == Items.MAP || (stack.getItem() == Items.DIAMOND_AXE && stack.getDamageValue() == 41);
+      for (Component component : stack.getTooltipLines(player(), TooltipFlag.NORMAL)) {
+         String text = ChatUtil.strip(component).replace("Á", "");
+
+         if (text.startsWith("-") && UPGRADE_PATTERN.matcher(text).matches()) return true;
+         else if (STORAGE_PATTERN.matcher(text).matches()) return true;
+         else if ((PRODUCITON_PATTERN.matcher(text).matches())) return true;
+         else if ((TREASURY_PATTERN.matcher(text).matches())) return true;
+      }
+
+      return false;
    }
 
    @Override
