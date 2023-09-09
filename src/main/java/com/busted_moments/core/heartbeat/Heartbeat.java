@@ -149,6 +149,10 @@ public class Heartbeat {
       };
    }
 
+   public static void remove(Method method, @Nullable Object instance) {
+      REGISTERED_TASKS.remove(instance == null ? Reflection.getUID(method) : Reflection.getUID(method, instance));
+   }
+
    public static Optional<Task> getTask(String uid) {
       return Optional.ofNullable(REGISTERED_TASKS.get(uid));
    }
@@ -158,6 +162,9 @@ public class Heartbeat {
    }
 
    public static Stream<Method> getTasks(Class<?> clazz, Predicate<Method> predicate) {
-      return Stream.of(clazz.getDeclaredMethods()).filter(method -> method.isAnnotationPresent(Schedule.class) && predicate.test(method));
+      return Reflection.visit(clazz)
+              .map(Class::getDeclaredMethods)
+              .flatMap(Stream::of)
+              .filter(method -> method.isAnnotationPresent(Schedule.class) && predicate.test(method));
    }
 }
