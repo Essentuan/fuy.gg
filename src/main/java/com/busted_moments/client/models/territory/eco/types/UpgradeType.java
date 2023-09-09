@@ -16,17 +16,17 @@ public enum UpgradeType {
            ResourceType.ORE,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(100L, 100D),
-                   new Level(300L, 300D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(2400L, 2400D),
-                   new Level(4800L, 4800D),
-                   new Level(8400L, 8400D),
-                   new Level(12000L, 12000D),
-                   new Level(15600L, 15600D),
-                   new Level(19200L, 19200D),
-                   new Level(22800L, 22800D)
+                   new Level(100L, 40D),
+                   new Level(300L, 80D),
+                   new Level(600L, 120D),
+                   new Level(1200L, 160D),
+                   new Level(2400L, 200D),
+                   new Level(4800L, 240D),
+                   new Level(8400L, 280D),
+                   new Level(12000L, 320D),
+                   new Level(15600L, 360D),
+                   new Level(19200L, 400D),
+                   new Level(22800L, 440D)
            }
    ),
    ATTACK(
@@ -36,18 +36,17 @@ public enum UpgradeType {
            Items.RABBIT_HIDE,
            ResourceType.CROP,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(100L, 100D),
-                   new Level(300L, 300D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(2400L, 2400D),
-                   new Level(4800L, 4800D),
-                   new Level(8400L, 8400D),
-                   new Level(12000L, 12000D),
-                   new Level(15600L, 15600D),
-                   new Level(19200L, 19200D),
-                   new Level(22800L, 22800D)
+                   new Level(100L, 50D),
+                   new Level(300L, 100D),
+                   new Level(600L, 150D),
+                   new Level(1200L, 220D),
+                   new Level(2400L, 300D),
+                   new Level(4800L, 400D),
+                   new Level(8400L, 500D),
+                   new Level(12000L, 620D),
+                   new Level(15600L, 660D),
+                   new Level(19200L, 740D),
+                   new Level(22800L, 840D)
            }
    ),
    HEALTH(
@@ -58,38 +57,37 @@ public enum UpgradeType {
            ResourceType.WOOD,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(100L, 100D),
-                   new Level(300L, 300D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(2400L, 2400D),
-                   new Level(4800L, 4800D),
-                   new Level(8400L, 8400D),
-                   new Level(12000L, 12000D),
-                   new Level(15600L, 15600D),
-                   new Level(19200L, 19200D),
-                   new Level(22800L, 22800D)
+                   new Level(100L, 50D),
+                   new Level(300L, 100D),
+                   new Level(600L, 150D),
+                   new Level(1200L, 220D),
+                   new Level(2400L, 300D),
+                   new Level(4800L, 400D),
+                   new Level(8400L, 520D),
+                   new Level(12000L, 640D),
+                   new Level(15600L, 760D),
+                   new Level(19200L, 880D),
+                   new Level(22800L, 1000D)
            }
    ),
-   DEFENSE(
-           "Defense",
+   DEFENCE(
+           "Defence",
            "Increases the defense the tower has",
-           "Defense: +%s%",
+           "Defence: +%s%",
            Items.SHIELD,
            ResourceType.FISH,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(100L, 100D),
-                   new Level(300L, 300D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(2400L, 2400D),
-                   new Level(4800L, 4800D),
-                   new Level(8400L, 8400D),
-                   new Level(12000L, 12000D),
-                   new Level(15600L, 15600D),
-                   new Level(19200L, 19200D),
-                   new Level(22800L, 22800D)
+                   new Level(100L, 300D),
+                   new Level(300L, 450D),
+                   new Level(600L, 525D),
+                   new Level(1200L, 600D),
+                   new Level(2400L, 650D),
+                   new Level(4800L, 690D),
+                   new Level(8400L, 720D),
+                   new Level(12000L, 740D),
+                   new Level(15600L, 760D),
+                   new Level(19200L, 780D),
+                   new Level(22800L, 800D)
            }
    ),
    STRONGER_MINIONS(
@@ -100,10 +98,10 @@ public enum UpgradeType {
            ResourceType.WOOD,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(200L, 200D),
-                   new Level(400L, 400D),
-                   new Level(800L, 800D),
-                   new Level(1600L, 1600D)
+                   new Level(200L, 150D),
+                   new Level(400L, 200D),
+                   new Level(800L, 250D),
+                   new Level(1600L, 300D)
            }
    ),
    MULTI_ATTACK(
@@ -113,8 +111,8 @@ public enum UpgradeType {
            Items.ARROW,
            ResourceType.FISH,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(4800L, 4800D)
+                   new Level(0L, 1D),
+                   new Level(4800L, 2D)
            }
    ),
    TOWER_AURA(
@@ -125,9 +123,9 @@ public enum UpgradeType {
            ResourceType.CROP,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(800L, 800D),
-                   new Level(1600L, 1600D),
-                   new Level(3200L, 3200D)
+                   new Level(800L, 24D),
+                   new Level(1600L, 18D),
+                   new Level(3200L, 12D)
            }
    ),
    TOWER_VOLLEY(
@@ -138,9 +136,9 @@ public enum UpgradeType {
            ResourceType.ORE,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(200L, 200D),
-                   new Level(400L, 400D),
-                   new Level(800L, 800D)
+                   new Level(200L, 20D),
+                   new Level(400L, 15D),
+                   new Level(800L, 10D)
            }
    ),
    GATHERING_EXPERIENCE(
@@ -151,14 +149,14 @@ public enum UpgradeType {
            ResourceType.WOOD,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(600L, 600D),
-                   new Level(1300L, 1300D),
-                   new Level(2000L, 2000D),
-                   new Level(2700L, 2700D),
-                   new Level(3400L, 3400D),
-                   new Level(5500L, 5500D),
-                   new Level(10000L, 10000D),
-                   new Level(20000L, 20000D)
+                   new Level(600L, 10D),
+                   new Level(1300L, 20D),
+                   new Level(2000L, 30D),
+                   new Level(2700L, 40D),
+                   new Level(3400L, 50D),
+                   new Level(5500L, 60D),
+                   new Level(10000L, 80D),
+                   new Level(20000L, 100D)
            }
    ),
    MOB_EXPERIENCE(
@@ -169,14 +167,14 @@ public enum UpgradeType {
            ResourceType.FISH,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(1800L, 1800D),
-                   new Level(2400L, 2400D),
-                   new Level(3000L, 3000D),
-                   new Level(5000L, 5000D),
-                   new Level(10000L, 10000D),
-                   new Level(20000L, 20000D)
+                   new Level(600L, 10D),
+                   new Level(1200L, 20D),
+                   new Level(1800L, 30D),
+                   new Level(2400L, 40D),
+                   new Level(3000L, 50D),
+                   new Level(5000L, 60D),
+                   new Level(10000L, 80D),
+                   new Level(20000L, 100D)
            }
    ),
    MOB_DAMAGE(
@@ -186,15 +184,14 @@ public enum UpgradeType {
            Items.STONE_SWORD,
            ResourceType.CROP,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(1800L, 1800D),
-                   new Level(2400L, 2400D),
-                   new Level(3000L, 3000D),
-                   new Level(5000L, 5000D),
-                   new Level(10000L, 10000D),
-                   new Level(20000L, 20000D)
+                   new Level(600L, 10D),
+                   new Level(1200L, 20D),
+                   new Level(1800L, 40D),
+                   new Level(2400L, 60D),
+                   new Level(3000L, 80D),
+                   new Level(5000L, 120D),
+                   new Level(10000L, 160D),
+                   new Level(20000L, 200D)
            }
    ),
    PVP_DAMAGE(
@@ -205,14 +202,14 @@ public enum UpgradeType {
            ResourceType.ORE,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(600L, 600D),
-                   new Level(1200L, 1200D),
-                   new Level(1800L, 1800D),
-                   new Level(2400L, 2400D),
-                   new Level(3000L, 3000D),
-                   new Level(5000L, 5000D),
-                   new Level(10000L, 10000D),
-                   new Level(20000L, 20000D)
+                   new Level(600L, 5D),
+                   new Level(1200L, 10D),
+                   new Level(1800L, 15D),
+                   new Level(2400L, 20D),
+                   new Level(3000L, 25D),
+                   new Level(5000L, 40D),
+                   new Level(10000L, 65D),
+                   new Level(20000L, 80D)
            }
    ),
    XP_SEEKING(
@@ -222,16 +219,15 @@ public enum UpgradeType {
            Items.GLOWSTONE_DUST,
            ResourceType.EMERALDS,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(100L, 100D),
-                   new Level(200L, 200D),
-                   new Level(400L, 400D),
-                   new Level(800L, 800D),
-                   new Level(1600L, 1600D),
-                   new Level(3200L, 3200D),
-                   new Level(6400L, 6400D),
-                   new Level(9600L, 9600D),
-                   new Level(12800L, 12800D)
+                   new Level(100L, 36000D),
+                   new Level(200L, 66000D),
+                   new Level(400L, 120000D),
+                   new Level(800L, 228000D),
+                   new Level(1600L, 456000D),
+                   new Level(3200L, 900000D),
+                   new Level(6400L, 1740000D),
+                   new Level(9600L, 2580000D),
+                   new Level(12800L, 3360000D)
            }
    ),
    TOME_SEEKING(
@@ -242,9 +238,9 @@ public enum UpgradeType {
            ResourceType.FISH,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(400L, 400D),
-                   new Level(3200L, 3200D),
-                   new Level(6400L, 6400D)
+                   new Level(400L, 0.15D),
+                   new Level(3200L, 1.2D),
+                   new Level(6400L, 2.4D)
            }
    ),
    EMERALD_SEEKING(
@@ -255,11 +251,11 @@ public enum UpgradeType {
            ResourceType.WOOD,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(200L, 200D),
-                   new Level(800L, 800D),
-                   new Level(1600L, 1600D),
-                   new Level(3200L, 3200D),
-                   new Level(6400L, 6400D)
+                   new Level(200L, 0.3D),
+                   new Level(800L, 3D),
+                   new Level(1600L, 6D),
+                   new Level(3200L, 12D),
+                   new Level(6400L, 24D)
            }
    ),
    RESOURCE_STORAGE(
@@ -270,12 +266,12 @@ public enum UpgradeType {
            ResourceType.EMERALDS,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(400L, 400D),
-                   new Level(800L, 800D),
-                   new Level(2000L, 2000D),
-                   new Level(5000L, 5000D),
-                   new Level(16000L, 16000D),
-                   new Level(48000L, 48000D)
+                   new Level(400L, 100D),
+                   new Level(800L, 300D),
+                   new Level(2000L, 700D),
+                   new Level(5000L, 1400D),
+                   new Level(16000L, 3300D),
+                   new Level(48000L, 7900D)
            }
    ),
    EMERALD_STORAGE(
@@ -286,12 +282,12 @@ public enum UpgradeType {
            ResourceType.WOOD,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(200L, 200D),
-                   new Level(400L, 400D),
-                   new Level(1000L, 1000D),
-                   new Level(2500L, 2500D),
-                   new Level(8000L, 8000D),
-                   new Level(24000L, 24000D)
+                   new Level(200L, 100D),
+                   new Level(400L, 300D),
+                   new Level(1000L, 700D),
+                   new Level(2500L, 1400D),
+                   new Level(8000L, 3300D),
+                   new Level(24000L, 7900D)
            }
    ),
    EFFICIENT_RESOURCES(
@@ -302,12 +298,12 @@ public enum UpgradeType {
            ResourceType.EMERALDS,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(6000L, 6000D),
-                   new Level(12000L, 12000D),
-                   new Level(24000L, 24000D),
-                   new Level(48000L, 48000D),
-                   new Level(96000L, 96000D),
-                   new Level(192000L, 192000D)
+                   new Level(6000L, 50D),
+                   new Level(12000L, 100D),
+                   new Level(24000L, 150D),
+                   new Level(48000L, 200D),
+                   new Level(96000L, 250D),
+                   new Level(192000L, 300D)
            }
    ),
    RESOURCE_RATE(
@@ -317,10 +313,10 @@ public enum UpgradeType {
            Items.MUSHROOM_STEM,
            ResourceType.EMERALDS,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(6000L, 6000D),
-                   new Level(18000L, 18000D),
-                   new Level(32000L, 32000D)
+                   new Level(0L, 4D),
+                   new Level(6000L, 3D),
+                   new Level(18000L, 2D),
+                   new Level(32000L, 1D)
            }
    ),
    EFFICIENT_EMERALDS(
@@ -331,9 +327,9 @@ public enum UpgradeType {
            ResourceType.ORE,
            new Level[]{
                    new Level(0L, 0D),
-                   new Level(2000L, 2000D),
-                   new Level(8000L, 8000D),
-                   new Level(32000L, 32000D)
+                   new Level(2000L, 35D),
+                   new Level(8000L, 100D),
+                   new Level(32000L, 300D)
            }
    ),
    EMERALD_RATE(
@@ -343,10 +339,10 @@ public enum UpgradeType {
            Items.EXPERIENCE_BOTTLE,
            ResourceType.CROP,
            new Level[]{
-                   new Level(0L, 0D),
-                   new Level(2000L, 2000D),
-                   new Level(8000L, 8000D),
-                   new Level(32000L, 32000D)
+                   new Level(0L, 4D),
+                   new Level(2000L, 3D),
+                   new Level(8000L, 2D),
+                   new Level(32000L, 1D)
            }
    );
 
@@ -381,7 +377,10 @@ public enum UpgradeType {
    }
 
    static {
-      for (UpgradeType upgrade : values()) UPGRADES.put(upgrade.name.toLowerCase(), upgrade);
+      for (UpgradeType upgrade : values()) {
+         UPGRADES.put(upgrade.name.toLowerCase(), upgrade);
+         UPGRADES.put(upgrade.toString().toLowerCase(), upgrade);
+      }
    }
 
    public String getName() {
