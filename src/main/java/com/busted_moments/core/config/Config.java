@@ -35,15 +35,7 @@ public abstract class Config extends Annotated implements Buildable<Void, Void> 
               Annotated.Placeholder(Section.class)
       }, validators);
 
-      Class<?> clazz = this.getClass();
-
-      List<Class<?>> classes = new ArrayList<>();
-
-      while (clazz != Object.class) {
-         classes.add(0, clazz);
-
-         clazz = clazz.getSuperclass();
-      }
+      List<Class<?>> classes = Reflection.visit(getClass()).toList();
 
       List<Method> methods = new ArrayList<>();
 
