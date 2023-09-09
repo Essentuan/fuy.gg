@@ -1,8 +1,11 @@
-package com.busted_moments.client.features.war.territorymenu;
+package com.busted_moments.client.screen.territories;
 
+import com.busted_moments.client.features.war.TerritoryHelperMenuFeature;
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.models.territory.eco.types.ResourceType;
+import com.busted_moments.client.screen.territories.filter.Filter;
+import com.busted_moments.client.screen.territories.filter.FilterMenu;
 import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.render.FontRenderer;
@@ -39,35 +42,36 @@ import java.util.stream.Stream;
 
 import static com.busted_moments.client.util.Textures.TerritoryMenu.*;
 
-public class TerritoryMenuScreen extends Screen.Element {
-   public static final Pattern GUILD_MANAGE_MENU = Pattern.compile("^(?<guild>.+): Manage$");
-   public static final Pattern TERRITORY_MENU_PATTERN = Pattern.compile("^(?<guild>.+): Territories$");
-
+public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends Screen.Element {
    private static final float ITEM_SCALE = 1.35F;
-
-   public static final int BACK = 18;
-   public static final int LOADOUTS = 36;
+   private static final int BACK_SLOT = 18;
 
    private final int CONTAINER_ID;
 
    private VerticalScrollbar scrollbar;
    private SearchBox search;
-   private Item back_button;
-   private Item loadouts_button;
    private FilterMenu filter_menu;
 
-   private List<TerritoryEco> territories = null;
+   protected List<Screen.Widget<?>> baseWidgets = List.of();
 
-   private final TerritoryScanner scanner;
-   private boolean IS_CLICKING = false;
+   protected List<TerritoryEco> territories = null;
 
-   private final Multimap<Filter, Entry> counts = MultimapBuilder.hashKeys().arrayListValues().build();
+   protected final Scanner scanner;
+   protected boolean BUSY = false;
 
-   public TerritoryMenuScreen(int id) {
+   private final Multimap<Filter, AbstractEntry> counts = MultimapBuilder.hashKeys().arrayListValues().build();
+
+   private final boolean showProduction;
+   private final boolean playBackSound;
+
+   public TerritoryScreen(int id, boolean showProduction, boolean playBackSound) {
       super(Component.literal("Manage Territories"));
 
+      this.showProduction = showProduction;
+      this.playBackSound = playBackSound;
+
       CONTAINER_ID = id;
-      scanner = new TerritoryScanner(CONTAINER_ID);
+      scanner = scanner(CONTAINER_ID);
 
       scanner.onUpdate(e -> {
          territories = e.stream().toList();
@@ -75,6 +79,14 @@ public class TerritoryMenuScreen extends Screen.Element {
          rebuild();
       });
    }
+
+   protected abstract Scanner scanner(int container);
+
+   protected abstract AbstractEntry entry(TerritoryEco territory);
+
+   protected abstract Pattern title();
+
+   protected abstract void build();
 
    @Override
    protected void init() {
@@ -101,42 +113,20 @@ public class TerritoryMenuScreen extends Screen.Element {
               .setEasing(EasingMethod.EasingMethodImpl.QUINTIC)
               .onScroll(scroll -> {
                  TerritoryPosition position = getTerritoryPosition(getTerritories());
-                 var entries = getWidgets().stream().filter(widget -> widget instanceof Entry).toList();
+                 var entries = getWidgets().stream().filter(widget -> AbstractEntry.class.isAssignableFrom(widget.getClass())).toList();
 
-                 for (int i = 0; i < entries.size(); i++) ((Entry) entries.get(i)).update(i, position);
+                 for (int i = 0; i < entries.size(); i++) ((AbstractEntry) entries.get(i)).update(i, position);
               })
-              .then(Item::new)
+              .then(() -> item(BACK_SLOT, playBackSound, true))
               .setScale(1.05F)
-              .setItem(() -> scanner.getContents().isEmpty() ? ItemStack.EMPTY : scanner.getContents().get(BACK))
               .perform(item -> {
-                 back_button = item;
-
                  item.setX(2 + (this.width / 2F) - BACKGROUND.width() / 2F);
                  item.setY((this.height / 2F) - item.getHeight() / 2F);
-              }).onClick(click(BACK, true))
-              .tooltip()
-              .onHover((x, y, entry) -> new Rect().setPosition(entry.getX(), entry.getY())
-                              .setSize(entry.getWidth(), entry.getHeight())
-                              .setFill(255, 255, 255, 127).build(),
-                      HoverEvent.PRE
-              ).then(Item::new)
-              .setScale(1.05F)
-              .setItem(() -> scanner.getContents().isEmpty() ? ItemStack.EMPTY : scanner.getContents().get(LOADOUTS))
-              .perform(item -> {
-                 loadouts_button = item;
-
-                 item.setX(2.75F + (this.width / 2F) - BACKGROUND.width() / 2F);
-                 item.setY(((this.height / 2F) + BACKGROUND.height() / 2F) - item.getHeight() - 3);
-              }).onClick(click(LOADOUTS, false))
-              .tooltip()
-              .onHover((x, y, entry) -> new Rect().setPosition(entry.getX() - 0.5F, entry.getY())
-                              .setSize(entry.getWidth(), entry.getHeight())
-                              .setFill(255, 255, 255, 127).build(),
-                      HoverEvent.PRE
-              ).then(() -> new FilterMenu() {
+              })
+              .then(() -> new FilterMenu() {
                  @Override
                  public Screen.Element getElement() {
-                    return TerritoryMenuScreen.this;
+                    return TerritoryScreen.this;
                  }
               }).onUpdate(m -> rebuild())
               .setCounts(counts)
@@ -146,6 +136,10 @@ public class TerritoryMenuScreen extends Screen.Element {
                  menu.setX((this.width / 2F) + BACKGROUND.width() / 2F);
                  menu.setY((this.height / 2F) - (menu.getHeight() + 6) / 2F);
               }).offset(-5, 0F).build();
+
+      build();
+
+      baseWidgets = List.copyOf(getWidgets());
    }
 
    private List<TerritoryEco> getTerritories() {
@@ -196,11 +190,7 @@ public class TerritoryMenuScreen extends Screen.Element {
 
       clear();
 
-      search.build();
-      scrollbar.build();
-      back_button.build();
-      loadouts_button.build();
-      filter_menu.build();
+      baseWidgets.forEach(Screen.Widget::build);
 
       var territories = getTerritories();
 
@@ -219,7 +209,7 @@ public class TerritoryMenuScreen extends Screen.Element {
       counts.clear();
 
       for (int i = 0; i < territories.size(); i++)
-         new Entry(territories.get(i))
+         entry(territories.get(i))
                  .update(i, position)
                  .tooltip()
                  .setScale(ITEM_SCALE)
@@ -232,20 +222,37 @@ public class TerritoryMenuScreen extends Screen.Element {
       float x = 6.5F + (width / 2F) - FOREGROUND.width() / 2F;
       float y = 9F + (height / 2F) - FOREGROUND.height() / 2F;
 
-      int cols = (FOREGROUND.width() - SCROLLBAR.width() - 2) / (int) Entry.WIDTH;
+      int cols = (FOREGROUND.width() - SCROLLBAR.width() - 2) / (int) AbstractEntry.WIDTH;
       int rows = getRows(territories, cols);
-      int maxRows = (FOREGROUND.height() - 2) / (int) Entry.HEIGHT;
+      int maxRows = (FOREGROUND.height() - 2) / (int) AbstractEntry.HEIGHT;
 
-      float scroll = (float) (scrollbar.getScroll() * Math.max((rows - maxRows) * Entry.HEIGHT, Entry.HEIGHT));
+      float scroll = (float) (scrollbar.getScroll() * Math.max((rows - maxRows) * AbstractEntry.HEIGHT, AbstractEntry.HEIGHT));
 
       return new TerritoryPosition(x, y, cols, scroll);
    }
 
-   private <T> ClickEvent.Handler<T> click(int slot, boolean sound) {
+   protected Item item(int slot, boolean sound, boolean cancel) {
+      return item(slot, click(slot, sound, cancel));
+   }
+
+   protected Item item(int slot, ClickEvent.Handler<Item> onclick) {
+      return new Item()
+              .setItem(() -> scanner.getContents().isEmpty() ? ItemStack.EMPTY : scanner.getContents().get(slot))
+              .onClick(onclick)
+              .tooltip()
+              .onHover((x, y, entry) -> new Rect().setPosition(entry.getX() - 0.5F, entry.getY())
+                              .setSize(entry.getWidth(), entry.getHeight())
+                              .setFill(255, 255, 255, 127).build(),
+                      HoverEvent.PRE
+              );
+   }
+
+
+   protected <T> ClickEvent.Handler<T> click(int slot, boolean sound, boolean cancel) {
       return (x, y, button, ignored) -> {
-         if (IS_CLICKING || !ContainerHelper.Click(slot, button, TERRITORY_MENU_PATTERN)) return false;
+         if (BUSY || !ContainerHelper.Click(slot, button, title())) return false;
          TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
-         IS_CLICKING = true;
+         BUSY = cancel;
 
          if (sound) SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.BLOCKS, 1, 1);
 
@@ -264,7 +271,7 @@ public class TerritoryMenuScreen extends Screen.Element {
       scanner.close();
       TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
 
-      if (!IS_CLICKING) ContainerUtils.closeContainer(CONTAINER_ID);
+      if (!BUSY) ContainerUtils.closeContainer(CONTAINER_ID);
    }
 
    @Override
@@ -298,10 +305,11 @@ public class TerritoryMenuScreen extends Screen.Element {
                  .offset(-4.5F, -7F)
                  .build();
       } else if (!search.getTextBoxInput().isBlank()) {
-         int count = 0;
-         for (Screen.Widget<?> widget : getWidgets()) if (widget instanceof Entry) count++;
-
-         if (count == 0) {
+         if (
+                 getWidgets().stream()
+                 .filter(widget -> AbstractEntry.class.isAssignableFrom(widget.getClass()))
+                 .findAny().isEmpty()
+         ) {
             new Text("Not Found", 0, 0)
                     .setColor(CommonColors.WHITE)
                     .center()
@@ -330,22 +338,30 @@ public class TerritoryMenuScreen extends Screen.Element {
               .collect(Collectors.joining());
    }
 
-   public class Entry extends Item {
-      private static final float WIDTH = (16 * ITEM_SCALE) + 4.9F;
-      private static final float HEIGHT = (16 * ITEM_SCALE) + 4.9F;
+   public abstract class AbstractEntry extends Item {
+      public static final float WIDTH = (16 * ITEM_SCALE) + 4.9F;
+      public static final float HEIGHT = (16 * ITEM_SCALE) + 4.9F;
+
+      public static final float ITEM_SIZE = 16 * ITEM_SCALE;
+      public static final float X_OFFSET = (WIDTH / 2F - ITEM_SIZE / 2F);
+      public static final float Y_OFFSET = (HEIGHT / 2F - ITEM_SIZE / 2F);
+
+      private final TerritoryEco eco;
 
       private final Set<Filter> filters;
       private final StyledText acronym;
 
       private final List<ResourceType> production = new ArrayList<>();
 
-      public Entry(TerritoryEco territory) {
+      public AbstractEntry(TerritoryEco territory) {
          super(territory.getItem());
+
+         this.eco = territory;
 
          this.filters = Filter.getFilters(territory);
          this.acronym = StyledText.fromString(getAcronym(territory));
 
-         this.filters.forEach(filter -> counts.put(filter, this));
+         this.filters.forEach(filter -> counts.put(filter, (AbstractEntry) this));
 
          for (ResourceType resource : ResourceType.values()) {
             long prod = territory.getBaseProduction(resource);
@@ -356,8 +372,13 @@ public class TerritoryMenuScreen extends Screen.Element {
          }
       }
 
+      public TerritoryEco getTerritory() {
+         return eco;
+      }
+
+
       @SuppressWarnings("IntegerDivisionInFloatingPointContext")
-      private Entry update(int i, TerritoryPosition position) {
+      protected AbstractEntry update(int i, TerritoryPosition position) {
          float item_size = 16 * ITEM_SCALE;
 
          setPosition(
@@ -372,10 +393,8 @@ public class TerritoryMenuScreen extends Screen.Element {
 
       @Override
       protected boolean onMouseDown(double mouseX, double mouseY, int button) {
-         if (IS_INSIDE && isMouseOver(mouseX, mouseY) && !IS_CLICKING && button == GLFW.GLFW_MOUSE_BUTTON_1) {
-            IS_CLICKING = true;
-            scanner.select(getItemSupplier().get());
-            SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.MASTER, 1, 1);
+         if (IS_INSIDE && isMouseOver(mouseX, mouseY) && !BUSY && button == GLFW.GLFW_MOUSE_BUTTON_1) {
+            click();
 
             return true;
          }
@@ -383,10 +402,7 @@ public class TerritoryMenuScreen extends Screen.Element {
          return false;
       }
 
-      private static final float item_size = 16 * ITEM_SCALE;
-      private static final float x_offset = (Entry.WIDTH / 2F - item_size / 2F);
-      private static final float y_offset = (Entry.HEIGHT / 2F - item_size / 2F);
-
+      protected abstract void click();
 
       @Override
       public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
@@ -406,10 +422,10 @@ public class TerritoryMenuScreen extends Screen.Element {
          if (color != null)
             Renderer.fill(
                     poseStack,
-                    getX() - x_offset,
-                    getY() - y_offset + 1.5F - (getItemSupplier().get().getItem() == Items.MAP ? 1 : 0),
-                    Entry.WIDTH,
-                    Entry.HEIGHT,
+                    getX() - X_OFFSET,
+                    getY() - Y_OFFSET + 1.5F - (getItemSupplier().get().getItem() == Items.MAP ? 1 : 0),
+                    AbstractEntry.WIDTH,
+                    AbstractEntry.HEIGHT,
                     color
             );
 
@@ -420,13 +436,13 @@ public class TerritoryMenuScreen extends Screen.Element {
 
          float labelSize = 0.9F;
 
-         if (TerritoryHelperMenuFeature.production) {
+         if (showProduction) {
             int prodLines = (int) Math.ceil(production.size() / 2D);
 
             if (prodLines > 1) labelSize = 0.85F;
 
-            float originX = (getX() + item_size / 2) - 1;
-            float prodY = getY() + (item_size / 2) - ((Production.SIZE * prodLines) / 2F);
+            float originX = (getX() + ITEM_SIZE / 2) - 1;
+            float prodY = getY() + (ITEM_SIZE / 2) - ((Production.SIZE * prodLines) / 2F);
 
             int row = 0;
             int col = 0;
@@ -472,10 +488,10 @@ public class TerritoryMenuScreen extends Screen.Element {
       }
    }
 
-   private class Mask extends Widget<Mask> {
+   private class Mask extends Widget<TerritoryScreen<Scanner>.Mask> {
       @Override
       public Screen.Element getElement() {
-         return TerritoryMenuScreen.this;
+         return TerritoryScreen.this;
       }
 
       @Override
@@ -484,11 +500,11 @@ public class TerritoryMenuScreen extends Screen.Element {
       }
    }
 
-   private class ClearMask extends Widget<ClearMask> {
+   private class ClearMask extends Widget<TerritoryScreen<Scanner>.ClearMask> {
 
       @Override
       public Screen.Element getElement() {
-         return TerritoryMenuScreen.this;
+         return TerritoryScreen.this;
       }
 
       @Override
@@ -497,6 +513,5 @@ public class TerritoryMenuScreen extends Screen.Element {
       }
    }
 
-   private record TerritoryPosition(float x, float y, int cols, float scroll) {
-   }
+   protected record TerritoryPosition(float x, float y, int cols, float scroll) { }
 }
