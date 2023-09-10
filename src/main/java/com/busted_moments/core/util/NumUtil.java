@@ -3,6 +3,9 @@ package com.busted_moments.core.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class NumUtil {
    private static final BigDecimal THOUSAND = new BigDecimal("1000");
@@ -63,8 +66,9 @@ public class NumUtil {
       return new BigDecimal(number).setScale(decimals, RoundingMode.FLOOR).toString();
    }
 
-   private static final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("#,###.00");
-   private static final DecimalFormat LONG_FORMATTER = new DecimalFormat("#,###");
+   private static final DecimalFormatSymbols SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
+   private static final NumberFormat DOUBLE_FORMATTER = new DecimalFormat("#,###.00", SYMBOLS);
+   private static final NumberFormat LONG_FORMATTER = new DecimalFormat("#,###", SYMBOLS);
 
    public static String format(double number) {
       if (number == 0) return "0";
