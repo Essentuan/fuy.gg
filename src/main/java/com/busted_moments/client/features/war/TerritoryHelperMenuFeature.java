@@ -20,8 +20,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.regex.Pattern;
-
+import static com.busted_moments.client.models.territory.eco.Patterns.GUILD_MANAGE_MENU;
 import static com.busted_moments.client.screen.territories.ManageTerritoriesScreen.TERRITORY_MENU_PATTERN;
 import static com.busted_moments.client.screen.territories.SelectTerritoriesScreen.SELECT_TERRITORIES_MENU;
 import static com.wynntils.utils.mc.McUtils.mc;
@@ -30,10 +29,11 @@ import static com.wynntils.utils.mc.McUtils.mc;
 @Default(State.ENABLED)
 @Feature.Definition(name = "Territory Helper Menu")
 public class TerritoryHelperMenuFeature extends Feature {
-   private static final Pattern GUILD_MANAGE_MENU = Pattern.compile("^(?<guild>.+): Manage$");
-
    @Value("Display production")
    static boolean production = true;
+
+   @Value("Display usage percents")
+   static boolean percents = false;
 
    @Value("Replace loadouts menu")
    static boolean replaceLoadouts = true;
@@ -43,10 +43,10 @@ public class TerritoryHelperMenuFeature extends Feature {
       StyledText text = StyledText.fromComponent(event.getTitle());
 
       if (text.matches(TERRITORY_MENU_PATTERN)) {
-         mc().setScreen(new ManageTerritoriesScreen(event.getContainerId(), production));
+         mc().setScreen(new ManageTerritoriesScreen(event.getContainerId(), production, percents));
          event.setCanceled(true);
       } else if (replaceLoadouts && text.matches(SELECT_TERRITORIES_MENU)) {
-        mc().setScreen(new SelectTerritoriesScreen(event.getContainerId(), production));
+        mc().setScreen(new SelectTerritoriesScreen(event.getContainerId(), production, percents));
         event.setCanceled(true);
       } else if (text.matches(GUILD_MANAGE_MENU) && OPEN_TERRITORY_MENU) event.setCanceled(true);
    }

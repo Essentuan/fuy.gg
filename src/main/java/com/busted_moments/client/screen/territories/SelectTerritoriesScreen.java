@@ -17,8 +17,8 @@ import static com.busted_moments.client.util.Textures.TerritoryMenu.BACKGROUND;
 public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesScreen.Scanner> {
    public static final Pattern SELECT_TERRITORIES_MENU = Pattern.compile("Select Territories");
 
-   public SelectTerritoriesScreen(int id, boolean showProduction) {
-      super(id, showProduction, false);
+   public SelectTerritoriesScreen(int id, boolean showProduction, boolean showPercents) {
+      super(id, showProduction, false, showPercents);
    }
 
    @Override

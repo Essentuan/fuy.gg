@@ -18,8 +18,8 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
    public static final Pattern TERRITORY_MENU_PATTERN = Pattern.compile("^(?<guild>.+): Territories$");
    public static final int LOADOUTS_SLOT = 36;
 
-   public ManageTerritoriesScreen(int id, boolean showProduction) {
-      super(id, showProduction, true);
+   public ManageTerritoriesScreen(int id, boolean showProduction, boolean showPercents) {
+      super(id, showProduction, true, showPercents);
    }
 
    @Override

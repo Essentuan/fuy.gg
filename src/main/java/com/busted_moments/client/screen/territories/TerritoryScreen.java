@@ -3,6 +3,7 @@ package com.busted_moments.client.screen.territories;
 import com.busted_moments.client.features.war.TerritoryHelperMenuFeature;
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
+import com.busted_moments.client.models.territory.eco.tributes.TributeModel;
 import com.busted_moments.client.models.territory.eco.types.ResourceType;
 import com.busted_moments.client.screen.territories.filter.Filter;
 import com.busted_moments.client.screen.territories.filter.FilterMenu;
@@ -14,6 +15,8 @@ import com.busted_moments.core.render.screen.ClickEvent;
 import com.busted_moments.core.render.screen.HoverEvent;
 import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.Widget;
+import com.busted_moments.core.text.TextBuilder;
+import com.busted_moments.core.util.NumUtil;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -23,24 +26,24 @@ import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.wynn.ContainerUtils;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.busted_moments.client.util.Textures.TerritoryMenu.*;
+import static net.minecraft.ChatFormatting.*;
 
 public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends Screen.Element {
    private static final float ITEM_SCALE = 1.35F;
@@ -61,14 +64,20 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
    private final Multimap<Filter, AbstractEntry> counts = MultimapBuilder.hashKeys().arrayListValues().build();
 
+   private List<FormattedCharSequence> GUILD_OUTPUT = List.of();
+   private float GUILD_OUTPUT_WIDTH = 0;
+   private float GUILD_OUTPUT_HEIGHT = 0;
+
    private final boolean showProduction;
    private final boolean playBackSound;
+   private final boolean showPercents;
 
-   public TerritoryScreen(int id, boolean showProduction, boolean playBackSound) {
+   public TerritoryScreen(int id, boolean showProduction, boolean playBackSound, boolean showPercents) {
       super(Component.literal("Manage Territories"));
 
       this.showProduction = showProduction;
       this.playBackSound = playBackSound;
+      this.showPercents = showPercents;
 
       CONTAINER_ID = id;
       scanner = scanner(CONTAINER_ID);
@@ -187,14 +196,17 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
    private void rebuild() {
       if (search == null) return;
-
+      
       clear();
 
       baseWidgets.forEach(Screen.Widget::build);
 
       var territories = getTerritories();
 
-      if (territories == null || territories.isEmpty()) return;
+      if (territories == null || territories.isEmpty()) {
+         GUILD_OUTPUT = List.of();
+         return;
+      }
 
       new Mask()
               .perform(mask -> {
@@ -208,12 +220,134 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
       counts.clear();
 
-      for (int i = 0; i < territories.size(); i++)
-         entry(territories.get(i))
+      Map<ResourceType, Long> production = new HashMap<>();
+      Map<ResourceType, TerritoryEco.Storage> storage = new HashMap<>();
+      Map<ResourceType, Long> costs = new HashMap<>();
+
+      Map<ResourceType, Long> tributes = TributeModel.getNetTributes();
+
+      for (TerritoryEco entry : this.territories) {
+         for (ResourceType resource : ResourceType.values()) {
+            production.compute(resource, (r, total) -> {
+               var prod = entry.getProduction(resource);
+               if (total == null) return prod;
+
+               return total + prod;
+            });
+
+            storage.compute(resource, (r, total) -> entry.getStorage(resource).add(total));
+            costs.compute(resource, (r, total) -> {
+               var cost = entry.getCost(resource);
+               if (total == null) return cost;
+
+               return total + cost;
+            });
+         }
+      }
+
+      tributes.forEach((resource, x) -> {
+         if (x < 0) costs.compute(resource, (r, old) -> {
+            if (old == null) return Math.abs(x);
+
+            return old + Math.abs(x);
+         });
+         else {
+            production.compute(resource, (r, old) -> {
+               if (old == null) return x;
+
+               return old + x;
+            });
+         }
+      });
+
+      for (int i = 0; i < territories.size(); i++) {
+         var entry = territories.get(i);
+
+         entry(entry)
                  .update(i, position)
                  .tooltip()
                  .setScale(ITEM_SCALE)
                  .build();
+
+      }
+
+      var output = TextBuilder.of("Guild Output", WHITE, BOLD).line()
+              .append("Total resource output", GRAY).line()
+              .append("and overall costs", GRAY).line().line()
+              .append(List.of(ResourceType.values()), (resource, builder) -> {
+                 String symbol = resource.getPrettySymbol();
+
+                 var color = resource.getColor();
+                 TerritoryEco.Storage s = storage.get(resource);
+
+                 builder
+                         .append(symbol)
+                         .append("+", color)
+                         .append(NumUtil.format(production.getOrDefault(resource, 0L)), color).space()
+                         .append(resource.getName(), color)
+                         .append(" per hour").line();
+
+                 long gained = tributes.getOrDefault(resource, 0L);
+
+                 if (gained > 0) builder
+                         .append(symbol)
+                         .append("(", color)
+                         .append(NumUtil.format(gained), color)
+                         .append(" from Tributes)", color)
+                         .line();
+
+                 builder
+                         .append(symbol)
+                         .append(NumUtil.format(s.stored()), color)
+                         .append("/", color)
+                         .append(NumUtil.format(s.capacity()))
+                         .append(" in storage");
+              }).line().line()
+              .append("Overall Cost (per hour):", GREEN).line()
+              .append(List.of(ResourceType.values()), (resource, builder) -> {
+                 builder.append("- ", GREEN)
+                         .append(resource.getSymbol(), GRAY)
+                         .appendIf(() -> !resource.getSymbol().isEmpty(), " ")
+                         .append(NumUtil.format(costs.getOrDefault(resource, 0L)), GRAY).space()
+                         .append(resource.getName(), GRAY).space();
+
+                 var prod = production.getOrDefault(resource, 0L);
+                 var cost = costs.getOrDefault(resource, 0L);
+
+                 long difference = prod - cost;
+                 long percent = (long) ((cost / Math.max(prod, 1D)) * 100);
+
+                 ChatFormatting headroomColor;
+                 ChatFormatting percentColor;
+
+                 if (difference < 0) {
+                    headroomColor = RED;
+                    percentColor = RED;
+                 } else {
+                    headroomColor = BLUE;
+                    percentColor = DARK_GRAY;
+                 }
+
+
+                 builder.append("(", headroomColor)
+                         .appendIf(() -> difference >= 0, "+", headroomColor)
+                         .append(NumUtil.truncate(difference), headroomColor)
+                         .append(")", headroomColor).space();
+
+                 if (showPercents) builder
+                         .append("(", percentColor)
+                         .append((int) percent, percentColor)
+                         .append("%)", percentColor);
+              }).build();
+
+      GUILD_OUTPUT = FontRenderer.split(output, 0)
+              .stream()
+              .map(StyledText::getComponent)
+              .map(Component::getVisualOrderText)
+              .toList();
+      GUILD_OUTPUT_WIDTH = FontRenderer.getWidth(output, 0) + 16;
+      GUILD_OUTPUT_HEIGHT = FontRenderer.getHeight(output, 0) - 8;
+
 
       new ClearMask().build();
    }
@@ -290,13 +424,26 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
    @Override
    protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      final int[] position = new int[2];
+
       new Texture(BACKGROUND)
               .center()
+              .perform(tex -> {
+                 position[0] = (int) tex.getX();
+                 position[1] = height / 2;
+              })
               .then(Texture::new)
               .setTexture(FOREGROUND)
               .center()
               .offset(-4.5F, -7F)
               .build();
+
+      renderTooltip(
+              poseStack,
+              GUILD_OUTPUT,
+              (int) (position[0] - GUILD_OUTPUT_WIDTH - 4),
+              (int) (position[1] - GUILD_OUTPUT_HEIGHT / 2)
+      );
 
       if (territories != null && territories.isEmpty()) {
          new Text("No Territories :(", 0, 0)
@@ -307,8 +454,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       } else if (!search.getTextBoxInput().isBlank()) {
          if (
                  getWidgets().stream()
-                 .filter(widget -> AbstractEntry.class.isAssignableFrom(widget.getClass()))
-                 .findAny().isEmpty()
+                         .filter(widget -> AbstractEntry.class.isAssignableFrom(widget.getClass()))
+                         .findAny().isEmpty()
          ) {
             new Text("Not Found", 0, 0)
                     .setColor(CommonColors.WHITE)
@@ -513,5 +660,6 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       }
    }
 
-   protected record TerritoryPosition(float x, float y, int cols, float scroll) { }
+   protected record TerritoryPosition(float x, float y, int cols, float scroll) {
+   }
 }
