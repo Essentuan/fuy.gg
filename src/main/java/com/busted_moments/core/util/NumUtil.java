@@ -18,28 +18,36 @@ public class NumUtil {
     * @return Formatted string.
     */
    public static String truncate(BigDecimal number) {
+      String prefix = "";
+
+      if (number.signum() < 0) {
+         prefix = "-";
+         number = number.abs();
+      }
+
       if (number.compareTo(THOUSAND) >= 0 && number.compareTo(MILLION) < 0) {
          BigDecimal answer = number.divide(THOUSAND, 3, RoundingMode.HALF_UP);
          int scale = (answer.precision() - answer.scale());
-         return answer.setScale(4-scale, RoundingMode.HALF_UP) + "K";
+         return prefix + answer.setScale(4-scale, RoundingMode.HALF_UP) + "K";
       } else if (number.compareTo(MILLION) >= 0 && number.compareTo(BILLION) < 0) {
          BigDecimal answer = number.divide(MILLION, 3, RoundingMode.HALF_UP);
          int scale = (answer.precision() - answer.scale());
-         return answer.setScale(4-scale, RoundingMode.HALF_UP) + "M";
+         return prefix + answer.setScale(4-scale, RoundingMode.HALF_UP) + "M";
       } else if (number.compareTo(BILLION) >= 0 && number.compareTo(TRILLION) < 0) {
          BigDecimal answer = number.divide(BILLION, 3, RoundingMode.HALF_UP);
          int scale = (answer.precision() - answer.scale());
-         return answer.setScale(4-scale, RoundingMode.HALF_UP) + "B";
+         return prefix + answer.setScale(4-scale, RoundingMode.HALF_UP) + "B";
       } else if (number.compareTo(TRILLION) >= 0 && number.compareTo(QUADRILLION) < 0) {
          BigDecimal answer = number.divide(TRILLION, 3, RoundingMode.HALF_UP);
          int scale = (answer.precision() - answer.scale());
-         return answer.setScale(4-scale, RoundingMode.HALF_UP) + "T";
+         return prefix + answer.setScale(4-scale, RoundingMode.HALF_UP) + "T";
       } else if (number.compareTo(QUADRILLION) >= 0) {
          BigDecimal answer = number.divide(QUADRILLION, 3, RoundingMode.HALF_UP);
          int scale = (answer.precision() - answer.scale());
-         return answer.setScale(Math.max(0,4-scale), RoundingMode.HALF_UP) + "Q";
+         return prefix + answer.setScale(Math.max(0,4-scale), RoundingMode.HALF_UP) + "Q";
       }
-      return number.divide(BigDecimal.ONE, 0, RoundingMode.HALF_UP).toString();
+
+      return prefix + number.divide(BigDecimal.ONE, 0, RoundingMode.HALF_UP);
    }
 
    public static String truncate(long longValue) {
