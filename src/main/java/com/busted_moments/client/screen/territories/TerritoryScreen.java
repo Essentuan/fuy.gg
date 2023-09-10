@@ -26,6 +26,7 @@ import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.wynn.ContainerUtils;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -67,6 +68,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    private List<FormattedCharSequence> GUILD_OUTPUT = List.of();
    private float GUILD_OUTPUT_WIDTH = 0;
    private float GUILD_OUTPUT_HEIGHT = 0;
+   private float GUILD_OUTPUT_OFFSET_X = 0;
+   private float GUILD_OUTPUT_OFFSET_Y = 0;
 
    private final boolean showProduction;
    private final boolean playBackSound;
@@ -86,6 +89,11 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
          territories = e.stream().toList();
 
          rebuild();
+      });
+
+      FabricLoader.getInstance().getModContainer("legendarytooltips").ifPresent(container -> {
+         GUILD_OUTPUT_OFFSET_Y = 2F;
+         GUILD_OUTPUT_OFFSET_X = 6.5F;
       });
    }
 
@@ -441,8 +449,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       renderTooltip(
               poseStack,
               GUILD_OUTPUT,
-              (int) (position[0] - GUILD_OUTPUT_WIDTH - 4),
-              (int) (position[1] - GUILD_OUTPUT_HEIGHT / 2)
+              (int) (position[0] - GUILD_OUTPUT_OFFSET_X - GUILD_OUTPUT_WIDTH - 4),
+              (int) (position[1] - GUILD_OUTPUT_OFFSET_Y - GUILD_OUTPUT_HEIGHT / 2)
       );
 
       if (territories != null && territories.isEmpty()) {
