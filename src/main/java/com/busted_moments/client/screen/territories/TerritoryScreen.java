@@ -16,11 +16,14 @@ import com.busted_moments.core.render.screen.HoverEvent;
 import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.Widget;
 import com.busted_moments.core.text.TextBuilder;
+import com.busted_moments.core.time.Duration;
+import com.busted_moments.core.time.TimeUnit;
 import com.busted_moments.core.util.NumUtil;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
+import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.type.TextShadow;
@@ -35,6 +38,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -374,7 +379,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    protected Item item(int slot, boolean sound, boolean cancel) {
-      return item(slot, click(slot, sound, cancel));
+      return item(slot, getClickHandler(slot, sound, cancel));
    }
 
    protected Item item(int slot, ClickEvent.Handler<Item> onclick) {
@@ -388,11 +393,27 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                       HoverEvent.PRE
               );
    }
-
-
-   protected <T> ClickEvent.Handler<T> click(int slot, boolean sound, boolean cancel) {
+   
+   private boolean WAITING = false;
+   private Date LAST_CLICK = new Date();
+   
+   protected boolean click(int slot, int button) {
+      if (BUSY || WAITING || Duration.since(LAST_CLICK).lessThan(150, TimeUnit.MILLISECONDS) || !ContainerHelper.Click(slot, button, title())) return false;
+      WAITING = true;
+      LAST_CLICK = new Date();
+      
+      return true;
+   }
+   
+   @SubscribeEvent(priority = EventPriority.HIGHEST)
+   public void onMenuSetContents(ContainerSetContentEvent.Pre event) {
+      if (event.getContainerId() != CONTAINER_ID) return;
+      WAITING = false;
+   }
+   
+   protected <T> ClickEvent.Handler<T> getClickHandler(int slot, boolean sound, boolean cancel) {
       return (x, y, button, ignored) -> {
-         if (BUSY || !ContainerHelper.Click(slot, button, title())) return false;
+         if (!click(slot, button)) return false;
          TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
          BUSY = cancel;
 
@@ -409,7 +430,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    @Override
-   public void removed() {
+   public void close() {
       scanner.close();
       TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
 

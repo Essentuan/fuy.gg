@@ -25,7 +25,7 @@ public abstract class TerritoryScanner implements Scheduler, EventListener, Clos
    private List<ItemStack> contents = new ArrayList<>();
    private int page = 0;
 
-   private final List<List<ItemStack>> pages = new CopyOnWriteArrayList<>();
+   private final List<List<Entry>> pages = new CopyOnWriteArrayList<>();
    private Consumer<GuildEco> UPDATE_CONSUMER = e -> {
    };
 
@@ -45,19 +45,13 @@ public abstract class TerritoryScanner implements Scheduler, EventListener, Clos
 
       contents = event.getItems();
 
-      List<ItemStack> page = new ArrayList<>();
+      List<Entry> page = new ArrayList<>();
 
       for (int slot = 0; slot < Math.min(45, contents.size()); slot++) {
          var stack = contents.get(slot);
          if (!TerritoryEco.isTerritory(stack)) continue;
 
-         page.add(stack);
-
-         if (process(
-                 TerritoryEco.getTerritory(stack),
-                 stack,
-                 slot
-         )) return;
+         page.add(new Entry(TerritoryEco.getTerritory(stack), stack, slot));
       }
 
       if (!hasPreviousPage() || this.page < 0) this.page = 0;
@@ -67,8 +61,18 @@ public abstract class TerritoryScanner implements Scheduler, EventListener, Clos
       UPDATE_CONSUMER.accept(new GuildEco(
               pages.stream()
                       .flatMap(List::stream)
+                      .map(Entry::stack)
                       .toList()
       ));
+
+
+      for (Entry entry : page) {
+         if (process(
+                 entry.territory(),
+                 entry.stack(),
+                 entry.slot()
+         )) return;
+      }
 
       if (!SCANNING) return;
 
@@ -93,7 +97,7 @@ public abstract class TerritoryScanner implements Scheduler, EventListener, Clos
       close();
    }
 
-   public List<List<ItemStack>> getPages() {
+   public List<List<Entry>> getPages() {
       return pages;
    }
 
@@ -154,4 +158,6 @@ public abstract class TerritoryScanner implements Scheduler, EventListener, Clos
       UNREGISTER_EVENTS();
       REGISTER_TASKS();
    }
+
+   public record Entry(String territory, ItemStack stack, int slot) {}
 }

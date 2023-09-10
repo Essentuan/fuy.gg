@@ -3,7 +3,6 @@ package com.busted_moments.client.screen.territories;
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.models.war.WarModel;
-import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.client.util.SoundUtil;
 import com.wynntils.utils.mc.McUtils;
 import net.minecraft.sounds.SoundEvents;
@@ -60,7 +59,7 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
       }
    }
 
-   public static class Scanner extends TerritoryScanner {
+   public class Scanner extends TerritoryScanner {
       private String TO_SELECT = null;
 
       public Scanner(int containerId) {
@@ -80,12 +79,7 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
 
       @Override
       protected boolean process(String territory, ItemStack stack, int slot) {
-         if (TO_SELECT != null && TO_SELECT.equals(territory)) {
-            ContainerHelper.Click(slot, 0, containerId);
-            return true;
-         }
-
-         return false;
+         return TO_SELECT != null && TO_SELECT.equals(territory) && click(slot, 0);
       }
    }
 }

@@ -1,5 +1,6 @@
 package com.busted_moments.core.render.screen;
 
+import com.busted_moments.core.events.EventListener;
 import com.busted_moments.core.render.TextureInfo;
 import com.busted_moments.core.render.screen.elements.TextElement;
 import com.busted_moments.core.render.screen.widgets.ItemStackWidget;
@@ -18,6 +19,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -26,7 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public @interface Screen {
-   abstract class Element extends net.minecraft.client.gui.screens.Screen implements TextboxScreen {
+   abstract class Element extends net.minecraft.client.gui.screens.Screen implements TextboxScreen, EventListener, Closeable {
       final Deque<ScreenElement<?>> elements = new LinkedList<>();
       final List<Widget<?>> widgets = new ArrayList<>();
 
@@ -65,6 +68,19 @@ public @interface Screen {
       @Override
       protected void init() {
          super.init();
+
+         REGISTER_EVENTS();
+      }
+
+      @Override
+      public void removed() {
+         UNREGISTER_EVENTS();
+
+         try {
+            close();
+         } catch (IOException e) {
+            throw new RuntimeException(e);
+         }
       }
 
       protected abstract void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);

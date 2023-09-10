@@ -3,11 +3,9 @@ package com.busted_moments.client.screen.territories;
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.util.ContainerHelper;
-import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.wynntils.core.components.Managers;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -38,10 +36,12 @@ public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesSc
 
    @Override
    protected void build() {
-      var handler = click(0, true, false);
+      var handler = getClickHandler(0, true, false);
 
       item(0, (mouseX, mouseY, button, widget) -> {
          if (handler.accept(mouseX, mouseY, button, widget)) {
+            if (!scanner.SCANNING) BUSY = true;
+
             scanner.SCANNING = false;
             return true;
          } else return false;
@@ -64,22 +64,20 @@ public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesSc
       }
    }
 
-   public static class Scanner extends TerritoryScanner {
+   public class Scanner extends TerritoryScanner {
       private final Set<String> TO_SELECT = new HashSet<>();
 
       public Scanner(int containerId) {
          super(containerId);
       }
 
-      private static final Duration COOLDOWN = Duration.of(100, TimeUnit.MILLISECONDS);
-      private Date LAST_CLICK = new Date(0);
-
       @Override
       protected boolean process(String territory, ItemStack stack, int slot) {
-         if (TO_SELECT.contains(territory) && Duration.since(LAST_CLICK).greaterThan(COOLDOWN)) {
-            ContainerHelper.Click(slot, 0, SELECT_TERRITORIES_MENU);
-            TO_SELECT.remove(territory);
-            LAST_CLICK = new Date();
+         if (TO_SELECT.contains(territory)) {
+            if (click(slot, 0)) {
+               ContainerHelper.Click(slot, 0, SELECT_TERRITORIES_MENU);
+               TO_SELECT.remove(territory);
+            } else Managers.TickScheduler.scheduleNextTick(() -> process(territory, stack, slot));
 
             return true;
          }
