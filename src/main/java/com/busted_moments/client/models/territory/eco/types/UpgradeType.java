@@ -36,6 +36,7 @@ public enum UpgradeType {
            Items.RABBIT_HIDE,
            ResourceType.CROP,
            new Level[]{
+                   new Level(0L, 0D),
                    new Level(100L, 50D),
                    new Level(300L, 100D),
                    new Level(600L, 150D),
@@ -77,6 +78,7 @@ public enum UpgradeType {
            Items.SHIELD,
            ResourceType.FISH,
            new Level[]{
+                   new Level(0L, 0D),
                    new Level(100L, 300D),
                    new Level(300L, 450D),
                    new Level(600L, 525D),
@@ -184,6 +186,7 @@ public enum UpgradeType {
            Items.STONE_SWORD,
            ResourceType.CROP,
            new Level[]{
+                   new Level(0L, 0D),
                    new Level(600L, 10D),
                    new Level(1200L, 20D),
                    new Level(1800L, 40D),
@@ -219,6 +222,7 @@ public enum UpgradeType {
            Items.GLOWSTONE_DUST,
            ResourceType.EMERALDS,
            new Level[]{
+                   new Level(0L, 0D),
                    new Level(100L, 36000D),
                    new Level(200L, 66000D),
                    new Level(400L, 120000D),
