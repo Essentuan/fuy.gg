@@ -2,7 +2,6 @@ package com.busted_moments.client.screen.territories;
 
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
-import com.busted_moments.client.util.ContainerHelper;
 import com.wynntils.core.components.Managers;
 import net.minecraft.world.item.ItemStack;
 
@@ -74,10 +73,8 @@ public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesSc
       @Override
       protected boolean process(String territory, ItemStack stack, int slot) {
          if (TO_SELECT.contains(territory)) {
-            if (click(slot, 0)) {
-               ContainerHelper.Click(slot, 0, SELECT_TERRITORIES_MENU);
-               TO_SELECT.remove(territory);
-            } else Managers.TickScheduler.scheduleNextTick(() -> process(territory, stack, slot));
+            if (click(slot, 0)) TO_SELECT.remove(territory);
+            else Managers.TickScheduler.scheduleNextTick(() -> process(territory, stack, slot));
 
             return true;
          }
