@@ -453,7 +453,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    private boolean IS_INSIDE = false;
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       final int[] position = new int[2];
 
       new Texture(BACKGROUND)
@@ -468,8 +468,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
               .offset(-4.5F, -7F)
               .build();
 
-      renderTooltip(
-              poseStack,
+      graphics.renderTooltip(
+              FontRenderer.font(),
               GUILD_OUTPUT,
               (int) (position[0] - GUILD_OUTPUT_OFFSET_X - GUILD_OUTPUT_WIDTH - 4),
               (int) (position[1] - GUILD_OUTPUT_OFFSET_Y - GUILD_OUTPUT_HEIGHT / 2)
@@ -674,8 +674,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       }
 
       @Override
-      protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-         Renderer.mask(poseStack, getX(), getY(), MASK);
+      protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+         Renderer.mask(graphics.pose(), getX(), getY(), MASK);
       }
    }
 
@@ -687,7 +687,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       }
 
       @Override
-      protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          Renderer.clear_mask();
       }
    }

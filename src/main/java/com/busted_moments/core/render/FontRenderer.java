@@ -11,6 +11,7 @@ import com.wynntils.utils.render.buffered.BufferedFontRenderer;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -109,6 +110,10 @@ public class FontRenderer {
 
    private static BufferedFontRenderer renderer() {
       return BufferedFontRenderer.getInstance();
+   }
+
+   public static Font font() {
+      return renderer().getFont();
    }
 
    public static List<StyledText> split(StyledText text, int maxWidth) {
