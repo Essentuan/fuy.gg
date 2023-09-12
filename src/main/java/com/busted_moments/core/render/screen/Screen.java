@@ -44,7 +44,7 @@ public @interface Screen {
       public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
          elements.clear();
 
-         MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+         MultiBufferSource.BufferSource buffer = graphics.bufferSource();
 
          onRender(
                  graphics,

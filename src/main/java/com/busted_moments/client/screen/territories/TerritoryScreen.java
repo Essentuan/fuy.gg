@@ -31,6 +31,7 @@ import com.wynntils.utils.wynn.ContainerUtils;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -581,8 +582,10 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       protected abstract void click();
 
       @Override
-      public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          CustomColor color = null;
+
+         PoseStack poseStack = graphics.pose();
 
          if (IS_INSIDE && isMouseOver(mouseX, mouseY)) color = new CustomColor(255, 255, 255, 127);
          else {
@@ -605,7 +608,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                     color
             );
 
-         super.render(poseStack, bufferSource, mouseX, mouseY, partialTick);
+         super.render(graphics, bufferSource, mouseX, mouseY, partialTick);
 
          poseStack.pushPose();
          poseStack.translate(0, 0, 300);
