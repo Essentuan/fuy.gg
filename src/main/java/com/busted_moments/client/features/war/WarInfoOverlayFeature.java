@@ -49,7 +49,7 @@ public class WarInfoOverlayFeature extends Feature {
    private static class WarInfo extends Hud.Element {
       @Override
       protected void onRender(float x, float y, float width, float height, PoseStack poseStack, float partialTicks, Window window) {
-         if (WarModel.current().map(war -> !war.hasStarted()).orElse(true)) return;
+         if (WarModel.current().map(war -> !war.hasStarted() || war.hasEnded()).orElse(true)) return;
 
          render(x, y, TIME_IN_WAR,
                  TOWER_EHP,

@@ -35,7 +35,6 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
    private static final Pattern DEATH_REGEX = Pattern.compile("^You have died...");
 
    private War current;
-   private boolean shouldSet;
 
    private Territory LAST_TERRITORY;
 
@@ -64,12 +63,9 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
               .stream()
               .filter(score -> ChatUtil.strip(score.getOwner()).contains("War:"))
               .findFirst().ifPresentOrElse(score -> {
-                 if (shouldSet) {
-                    current = new War(LAST_TERRITORY, new Date());
-                    shouldSet = false;
-                    new WarEnterEvent(current).post();
-                 }
-              }, () -> shouldSet = true);
+                 current = new War(LAST_TERRITORY, new Date());
+                 new WarEnterEvent(current).post();
+              }, () -> current = null);
    }
 
    @SubscribeEvent
@@ -83,32 +79,23 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
             onTowerUpdate(new Tower.Stats(0, previous.defense(), previous.damageMax(), previous.damageMin(), previous.attackSpeed()));
 
          new WarCompleteEvent(current).post();
-         current = null;
-      } else if (event.getOriginalStyledText().matches(DEATH_REGEX, PartStyle.StyleType.NONE)) {
+         current.end();
+      } else if (event.getOriginalStyledText().matches(DEATH_REGEX, PartStyle.StyleType.NONE))
          new WarLeaveEvent(current, WarLeaveEvent.Cause.DEATH).post();
-         current = null;
-      }
    }
 
    @SubscribeEvent
    public void onWorldState(WorldStateEvent event) {
-      if (current != null && current.getTower() == null) {
-         current = null;
-         return;
-      }
+      if (current != null && current.getTower() == null) return;
 
-      if (event.getNewState() != WorldState.WORLD && current != null) {
+      if (event.getNewState() != WorldState.WORLD && current != null)
          new WarLeaveEvent(current, WarLeaveEvent.Cause.HUB).post();
-         current = null;
-      }
    }
 
    @SubscribeEvent
    public void onTerritoryCapture(TerritoryCapturedEvent event) {
-      if (current != null && event.getTerritory().equals(current.getTerritory().getName())) {
+      if (current != null && event.getTerritory().equals(current.getTerritory().getName()))
          new WarLeaveEvent(current, WarLeaveEvent.Cause.CAPTURED).post();
-         current = null;
-      }
    }
 
 

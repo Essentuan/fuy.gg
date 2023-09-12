@@ -12,6 +12,8 @@ public final class War {
    Date startedAt;
    Tower tower;
 
+   private Date endedAt = null;
+
    public War(Territory territory, Date enteredAt) {
       this.territory = territory;
       this.enteredAt = enteredAt;
@@ -27,6 +29,10 @@ public final class War {
 
    public Date getStartedAt() {
       return startedAt;
+   }
+
+   public Date getEndedAt() {
+      return endedAt;
    }
 
    public Tower getTower() {
@@ -63,6 +69,14 @@ public final class War {
 
    public boolean hasStarted() {
       return startedAt != null;
+   }
+
+   public boolean hasEnded() {
+      return endedAt != null;
+   }
+
+   void end() {
+      if (!hasEnded()) endedAt = new Date();
    }
 
    @Override
