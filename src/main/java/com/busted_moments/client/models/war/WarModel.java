@@ -35,6 +35,7 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
    private static final Pattern DEATH_REGEX = Pattern.compile("^You have died...");
 
    private War current;
+   private boolean shouldSet;
 
    private Territory LAST_TERRITORY;
 
@@ -62,10 +63,13 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
       scoreboard.getPlayerScores(objective)
               .stream()
               .filter(score -> ChatUtil.strip(score.getOwner()).contains("War:"))
-              .findFirst().ifPresent(score -> {
-                 current = new War(LAST_TERRITORY, new Date());
-                 new WarEnterEvent(current).post();
-              });
+              .findFirst().ifPresentOrElse(score -> {
+                 if (shouldSet) {
+                    current = new War(LAST_TERRITORY, new Date());
+                    shouldSet = false;
+                    new WarEnterEvent(current).post();
+                 }
+              }, () -> shouldSet = true);
    }
 
    @SubscribeEvent
