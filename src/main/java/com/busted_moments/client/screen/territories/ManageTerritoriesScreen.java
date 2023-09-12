@@ -53,7 +53,6 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
 
       @Override
       protected void click() {
-         BUSY = true;
          scanner.select(getItemSupplier().get());
          SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.MASTER, 1, 1);
       }
@@ -70,16 +69,21 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
          TO_SELECT = TerritoryEco.getTerritory(stack);
 
          if (WarModel.current().isEmpty()) {
+            SCANNING = false;
+            BUSY = true;
             close();
             McUtils.sendCommand("gu territory %s".formatted(TO_SELECT));
-         }
-
-         if (getPages().size() == 1) rescan();
+         } else if (getPages().size() == 1) rescan();
       }
 
       @Override
       protected boolean process(String territory, ItemStack stack, int slot) {
-         return TO_SELECT != null && TO_SELECT.equals(territory) && click(slot, 0);
+         if (TO_SELECT != null && TO_SELECT.equals(territory) && click(slot, 0)) {
+            BUSY = true;
+            return true;
+         }
+
+         return false;
       }
    }
 }
