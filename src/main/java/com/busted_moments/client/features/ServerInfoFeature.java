@@ -41,7 +41,7 @@ public class ServerInfoFeature extends Feature {
    private static World CURRENT_WORLD;
    private static World NEWEST_WORLD;
 
-   @Hud.Name("Bomb Bell Overlay")
+   @Hud.Name("Server Info Overlay")
    @Hud.Offset(x = 0F, y = 270F)
    @Hud.Size(width = 385.5F, height = 16.917747F)
    @Hud.Anchor(OverlayPosition.AnchorSection.TOP_LEFT)
