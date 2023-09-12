@@ -65,8 +65,8 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
               .findFirst().ifPresentOrElse(score -> {
                  current = new War(LAST_TERRITORY, new Date());
                  new WarEnterEvent(current).post();
-              } ,() -> current = null);
-}
+              }, () -> current = null);
+   }
 
    @SubscribeEvent
    public void onMessage(ChatMessageReceivedEvent event) {
@@ -79,6 +79,7 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
             onTowerUpdate(new Tower.Stats(0, previous.defense(), previous.damageMax(), previous.damageMin(), previous.attackSpeed()));
 
          new WarCompleteEvent(current).post();
+         current.end();
       } else if (event.getOriginalStyledText().matches(DEATH_REGEX, PartStyle.StyleType.NONE))
          new WarLeaveEvent(current, WarLeaveEvent.Cause.DEATH).post();
    }
