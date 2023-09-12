@@ -1,4 +1,4 @@
-package com.busted_moments.client.features.war.territorymenu;
+package com.busted_moments.client.screen.territories.filter;
 
 import com.busted_moments.client.features.keybinds.Keybind;
 import com.busted_moments.client.util.SoundUtil;

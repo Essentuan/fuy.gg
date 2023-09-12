@@ -1,14 +1,13 @@
 package com.busted_moments.core.util;
 
+import com.google.common.collect.Streams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public class Reflection {
     public static boolean hasConstructor(Class<?> clazz, Class<?>... args) {
@@ -156,5 +155,24 @@ public class Reflection {
         }
 
         return builder.toString();
+    }
+
+    public static Stream<Class<?>> visit(Class<?> clazz) {
+        return Streams.stream(new Iterator<>() {
+            private Class<?> iter = clazz;
+
+           @Override
+           public boolean hasNext() {
+              return iter != Object.class;
+           }
+
+           @Override
+           public Class<?> next() {
+               Class<?> previous = iter;
+               iter = iter.getSuperclass();
+
+               return previous;
+           }
+        });
     }
 }

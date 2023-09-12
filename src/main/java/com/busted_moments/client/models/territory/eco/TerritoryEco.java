@@ -1,26 +1,26 @@
 package com.busted_moments.client.models.territory.eco;
 
 import com.busted_moments.client.models.territory.TerritoryModel;
+import com.busted_moments.client.models.territory.eco.types.EcoConstants;
 import com.busted_moments.client.models.territory.eco.types.ResourceType;
 import com.busted_moments.client.models.territory.eco.types.UpgradeType;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.api.requests.mapstate.Territory;
-import com.busted_moments.core.tuples.Pair;
 import com.wynntils.core.components.Models;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.busted_moments.client.models.territory.eco.Patterns.PRODUCITON_PATTERN;
 import static com.wynntils.utils.mc.McUtils.player;
 
 public class TerritoryEco implements Territory {
    private static final Pattern UPGRADE_PATTERN = Pattern.compile("- (?<upgrade>.+) \\[Lv. (?<level>.+)\\]");
-   private static final Pattern PRODUCITON_PATTERN = Pattern.compile("(. )?\\+(?<production>.+) (?<resource>.+) per Hour");
    private static final Pattern STORAGE_PATTERN = Pattern.compile("(. )?(?<stored>.+)/(?<capacity>.+) stored");
    private static final Pattern TREASURY_PATTERN = Pattern.compile(". Treasury Bonus: (?<treasury>.+)%");
 
@@ -32,9 +32,10 @@ public class TerritoryEco implements Territory {
    private final boolean isHQ;
 
    private final Map<ResourceType, Long> production = new HashMap<>();
-   private final Map<ResourceType, Pair<Long, Long>> storage = new HashMap<>();
+   private final Map<ResourceType, Storage> storage = new HashMap<>();
    private double treasury = 0;
    private final Map<UpgradeType, Upgrade> upgrades = new LinkedHashMap<>();
+   private final Map<ResourceType, Long> cost = new HashMap<>();
 
    Route route = null;
    Route absolute = null;
@@ -75,9 +76,9 @@ public class TerritoryEco implements Territory {
 
             for (ResourceType resource: ResourceType.values()) {
                if (
-                       (resource == ResourceType.EMERALDS && text.charAt(1) == ' ') ||
+                       (resource == ResourceType.EMERALDS && text.charAt(1) != ' ') ||
                        (resource != ResourceType.EMERALDS && text.startsWith(resource.getSymbol()))
-               ) storage.put(resource, new Pair<>(stored, capacity));
+               ) storage.put(resource, new Storage(stored, capacity));
             }
          } else if (((matcher = PRODUCITON_PATTERN.matcher(text)).matches())) {
             production.put(
@@ -86,6 +87,12 @@ public class TerritoryEco implements Territory {
             );
          } else if (((matcher = TREASURY_PATTERN.matcher(text)).matches())) treasury = Double.parseDouble(matcher.group("treasury"));
       }
+
+      upgrades.values().forEach(upgrade -> cost.compute(upgrade.type().getResourceType(), (resource, cost) -> {
+         if (cost == null) return upgrade.cost();
+
+         return cost + upgrade.cost();
+      }));
    }
 
    @Override
@@ -106,11 +113,15 @@ public class TerritoryEco implements Territory {
    }
 
    public long getStored(ResourceType resourceType) {
-      return storage.get(resourceType).one();
+      return storage.get(resourceType).stored();
    }
 
    public long getCapacity(ResourceType type) {
-      return storage.get(type).two();
+      return storage.get(type).capacity();
+   }
+
+   public Storage getStorage(ResourceType resource) {
+      return storage.computeIfAbsent(resource, (r) -> Storage.empty(resource, this));
    }
 
    public boolean hasUpgrade(UpgradeType type) {
@@ -124,12 +135,20 @@ public class TerritoryEco implements Territory {
       );
    }
 
+   public long getCost(ResourceType resource) {
+      return cost.computeIfAbsent(resource, k -> 0L);
+   }
+
    public Optional<Route> getRoute() {
       return Optional.ofNullable(route);
    }
 
    public Optional<Route> getIdealRoute() {
       return Optional.ofNullable(absolute);
+   }
+
+   public boolean isHQ() {
+      return isHQ;
    }
 
    @Override
@@ -154,7 +173,16 @@ public class TerritoryEco implements Territory {
    }
 
    public static boolean isTerritory(ItemStack stack) {
-      return stack.getItem() == Items.PAPER || stack.getItem() == Items.MAP || (stack.getItem() == Items.DIAMOND_AXE && stack.getDamageValue() == 41);
+      for (Component component : stack.getTooltipLines(player(), TooltipFlag.NORMAL)) {
+         String text = ChatUtil.strip(component).replace("Á", "");
+
+         if (text.startsWith("-") && UPGRADE_PATTERN.matcher(text).matches()) return true;
+         else if (STORAGE_PATTERN.matcher(text).matches()) return true;
+         else if ((PRODUCITON_PATTERN.matcher(text).matches())) return true;
+         else if ((TREASURY_PATTERN.matcher(text).matches())) return true;
+      }
+
+      return false;
    }
 
    @Override
@@ -168,5 +196,20 @@ public class TerritoryEco implements Territory {
    @Override
    public int hashCode() {
       return getName().hashCode();
+   }
+
+   public record Storage(long stored, long capacity) {
+      public Storage add(@Nullable Storage other) {
+         if (other == null) return this;
+
+         return new Storage(
+                 stored() + other.stored(),
+                 capacity + other.capacity()
+         );
+      }
+
+      public static Storage empty(ResourceType resource, TerritoryEco eco) {
+         return new Storage(0, EcoConstants.getStorage(resource, eco));
+      }
    }
 }
