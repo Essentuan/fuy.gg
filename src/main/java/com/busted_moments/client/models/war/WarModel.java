@@ -35,6 +35,7 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
    private static final Pattern DEATH_REGEX = Pattern.compile("^You have died...");
 
    private War current;
+   private boolean HAS_ENDED = false;
 
    private Territory LAST_TERRITORY;
 
@@ -54,8 +55,6 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
    @SubscribeEvent(receiveCanceled = true)
    @SuppressWarnings("DataFlowIssue")
    public void onSetObjectiveDisplay(ScoreboardSetDisplayObjectiveEvent event) {
-      if (current != null) return;
-
       Scoreboard scoreboard = McUtils.mc().level.getScoreboard();
       Objective objective = scoreboard.getObjective(event.getObjectiveName());
 
@@ -63,14 +62,19 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
               .stream()
               .filter(score -> ChatUtil.strip(score.getOwner()).contains("War:"))
               .findFirst().ifPresentOrElse(score -> {
-                 current = new War(LAST_TERRITORY, new Date());
-                 new WarEnterEvent(current).post();
-              }, () -> current = null);
+                 if (current == null) {
+                    current = new War(LAST_TERRITORY, new Date());
+                    new WarEnterEvent(current).post();
+                 }
+              }, () -> {
+                 current = null;
+                 HAS_ENDED = false;
+              });
    }
 
    @SubscribeEvent
    public void onMessage(ChatMessageReceivedEvent event) {
-      if (current == null) return;
+      if (current == null || HAS_ENDED) return;
 
       Matcher matcher = event.getOriginalStyledText().getMatcher(TERRITORY_CAPTURE_REGEX, PartStyle.StyleType.NONE);
       if (matcher.matches() && current.getTerritory().getName().equals(matcher.group("territory"))) {
@@ -80,13 +84,14 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
 
          new WarCompleteEvent(current).post();
          current.end();
+         HAS_ENDED = true;
       } else if (event.getOriginalStyledText().matches(DEATH_REGEX, PartStyle.StyleType.NONE))
          new WarLeaveEvent(current, WarLeaveEvent.Cause.DEATH).post();
    }
 
    @SubscribeEvent
    public void onWorldState(WorldStateEvent event) {
-      if (current != null && current.getTower() == null) return;
+      if (current != null && current.getTower() == null || HAS_ENDED) return;
 
       if (event.getNewState() != WorldState.WORLD && current != null)
          new WarLeaveEvent(current, WarLeaveEvent.Cause.HUB).post();
@@ -94,13 +99,13 @@ public class WarModel extends Model implements ClientboundBossEventPacket.Handle
 
    @SubscribeEvent
    public void onTerritoryCapture(TerritoryCapturedEvent event) {
-      if (current != null && event.getTerritory().equals(current.getTerritory().getName()))
+      if (current != null && !HAS_ENDED && event.getTerritory().equals(current.getTerritory().getName()))
          new WarLeaveEvent(current, WarLeaveEvent.Cause.CAPTURED).post();
    }
 
 
    private void onTowerUpdate(Tower.Stats stats) {
-      if (current == null) return;
+      if (current == null || HAS_ENDED) return;
 
       if (current.tower == null) {
          current.startedAt = new Date();
