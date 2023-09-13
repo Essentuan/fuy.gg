@@ -6,15 +6,12 @@ import org.jetbrains.annotations.NotNull;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalUnit;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 class TimeDuration implements Duration {
    private final double seconds;
 
    protected TimeDuration(double seconds) {
-      super();
-
       this.seconds = seconds;
    }
 
@@ -124,6 +121,6 @@ class TimeDuration implements Duration {
 
    @Override
    public int hashCode() {
-      return Objects.hash(seconds);
+      return Double.hashCode(seconds);
    }
 }

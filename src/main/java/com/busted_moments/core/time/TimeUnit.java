@@ -1,6 +1,5 @@
 package com.busted_moments.core.time;
 
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalUnit;
 import java.util.Comparator;
@@ -10,27 +9,25 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum TimeUnit implements TemporalUnit, FormatFlag {
-   NANOSECONDS(ChronoUnit.NANOS, (double) 1 / 1_000_000_000, "ns"),
-   MICROSECONDS(ChronoUnit.MICROS, (double) 1 / 1_000_000, "us"),
-   MILLISECONDS(ChronoUnit.MILLIS, (double) 1 / 1_000, "ms"),
-   SECONDS(ChronoUnit.SECONDS, 1, "s"),
-   MINUTES(ChronoUnit.MINUTES, SECONDS.toSeconds() * 60, "m"),
-   HOURS(ChronoUnit.HOURS, MINUTES.toSeconds() * 60, "h"),
-   DAYS(ChronoUnit.DAYS, HOURS.toSeconds() * 24, "d"),
-   WEEKS(ChronoUnit.WEEKS, DAYS.toSeconds() * 7, "w"),
-   MONTHS(ChronoUnit.MONTHS, WEEKS.toSeconds() * 5, "mo"),
-   YEARS(ChronoUnit.YEARS, MONTHS.toSeconds() * 12, "y");
+   NANOSECONDS((double) 1 / 1_000_000_000, "ns"),
+   MICROSECONDS((double) 1 / 1_000_000, "us"),
+   MILLISECONDS((double) 1 / 1_000, "ms"),
+   SECONDS(1, "s"),
+   MINUTES(SECONDS.toSeconds() * 60, "m"),
+   HOURS(MINUTES.toSeconds() * 60, "h"),
+   DAYS(HOURS.toSeconds() * 24, "d"),
+   WEEKS(DAYS.toSeconds() * 7, "w"),
+   MONTHS(WEEKS.toSeconds() * 5, "mo"),
+   YEARS(MONTHS.toSeconds() * 12, "y");
 
    private static final List<TimeUnit> SORTED = Stream.of(values())
            .sorted(Comparator.<TimeUnit, Integer>comparing(unit -> unit.getSuffix() == null ? 0 : unit.getSuffix().length()).reversed())
            .toList();
 
-   private final TemporalUnit base;
    private final double seconds;
    private final String suffix;
 
-   TimeUnit(TemporalUnit base, double seconds, String suffix) {
-      this.base = base;
+   TimeUnit(double seconds, String suffix) {
       this.seconds = seconds;
       this.suffix = suffix;
    }
