@@ -48,6 +48,8 @@ public class WeeklyWarCountOverlay extends Feature {
    @Hidden("wars")
    private static List<Date> WARS = new ArrayList<>();
 
+   private static int WEEKLY_WARS = 0;
+
    @SubscribeEvent
    private static void onWarStart(WarStartEvent event) {
       Managers.TickScheduler.scheduleNextTick(() -> WARS.add(new Date()));
@@ -55,7 +57,9 @@ public class WeeklyWarCountOverlay extends Feature {
 
    @SubscribeEvent
    private static void onTick(TickEvent event) {
-      WARS.removeIf(date -> Duration.since(date).greaterThanOrEqual(WEEK));
+      WEEKLY_WARS = (int) WARS.stream()
+              .filter(date -> Duration.since(date).lessThan(WEEK))
+              .count();
    }
 
    @Hud.Name("Weekly Wars")
@@ -66,7 +70,7 @@ public class WeeklyWarCountOverlay extends Feature {
    private static class WeeklyWars extends Hud.Element {
       @Override
       protected void onRender(float x, float y, float width, float height, PoseStack poseStack, float partialTicks, Window window) {
-         render(x, y, WARS.size());
+         render(x, y, WEEKLY_WARS);
       }
 
       @Override
