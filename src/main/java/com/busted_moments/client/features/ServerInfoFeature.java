@@ -8,6 +8,7 @@ import com.busted_moments.core.api.requests.serverlist.World;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
 import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.text.TextBuilder;
+import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
 import com.busted_moments.core.time.TimeUnit;
 import com.mojang.blaze3d.platform.Window;
@@ -62,19 +63,33 @@ public class ServerInfoFeature extends Feature {
 
          TextBuilder builder = TextBuilder.empty();
 
-         if (CURRENT_WORLD != null) builder
-                 .append("Your World (", ChatFormatting.WHITE)
-                 .append(CURRENT_WORLD.getWorld(), ChatFormatting.AQUA)
-                 .append("): ", ChatFormatting.WHITE)
-                 .append(CURRENT_WORLD.getUptime().toString(FormatFlag.COMPACT, TimeUnit.MINUTES), ChatFormatting.WHITE);
+         if (CURRENT_WORLD != null) {
+            Duration uptime = CURRENT_WORLD.getUptime();
+
+            builder
+                    .append("Your World (", ChatFormatting.WHITE)
+                    .append(CURRENT_WORLD.getWorld(), ChatFormatting.AQUA)
+                    .append("): ", ChatFormatting.WHITE)
+                    .append(uptime.lessThan(1, TimeUnit.MINUTES) ?
+                            uptime.toString(FormatFlag.COMPACT, TimeUnit.SECONDS) :
+                            uptime.toString(FormatFlag.COMPACT, TimeUnit.MINUTES),
+                            ChatFormatting.WHITE
+                    );
+         }
 
          if (NEWEST_WORLD != null) {
             if (CURRENT_WORLD != null) builder.line();
 
+            Duration uptime = NEWEST_WORLD.getUptime();
+
             builder.append("Newest World (", ChatFormatting.WHITE)
                     .append(NEWEST_WORLD.getWorld(), ChatFormatting.AQUA)
                     .append("): ", ChatFormatting.WHITE)
-                    .append(NEWEST_WORLD.getUptime().toString(FormatFlag.COMPACT, TimeUnit.MINUTES), ChatFormatting.WHITE);
+                    .append(uptime.lessThan(1, TimeUnit.MINUTES) ?
+                            uptime.toString(FormatFlag.COMPACT, TimeUnit.SECONDS) :
+                            uptime.toString(FormatFlag.COMPACT, TimeUnit.MINUTES),
+                            ChatFormatting.WHITE
+                    );
          }
 
          new TextBox(builder, x, y)
