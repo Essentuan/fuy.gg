@@ -26,8 +26,8 @@ import static com.wynntils.utils.mc.McUtils.player;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class TerritoryModel extends Model {
-   private final static Pattern TERRITORY_CAPTURED_PATTERN = Pattern.compile("^\\[INFO \\] \\[(?<guild>.+)\\] captured the territory (?<territory>.+)\\.");
-   private final static Pattern TERRITORY_CONTROL_PATTERN = Pattern.compile("^\\[INFO \\] \\[(?<guild>.+)\\] has taken control of (?<territory>.+)!");
+   private final static Pattern TERRITORY_CAPTURED_PATTERN = Pattern.compile("^\\[WAR] \\[(?<guild>.+)] captured the territory (?<territory>.+)\\.");
+   private final static Pattern TERRITORY_CONTROL_PATTERN = Pattern.compile("^\\[INFO] \\[(?<guild>.+)] has taken control of (?<territory>.+)!");
 
    @SuppressWarnings("unused")
    private Socket ACTIVE_SOCKET;
@@ -40,7 +40,7 @@ public class TerritoryModel extends Model {
    private static Optional<Territory> CURRENT_TERRITORY = Optional.empty();
 
    @SubscribeEvent
-   private void onMessage(ChatMessageReceivedEvent event) {
+   public void onMessage(ChatMessageReceivedEvent event) {
       Matcher matcher = event.getOriginalStyledText().getMatcher(TERRITORY_CAPTURED_PATTERN, PartStyle.StyleType.NONE);
       if (matcher.matches()) {
          new TerritoryCapturedEvent(matcher.group("territory"), matcher.group("guild")).post();
@@ -48,7 +48,8 @@ public class TerritoryModel extends Model {
       }
 
       matcher = event.getOriginalStyledText().getMatcher(TERRITORY_CONTROL_PATTERN, PartStyle.StyleType.NONE);
-      if (matcher.matches()) new TerritoryCapturedEvent(matcher.group("territory"), matcher.group("guild")).post();
+      if (matcher.matches())
+         new TerritoryCapturedEvent(matcher.group("territory"), matcher.group("guild")).post();
    }
 
 
@@ -63,6 +64,12 @@ public class TerritoryModel extends Model {
 
    @SubscribeEvent(priority = EventPriority.LOWEST)
    public void onMapUpdate(MapUpdateEvent event) {
+      if (LATEST_TERRITORIES != null)
+         event.getState().forEach(territory -> {
+            if (LATEST_TERRITORIES.contains(territory) && !LATEST_TERRITORIES.get(territory).getOwner().equals(territory.getOwner()))
+               new TerritoryCapturedEvent(territory.getName(), territory.getOwner().getPrefix());
+         });
+
       LATEST_TERRITORIES = event.getState();
    }
 

@@ -6,7 +6,6 @@ import com.busted_moments.core.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
-import java.util.Objects;
 
 public final class Timer implements Comparable<Timer> {
    private final String territory;
@@ -60,23 +59,6 @@ public final class Timer implements Comparable<Timer> {
    public Duration getRemaining() {
       return timer.minus(Duration.since(start));
    }
-
-   @Override
-   public boolean equals(Object obj) {
-      if (this == obj) return true;
-
-      return (obj instanceof Timer other) && other.hashCode() == hashCode();
-   }
-
-   @Override
-   public int hashCode() {
-      return Objects.hash(
-              territory,
-              (long) Math.floor(new Date().getTime() / 10000D),
-              timer
-      );
-   }
-
 
    @Override
    public String toString() {
