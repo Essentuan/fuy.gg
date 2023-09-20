@@ -12,6 +12,9 @@ If you'd like to request any features either:
 1. Message me on discord (@essentuan)
 2. Create a pull request and maybe I'll accept
 
+# Contributing 
+When creating a PR make sure to merge into development NOT master.
+
 # Credits
 All territory menu assets are from [WynnLibFabric](https://github.com/nbcss/WynnLibFabric)
 
