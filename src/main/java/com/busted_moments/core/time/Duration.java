@@ -43,6 +43,8 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
       return minus(length, unit);
    }
 
+   Duration abs();
+
    double to(TimeUnit unit);
 
    double getPart(TimeUnit unit);
