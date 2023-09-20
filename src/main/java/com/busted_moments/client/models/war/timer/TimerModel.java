@@ -1,9 +1,10 @@
 package com.busted_moments.client.models.war.timer;
 
-import com.busted_moments.client.models.war.Defense;
 import com.busted_moments.client.models.territory.TerritoryModel;
 import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
+import com.busted_moments.client.models.war.Defense;
 import com.busted_moments.client.models.war.timer.events.TimerStartEvent;
+import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.Model;
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
@@ -11,6 +12,8 @@ import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.TimeUnit;
 import com.busted_moments.core.util.TempMap;
 import com.busted_moments.core.util.TempSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
@@ -24,6 +27,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +36,7 @@ public class TimerModel extends Model {
    private final static Pattern DEFENSE_PATTERN = Pattern.compile("^\\[.*\\] (?<territory>.+) defense is (?<defense>.+)?$");
    private static final Pattern ATTACK_SCREEN_TITLE = Pattern.compile("Attacking: (?<territory>.+)");
 
-   private final Set<Timer> TIMERS = new HashSet<>();
+   private final Multimap<String, Timer> TIMERS = MultimapBuilder.hashKeys().arrayListValues().build();
    private final Map<String, Defense> KNOWN_DEFENSES = new TempMap<>(10, TimeUnit.SECONDS);
 
 
@@ -43,7 +47,7 @@ public class TimerModel extends Model {
    private static TimerModel THIS;
 
    private void addTimer(String territory, Duration timeRemaining, boolean trust) {
-      if (!trust && getTimer(territory, timeRemaining).isPresent()) return;
+      if (!trust && getTimer(territory, timeRemaining, String::startsWith).isPresent()) return;
 
       territory = findBestMatch(territory);
       if (territory == null) return;
@@ -60,7 +64,9 @@ public class TimerModel extends Model {
 
       if (new TimerStartEvent(timer, !trust).post()) return;
 
-      TIMERS.add(timer);
+      TIMERS.put(timer.getTerritory(), timer);
+
+      if (!trust) ChatUtil.message("Adding timer from scoreboard");
    }
 
    @SubscribeEvent
@@ -84,8 +90,8 @@ public class TimerModel extends Model {
 
       KNOWN_DEFENSES.put(territory, defense);
 
-      for (Timer timer : TIMERS) {
-         if (timer.getTerritory().equals(territory) && !timer.confident && Duration.since(timer.getStart()).lessThan(100, TimeUnit.MILLISECONDS)) {
+      for (Timer timer : TIMERS.get(territory)) {
+         if (!timer.confident && Duration.since(timer.getStart()).lessThan(300, TimeUnit.MILLISECONDS)) {
             timer.defense = defense;
             timer.confident = true;
 
@@ -96,7 +102,7 @@ public class TimerModel extends Model {
 
    @SubscribeEvent
    public void onTerritoryCapture(TerritoryCapturedEvent event) {
-      TIMERS.removeIf(timer -> timer.getTerritory().equals(event.getTerritory()));
+      TIMERS.values().removeIf(timer -> timer.getTerritory().equals(event.getTerritory()));
    }
 
    @SubscribeEvent
@@ -111,13 +117,8 @@ public class TimerModel extends Model {
    @SubscribeEvent(priority = EventPriority.HIGHEST)
    @SuppressWarnings("ResultOfMethodCallIgnored")
    public void onClear(TickEvent event) {
-      synchronized (TIMERS) {
-         TIMERS.removeIf(timer -> timer.getRemaining().lessThanOrEqual(100, TimeUnit.MILLISECONDS));
-      }
-
-      synchronized (KNOWN_DEFENSES) {
-         KNOWN_DEFENSES.size();
-      }
+      TIMERS.values().removeIf(timer -> timer.getRemaining().lessThanOrEqual(100, TimeUnit.MILLISECONDS));
+      KNOWN_DEFENSES.size();
    }
 
    private Set<Integer> SCOREBOARD = new HashSet<>();
@@ -151,17 +152,21 @@ public class TimerModel extends Model {
       return null;
    }
 
-   public static Set<Timer> getTimers() {
-      return THIS.TIMERS;
+   public static Collection<Timer> getTimers() {
+      return THIS.TIMERS.values();
    }
 
-   public static Optional<Timer> getTimer(String territory, Duration timeRemaining) {
+   private static Optional<Timer> getTimer(String territory, Duration timeRemaining, BiFunction<String, String, Boolean> comparison) {
       for (Timer timer : getTimers()) {
-         if (timer.getTerritory().startsWith(territory) && Math.abs(timer.getRemaining().subtract(timeRemaining).toSeconds()) < 10000) {
+         if (comparison.apply(timer.getTerritory(), territory) && timer.getRemaining().subtract(timeRemaining).abs().lessThanOrEqual(10, TimeUnit.SECONDS)) {
             return Optional.of(timer);
          }
       }
 
       return Optional.empty();
+   }
+
+   public static Optional<Timer> getTimer(String territory, Duration timeRemaining) {
+      return getTimer(territory, timeRemaining, String::equalsIgnoreCase);
    }
 }

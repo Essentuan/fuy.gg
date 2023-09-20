@@ -26,6 +26,11 @@ class TimeDuration implements Duration {
    }
 
    @Override
+   public Duration abs() {
+      return new TimeDuration(Math.abs(seconds));
+   }
+
+   @Override
    public double to(TimeUnit unit) {
       return seconds / unit.toSeconds();
    }
