@@ -146,7 +146,7 @@ public class FuyCommand {
       ChatUtil.message(
               TextBuilder.of("You have entered ", GRAY)
                       .append(wars, AQUA)
-                      .append(" wars", GRAY).appendIf(() -> wars > 1, "s", GRAY)
+                      .append(" war", GRAY).appendIf(() -> wars > 1, "s", GRAY)
                       .append(" in the past ")
                       .append(range.toString(), AQUA).append(".", GRAY)
       );
