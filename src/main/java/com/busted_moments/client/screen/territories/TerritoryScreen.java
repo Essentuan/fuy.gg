@@ -439,8 +439,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    @Override
-   public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-      return super.mouseScrolled(mouseX, mouseY, delta) || scrollbar.scroll(delta);
+   public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+      return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY) || scrollbar.scroll(deltaY);
    }
 
    @Override
@@ -456,7 +456,9 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       final int[] position = new int[2];
 
-      new Texture(BACKGROUND)
+      new Background()
+              .then(Texture::new)
+              .setTexture(BACKGROUND)
               .center()
               .perform(tex -> {
                  position[0] = (int) tex.getX();
@@ -538,7 +540,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
          this.filters = Filter.getFilters(territory);
          this.acronym = StyledText.fromString(getAcronym(territory));
 
-         this.filters.forEach(filter -> counts.put(filter, (AbstractEntry) this));
+         this.filters.forEach(filter -> counts.put(filter, this));
 
          for (ResourceType resource : ResourceType.values()) {
             long prod = territory.getBaseProduction(resource);

@@ -2,14 +2,12 @@ package com.busted_moments.core.render.screen;
 
 import com.busted_moments.core.events.EventListener;
 import com.busted_moments.core.render.TextureInfo;
-import com.busted_moments.core.render.screen.elements.TextElement;
-import com.busted_moments.core.render.screen.widgets.ItemStackWidget;
 import com.busted_moments.core.render.screen.elements.RectElement;
+import com.busted_moments.core.render.screen.elements.TextElement;
 import com.busted_moments.core.render.screen.elements.TextureElement;
+import com.busted_moments.core.render.screen.widgets.ItemStackWidget;
 import com.busted_moments.core.render.screen.widgets.SearchBoxWidget;
 import com.busted_moments.core.render.screen.widgets.VerticalScrollbarWidget;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.base.TextboxScreen;
 import com.wynntils.screens.base.widgets.TextInputBoxWidget;
@@ -67,6 +65,11 @@ public @interface Screen {
       }
 
       @Override
+      public void renderBackground(@NotNull GuiGraphics guiGraphics, int i, int j, float f) {
+
+      }
+
+      @Override
       protected void init() {
          super.init();
 
@@ -109,6 +112,18 @@ public @interface Screen {
       @Override
       public void setFocusedTextInput(TextInputBoxWidget textInputBoxWidget) {
          this.ACTIVE_SEARCH = textInputBoxWidget;
+      }
+
+      public class Background extends ScreenElement<Background> {
+         @Override
+         public Element getElement() {
+            return Element.this;
+         }
+
+         @Override
+         public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+            Element.super.renderBackground(graphics, mouseX, mouseY, partialTick);
+         }
       }
 
       public class Text extends TextElement<Text> {

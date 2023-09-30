@@ -118,9 +118,9 @@ public abstract class VerticalScrollbarWidget<This extends VerticalScrollbarWidg
    }
 
    @Override
-   public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+   public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
       var sliderY = getSliderY();
-      if (mouseY >= sliderY && mouseY <= sliderY + texture.height()) return scroll(delta);
+      if (mouseY >= sliderY && mouseY <= sliderY + texture.height()) return scroll(deltaY);
 
       return false;
    }
