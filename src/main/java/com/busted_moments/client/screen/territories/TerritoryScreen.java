@@ -42,6 +42,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -112,6 +113,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    protected abstract void build();
 
    @Override
+   @SuppressWarnings("unchecked")
    protected void init() {
       super.init();
 
@@ -165,7 +167,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       baseWidgets = List.copyOf(getWidgets());
    }
 
-   private List<TerritoryEco> getTerritories() {
+   private @Nullable List<TerritoryEco> getTerritories() {
       if (territories == null) return null;
 
       String search;
@@ -425,7 +427,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    private int getRows(List<TerritoryEco> territories, int cols) {
-      if (territories.size() < cols) return 1;
+      if (territories == null || territories.size() < cols) return 1;
 
       return (int) Math.ceil(territories.size() / (double) cols);
    }
