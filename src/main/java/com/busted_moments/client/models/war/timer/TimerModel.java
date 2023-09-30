@@ -4,7 +4,6 @@ import com.busted_moments.client.models.territory.TerritoryModel;
 import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
 import com.busted_moments.client.models.war.Defense;
 import com.busted_moments.client.models.war.timer.events.TimerStartEvent;
-import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.Model;
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
@@ -65,8 +64,6 @@ public class TimerModel extends Model {
       if (new TimerStartEvent(timer, !trust).post()) return;
 
       TIMERS.put(timer.getTerritory(), timer);
-
-      if (!trust) ChatUtil.message("Adding timer from scoreboard");
    }
 
    @SubscribeEvent
