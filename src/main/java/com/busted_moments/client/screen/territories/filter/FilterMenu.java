@@ -7,9 +7,9 @@ import com.busted_moments.core.render.screen.Widget;
 import com.busted_moments.core.text.TextBuilder;
 import com.google.common.collect.Multimap;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -107,7 +107,7 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
    }
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       new TextBox(getLegend(counts, selected, getHovered(mouseY).orElse(null)), getX(), getY()).setFill(0, 0, 0, 127)
               .setPadding(3, 3, 3, 3)
               .dynamic()

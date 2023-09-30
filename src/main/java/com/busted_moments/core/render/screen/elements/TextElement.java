@@ -6,7 +6,6 @@ import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.ScreenElement;
 import com.busted_moments.core.text.TextBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
@@ -14,6 +13,7 @@ import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.TextShadow;
 import com.wynntils.utils.render.type.VerticalAlignment;
 import me.shedaniel.math.Color;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -152,9 +152,9 @@ public abstract class TextElement<This extends TextElement<This>> extends Screen
    }
 
    @Override
-   public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       Renderer.text(
-              poseStack,
+              graphics.pose(),
               bufferSource,
               text,
               getX(),

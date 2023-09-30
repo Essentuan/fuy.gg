@@ -2,17 +2,16 @@ package com.busted_moments.core.render.screen;
 
 import com.busted_moments.core.events.EventListener;
 import com.busted_moments.core.render.TextureInfo;
-import com.busted_moments.core.render.screen.elements.TextElement;
-import com.busted_moments.core.render.screen.widgets.ItemStackWidget;
 import com.busted_moments.core.render.screen.elements.RectElement;
+import com.busted_moments.core.render.screen.elements.TextElement;
 import com.busted_moments.core.render.screen.elements.TextureElement;
+import com.busted_moments.core.render.screen.widgets.ItemStackWidget;
 import com.busted_moments.core.render.screen.widgets.SearchBoxWidget;
 import com.busted_moments.core.render.screen.widgets.VerticalScrollbarWidget;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.screens.base.TextboxScreen;
 import com.wynntils.screens.base.widgets.TextInputBoxWidget;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -40,29 +39,34 @@ public @interface Screen {
       }
 
       @Override
-      public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+      public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
          elements.clear();
 
-         MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+         MultiBufferSource.BufferSource buffer = graphics.bufferSource();
 
          onRender(
-                 poseStack,
+                 graphics,
                  buffer,
                  mouseX,
                  mouseY,
                  partialTick
          );
 
-         elements.forEach(e -> e.render(poseStack, buffer, mouseX, mouseY, partialTick));
+         elements.forEach(e -> e.render(graphics, buffer, mouseX, mouseY, partialTick));
 
          elements.clear();
 
-         widgets.forEach(widget -> widget.render(poseStack, buffer, mouseX, mouseY, partialTick));
-         elements.forEach(e -> e.render(poseStack, buffer, mouseX, mouseY, partialTick));
+         widgets.forEach(widget -> widget.render(graphics, buffer, mouseX, mouseY, partialTick));
+         elements.forEach(e -> e.render(graphics, buffer, mouseX, mouseY, partialTick));
 
-         super.render(poseStack, mouseX, mouseY, partialTick);
+         super.render(graphics, mouseX, mouseY, partialTick);
 
          buffer.endBatch();
+      }
+
+      @Override
+      public void renderBackground(@NotNull GuiGraphics guiGraphics, int i, int j, float f) {
+
       }
 
       @Override
@@ -83,7 +87,7 @@ public @interface Screen {
          }
       }
 
-      protected abstract void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
+      protected abstract void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
 
       @SuppressWarnings("unchecked")
       protected void addWidget(Widget<?> widget) {
@@ -108,6 +112,18 @@ public @interface Screen {
       @Override
       public void setFocusedTextInput(TextInputBoxWidget textInputBoxWidget) {
          this.ACTIVE_SEARCH = textInputBoxWidget;
+      }
+
+      public class Background extends ScreenElement<Background> {
+         @Override
+         public Element getElement() {
+            return Element.this;
+         }
+
+         @Override
+         public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+            Element.super.renderBackground(graphics, mouseX, mouseY, partialTick);
+         }
       }
 
       public class Text extends TextElement<Text> {
@@ -205,7 +221,7 @@ public @interface Screen {
    }
 
    interface Widget<This extends Widget<This>> extends Object<This, Widget<?>>, GuiEventListener {
-      void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
+      void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
 
       default This build() {
          getElement().addWidget(this);

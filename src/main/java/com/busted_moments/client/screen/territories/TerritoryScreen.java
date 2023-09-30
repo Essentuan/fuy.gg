@@ -31,6 +31,7 @@ import com.wynntils.utils.wynn.ContainerUtils;
 import me.shedaniel.clothconfig2.impl.EasingMethod;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -41,6 +42,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -111,6 +113,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    protected abstract void build();
 
    @Override
+   @SuppressWarnings("unchecked")
    protected void init() {
       super.init();
 
@@ -164,7 +167,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       baseWidgets = List.copyOf(getWidgets());
    }
 
-   private List<TerritoryEco> getTerritories() {
+   private @Nullable List<TerritoryEco> getTerritories() {
       if (territories == null) return null;
 
       String search;
@@ -424,7 +427,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    private int getRows(List<TerritoryEco> territories, int cols) {
-      if (territories.size() < cols) return 1;
+      if (territories == null || territories.size() < cols) return 1;
 
       return (int) Math.ceil(territories.size() / (double) cols);
    }
@@ -438,8 +441,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    @Override
-   public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-      return super.mouseScrolled(mouseX, mouseY, delta) || scrollbar.scroll(delta);
+   public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+      return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY) || scrollbar.scroll(deltaY);
    }
 
    @Override
@@ -452,10 +455,12 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    private boolean IS_INSIDE = false;
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       final int[] position = new int[2];
 
-      new Texture(BACKGROUND)
+      new Background()
+              .then(Texture::new)
+              .setTexture(BACKGROUND)
               .center()
               .perform(tex -> {
                  position[0] = (int) tex.getX();
@@ -467,8 +472,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
               .offset(-4.5F, -7F)
               .build();
 
-      renderTooltip(
-              poseStack,
+      graphics.renderTooltip(
+              FontRenderer.font(),
               GUILD_OUTPUT,
               (int) (position[0] - GUILD_OUTPUT_OFFSET_X - GUILD_OUTPUT_WIDTH - 4),
               (int) (position[1] - GUILD_OUTPUT_OFFSET_Y - GUILD_OUTPUT_HEIGHT / 2)
@@ -537,7 +542,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
          this.filters = Filter.getFilters(territory);
          this.acronym = StyledText.fromString(getAcronym(territory));
 
-         this.filters.forEach(filter -> counts.put(filter, (AbstractEntry) this));
+         this.filters.forEach(filter -> counts.put(filter, this));
 
          for (ResourceType resource : ResourceType.values()) {
             long prod = territory.getBaseProduction(resource);
@@ -581,8 +586,10 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       protected abstract void click();
 
       @Override
-      public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          CustomColor color = null;
+
+         PoseStack poseStack = graphics.pose();
 
          if (IS_INSIDE && isMouseOver(mouseX, mouseY)) color = new CustomColor(255, 255, 255, 127);
          else {
@@ -605,7 +612,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                     color
             );
 
-         super.render(poseStack, bufferSource, mouseX, mouseY, partialTick);
+         super.render(graphics, bufferSource, mouseX, mouseY, partialTick);
 
          poseStack.pushPose();
          poseStack.translate(0, 0, 300);
@@ -671,8 +678,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       }
 
       @Override
-      protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-         Renderer.mask(poseStack, getX(), getY(), MASK);
+      protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+         Renderer.mask(graphics.pose(), getX(), getY(), MASK);
       }
    }
 
@@ -684,7 +691,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       }
 
       @Override
-      protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          Renderer.clear_mask();
       }
    }

@@ -3,7 +3,7 @@ package com.busted_moments.core.render.screen.elements;
 import com.busted_moments.core.render.Renderer;
 import com.busted_moments.core.render.TextureInfo;
 import com.busted_moments.core.render.screen.ScreenElement;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +41,7 @@ public abstract class TextureElement<This extends TextureElement<This>> extends 
    }
 
    @Override
-   public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-      Renderer.texture(poseStack, getX(), getY(), getTexture());
+   public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      Renderer.texture(graphics.pose(), getX(), getY(), getTexture());
    }
 }

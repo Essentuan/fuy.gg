@@ -6,12 +6,12 @@ import com.google.common.base.CaseFormat;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Managers;
-import com.wynntils.core.persisted.config.Category;
-import com.wynntils.core.persisted.config.Config;
-import com.wynntils.core.persisted.config.ConfigCategory;
 import com.wynntils.core.consumers.features.Feature;
 import com.wynntils.core.consumers.overlays.OverlayPosition;
 import com.wynntils.core.consumers.screens.WynntilsScreen;
+import com.wynntils.core.persisted.config.Category;
+import com.wynntils.core.persisted.config.Config;
+import com.wynntils.core.persisted.config.ConfigCategory;
 import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.VerticalAlignment;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -47,7 +47,7 @@ public class FuyFeature extends Feature {
 
    public static class Overlay extends com.wynntils.core.consumers.overlays.Overlay {
       private final String name;
-      private Hud.Element parent;
+      private final Hud.Element parent;
 
       public Overlay(
               String name,
@@ -125,8 +125,6 @@ public class FuyFeature extends Feature {
       protected void onConfigUpdate(Config<?> config) {
 
       }
-
-      private boolean justSet = false;
 
       @SubscribeEvent
       public void onScreenClick(ScreenClickedEvent event) {

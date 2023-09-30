@@ -10,6 +10,7 @@ import com.wynntils.core.consumers.overlays.Overlay;
 import com.wynntils.core.consumers.overlays.OverlayManager;
 import com.wynntils.core.consumers.overlays.RenderState;
 import com.wynntils.mc.event.RenderEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.lang.reflect.InvocationTargetException;
@@ -25,6 +26,8 @@ public class Overlays {
 
    public static void register(Hud.Element element) {
       if (REGISTER_METHOD == null) getMethod();
+
+      element.init();
 
       try {
          REGISTER_METHOD.invoke(
@@ -58,7 +61,7 @@ public class Overlays {
 
    private static boolean initComplete = false;
 
-   @SubscribeEvent
+   @SubscribeEvent(priority = EventPriority.LOW)
    private static void onGameStart(MinecraftStartupEvent event) {
       FuyFeature.INSTANCE = new FuyFeature();
 
@@ -67,6 +70,12 @@ public class Overlays {
       overlays.forEach(Overlays::register);
 
       ArtemisFeatures.register(FuyFeature.INSTANCE);
+
+      overlays.forEach(element -> {
+         assert element.overlay != null;
+         if (element.enabled) Managers.Overlay.enableOverlay(element.overlay);
+         else Managers.Overlay.disableOverlay(element.overlay);
+      });
 
       initComplete = true;
    }

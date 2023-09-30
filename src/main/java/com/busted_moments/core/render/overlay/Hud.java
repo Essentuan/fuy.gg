@@ -7,8 +7,8 @@ import com.busted_moments.core.annotated.Annotated;
 import com.busted_moments.core.artemis.FuyFeature;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.render.RenderableElement;
-import com.busted_moments.core.render.overlay.elements.TextElement;
 import com.busted_moments.core.render.overlay.elements.RectElement;
+import com.busted_moments.core.render.overlay.elements.TextElement;
 import com.busted_moments.core.render.overlay.elements.textbox.TextBoxElement;
 import com.busted_moments.core.text.TextBuilder;
 import com.mojang.blaze3d.platform.Window;
@@ -21,6 +21,7 @@ import com.wynntils.utils.render.type.HorizontalAlignment;
 import com.wynntils.utils.render.type.VerticalAlignment;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.*;
 import java.util.Deque;
@@ -33,8 +34,8 @@ public @interface Hud {
    abstract class Element extends Config {
       final Deque<RenderableElement<?>> elements = new LinkedList<>();
 
-      final FuyFeature.Overlay overlay;
-      final boolean enabledByDefault;
+      @Nullable FuyFeature.Overlay overlay;
+      boolean enabledByDefault;
 
       private Feature feature;
 
@@ -51,39 +52,49 @@ public @interface Hud {
                  Annotated.Optional(new Default.Impl(State.ENABLED))
          );
 
+         Overlays.overlays.add(this);
+      }
+
+      void init() {
          Size size = getAnnotation(Size.class);
          Offset offset = getAnnotation(Offset.class);
          Align align = getAnnotation(Align.class);
          Anchor anchor = getAnnotation(Anchor.class);
          enabledByDefault = getAnnotation(Default.class, Default::value).asBoolean();
 
-         final Element element = this;
-
          overlay = new FuyFeature.Overlay(
-            getAnnotation(Name.class, Name::value), this,
+                 getAnnotation(Name.class, Name::value), this,
                  size.width(),
-                 size.height(), 
+                 size.height(),
                  offset.y(),
                  offset.x(),
                  align.vertical(),
                  align.horizontal(),
                  anchor.value()
          );
-
-         Overlays.overlays.add(this);
       }
 
+      boolean enabled = false;
+
       public void enable() {
-         if (wasEnabled) Managers.Overlay.enableOverlay(overlay);
+         enabled = true;
+
+         if (wasEnabled && overlay != null) Managers.Overlay.enableOverlay(overlay);
       }
 
       public void disable() {
-         wasEnabled = overlay.isEnabled();
+         enabled = false;
 
-         Managers.Overlay.disableOverlay(overlay);
+         if (overlay != null) {
+            wasEnabled = overlay.isEnabled();
+
+            Managers.Overlay.disableOverlay(overlay);
+         }
       }
 
       public boolean isEnabled() {
+         if (overlay == null) return false;
+
          return overlay.isEnabled();
       }
 
@@ -98,26 +109,38 @@ public @interface Hud {
       }
 
       public float getX() {
+         if (overlay == null) return 0;
+
          return overlay.getRenderX();
       }
 
       public float getY() {
+         if (overlay == null) return 0;
+
          return overlay.getRenderY();
       }
 
       public float getHeight() {
+         if (overlay == null) return 0;
+
          return overlay.getHeight();
       }
 
       public float getWidth() {
+         if (overlay == null) return 0;
+
          return overlay.getWidth();
       }
 
       public HorizontalAlignment getHorizontalAlignment() {
+         if (overlay == null) return HorizontalAlignment.CENTER;
+
          return overlay.getRenderHorizontalAlignment();
       }
 
       public VerticalAlignment getVerticalAlignment() {
+         if (overlay == null) return VerticalAlignment.MIDDLE;
+
          return overlay.getRenderVerticalAlignment();
       }
 

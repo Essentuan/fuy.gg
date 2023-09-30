@@ -132,7 +132,7 @@ class BeaconRenderer {
                  net.minecraft.client.renderer.blockentity.BeaconRenderer.BEAM_LOCATION,
                  event.getPartialTick(),
                  1f,
-                 McUtils.player().level.getGameTime(),
+                 McUtils.player().level().getGameTime(),
                  0,
                  1024,
                  colorArray,

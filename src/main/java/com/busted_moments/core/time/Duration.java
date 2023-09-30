@@ -3,6 +3,7 @@ package com.busted_moments.core.time;
 import com.busted_moments.core.util.NumUtil;
 import com.busted_moments.core.util.StringUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.time.temporal.TemporalAmount;
@@ -152,7 +153,7 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
    }
 
    static int compare(Duration duration1, Duration duration2) {
-      return duration1.compareTo(duration2);
+      return ObjectUtils.compare(duration1, duration2);
    }
 
    static Optional<Duration> parse(String string) {
@@ -222,9 +223,8 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
 
       @Override
       public String toString() {
-         if (duration.isForever()) {
-            return "Forever";
-         }
+         if (duration.isForever()) return "Forever";
+         else if (duration.lessThan(1, SMALLEST_UNIT)) return SUFFIX_GETTER.apply(0D, SMALLEST_UNIT);
 
          List<TimeUnit> units = Lists.reverse(List.of(TimeUnit.values()));
 

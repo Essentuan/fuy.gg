@@ -3,7 +3,7 @@ package com.busted_moments.core.render.screen.widgets;
 import com.busted_moments.core.render.Renderer;
 import com.busted_moments.core.render.TextureInfo;
 import com.busted_moments.core.render.screen.Widget;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +28,7 @@ public abstract class TexturedButtonWidget<This extends TexturedButtonWidget<Thi
    }
 
    @Override
-   protected void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
-      Renderer.texture(poseStack, getX(), getY(), getWidth(), getHeight(), texture);
+   protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+      Renderer.texture(graphics.pose(), getX(), getY(), getWidth(), getHeight(), texture);
    }
 }

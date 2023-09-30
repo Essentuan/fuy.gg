@@ -15,7 +15,7 @@ import java.util.Map;
 @Default(State.ENABLED)
 @Feature.Definition(name = "Stack Duplicate Messages")
 public class StackDuplicateMessagesFeature extends Feature {
-   private static Map<Integer, Entry> LATEST_MESSAGES = new HashMap<>();
+   private static final Map<Integer, Entry> LATEST_MESSAGES = new HashMap<>();
 
    @SubscribeEvent
    public void onMessageAdd(MessageAddEvent event) {

@@ -1,18 +1,14 @@
 package com.busted_moments.core.render.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 public abstract class ScreenElement<This extends ScreenElement<This>> implements Screen.Object<This, ScreenElement<?>> {
    protected float x = 0;
    protected float y = 0;
 
-   public abstract void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
+   public abstract void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
 
    public float getX() {
       return x;

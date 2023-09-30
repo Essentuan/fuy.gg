@@ -7,6 +7,7 @@ import com.busted_moments.core.render.screen.elements.RectElement;
 import com.busted_moments.core.render.screen.elements.TextureElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -152,17 +153,19 @@ public abstract class Widget<This extends Widget<This>> implements Screen.Widget
       return mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + getWidth() && mouseY < this.getY() + getHeight();
    }
 
-   protected abstract void onRender(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
+   protected abstract void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick);
 
    @Override
-   public void render(@NotNull PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+   public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
       if (!isActive()) return;
+
+      PoseStack poseStack = graphics.pose();
 
       setHovered(mouseX, mouseY);
 
       if (isHovered()) HOVER_PRE.accept(mouseX, mouseY, getThis());
 
-      if (scale == 1F) onRender(poseStack, bufferSource, mouseX, mouseY, partialTick);
+      if (scale == 1F) onRender(graphics, bufferSource, mouseX, mouseY, partialTick);
       else {
          this.width = originalWidth;
          this.height = originalHeight;
@@ -176,7 +179,7 @@ public abstract class Widget<This extends Widget<This>> implements Screen.Widget
          setX(originalX / scale);
          setY(originalY / scale);
 
-         onRender(poseStack, bufferSource, mouseX, mouseY, partialTick);
+         onRender(graphics, bufferSource, mouseX, mouseY, partialTick);
 
          poseStack.popPose();
 
