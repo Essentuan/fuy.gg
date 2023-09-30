@@ -47,7 +47,7 @@ public class FuyFeature extends Feature {
 
    public static class Overlay extends com.wynntils.core.consumers.overlays.Overlay {
       private final String name;
-      private Hud.Element parent;
+      private final Hud.Element parent;
 
       public Overlay(
               String name,
@@ -125,8 +125,6 @@ public class FuyFeature extends Feature {
       protected void onConfigUpdate(Config<?> config) {
 
       }
-
-      private boolean justSet = false;
 
       @SubscribeEvent
       public void onScreenClick(ScreenClickedEvent event) {
