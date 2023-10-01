@@ -26,6 +26,7 @@ public class NOLRaid extends Feature {
     @SubscribeEvent
     private static void titleSetEvent(TitleSetTextEvent event){
        String msg = event.getComponent().getString();
+       if(inRaid && raidType != "NOL") return;
        if (msg.equals("§fOrphion's Nexus of §lLight") && !inRaid){
         inRaid = true;
         raidStartTime = new Date();
