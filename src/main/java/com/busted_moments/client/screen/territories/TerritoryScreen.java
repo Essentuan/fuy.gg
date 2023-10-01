@@ -112,6 +112,10 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
    protected abstract void build();
 
+   protected int container() {
+      return CONTAINER_ID;
+   }
+
    @Override
    @SuppressWarnings("unchecked")
    protected void init() {
@@ -397,7 +401,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
               );
    }
    
-   private boolean WAITING = false;
+   protected boolean WAITING = false;
    private Date LAST_CLICK = new Date();
    
    protected boolean click(int slot, int button) {
