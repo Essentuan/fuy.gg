@@ -19,10 +19,11 @@ import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.String
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
 
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static com.busted_moments.client.FuyMain.CONFIG;
 import static com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE;
@@ -58,11 +59,21 @@ public class FuyCommand {
          ChatUtil.message(TextBuilder.of(guild.getName(), AQUA).space()
                  .append("[", DARK_AQUA).append(guild.getPrefix(), AQUA).append("]", DARK_AQUA).space()
                  .append("has ", GRAY)
-                 .append(online.size(), AQUA).append(" of ", GRAY).append(guild.size(), AQUA).append(" members online: ", GRAY)
-                 .append(
-                         online.stream()
-                                 .map(member -> AQUA + member.getRank().getStars() + member.getUsername())
-                                 .collect(Collectors.joining(", "))
+                 .append(online.size(), AQUA)
+                 .append(" of ", GRAY)
+                 .append(guild.size(), AQUA)
+                 .append(" members online: ", GRAY)
+                 .append(online, (member, b) -> b
+                                 .append(member.getRank().getStars() + member.getUsername())
+                                 .onPartHover(builder -> builder
+                                         .append("Click to switch to ", GRAY)
+                                         .append(member.getWorld().orElseThrow(), WHITE)
+                                         .line()
+                                         .append("(Requires ", DARK_PURPLE)
+                                         .append("HERO", LIGHT_PURPLE)
+                                         .append(" rank)", DARK_PURPLE))
+                                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/switch " + member.getWorld().orElseThrow()),
+                         b -> b.append(", ", AQUA)
                  ));
       }, () -> ChatUtil.message("Could not find guild %s".formatted(string), ChatFormatting.RED)));
    }
