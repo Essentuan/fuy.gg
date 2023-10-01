@@ -61,7 +61,7 @@ public class NOLRaid extends Feature {
     @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
         String msg = event.getComponent().getString();
-        if (msg.equals("§7[Challenge complete]") || !inRaid) return;
+        if (!msg.equals("§7[Challenge complete]") || !inRaid) return;
         TIMES.add(Duration.since(raidStartTime).toMinutes());
     }
 
