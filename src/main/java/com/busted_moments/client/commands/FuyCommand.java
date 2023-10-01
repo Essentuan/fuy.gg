@@ -53,6 +53,7 @@ public class FuyCommand {
    ) {
       ChatUtil.message("Finding guild %s...".formatted(string), ChatFormatting.GREEN);
 
+      Date start = new Date();
       new Guild.Request(string).thenAccept(optional -> optional.ifPresentOrElse(guild -> {
          List<Guild.Member> online = guild.stream().filter(member -> member.getWorld().isPresent()).toList();
 
@@ -75,7 +76,11 @@ public class FuyCommand {
                                  .onPartClick(ClickEvent.Action.RUN_COMMAND, "/switch " + member.getWorld().orElseThrow()),
                          b -> b.append(", ", AQUA)
                  ));
-      }, () -> ChatUtil.message("Could not find guild %s".formatted(string), ChatFormatting.RED)));
+      }, () -> {
+         if (Duration.since(start).greaterThan(10, TimeUnit.SECONDS)) {
+            ChatUtil.message("Timeout finding guild %s".formatted(string), RED);
+         } else ChatUtil.message("Could not find guild %s".formatted(string), RED);
+      }));
    }
 
    @Subcommand("find")
