@@ -22,4 +22,14 @@ public class RaidsCommon extends Config {
         raidType = "None";
         TIMES.clear();
     }
+
+    public static String timeCalc(double seconds){
+        int Minutes = (int) Math.floor(seconds/60);
+        int Seconds = (int) seconds%60;
+        if (10>Seconds){
+            return "%s:0%s".formatted(Minutes,Seconds);
+        }else{
+            return "%s:%s".formatted(Minutes,Seconds);
+        }
+    }
 }

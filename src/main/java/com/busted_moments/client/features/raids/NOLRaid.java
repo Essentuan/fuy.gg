@@ -21,7 +21,10 @@ import static net.minecraft.ChatFormatting.*;
 @Feature.Definition(name = "Nexus of Light Raid", description = "")
 public class NOLRaid extends Feature {
     @Hidden("NOL personal best")
-    private static Duration NOLPB = Duration.FOREVER;
+    public static Duration NOLPB = Duration.FOREVER;
+
+    @Hidden("Rooms Complete")
+    private static boolean room1Complete = false;
 
     @SubscribeEvent
     private static void titleSetEvent(TitleSetTextEvent event){
@@ -33,19 +36,20 @@ public class NOLRaid extends Feature {
         raidType = "NOL";
        }else if(msg.equals("§4Raid Failed!") && inRaid){
            raidOver();
+           room1Complete = false;
        }else if (msg.equals("§6§lⓞ ⓡ ⓟ ⓗ ⓘ ⓞ ⓝ")) {
            TIMES.add(Duration.since(raidStartTime).toMinutes());
        }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid && raidType == "NOL"){
         inRaid = false;
             boolean isPB = Duration.since(raidStartTime).lessThan(NOLPB);
            TextBuilder builder = TextBuilder.of("Room 1: ", LIGHT_PURPLE).next()
-                   .append(TIMES.get(0), AQUA)
+                   .append(timeCalc(TIMES.get(0)), AQUA)
                    .line()
                    .append("Boss Start: ", LIGHT_PURPLE).next()
-                   .append(TIMES.get(1), AQUA)
+                   .append(timeCalc(TIMES.get(1)), AQUA)
                    .line()
-                   .append("Raid Time:", LIGHT_PURPLE).next()
-                   .append(Duration.since(raidStartTime).toMinutes())
+                   .append("Raid Time: ", LIGHT_PURPLE).next()
+                   .append(timeCalc(Duration.since(raidStartTime).toSeconds()), AQUA)
                    .line();
 
            if (isPB){
@@ -53,19 +57,21 @@ public class NOLRaid extends Feature {
                        "New Personal Best!", GOLD);
                 NOLPB = Duration.since(raidStartTime);
            }else{
-               builder.append("Your Personal Best: "+ NOLPB.toMinutes(), LIGHT_PURPLE);
+               builder.append("Your Personal Best: "+ timeCalc(NOLPB.toSeconds()), LIGHT_PURPLE);
            }
            ChatUtil.send(builder);
 
            RaidsCommon.raidOver();
+           room1Complete = false;
        }
     }
 
     @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
         String msg = event.getComponent().getString();
-        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOL") return;
-        TIMES.add(Duration.since(raidStartTime).toMinutes());
+        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOL" || room1Complete) return;
+        TIMES.add(Duration.since(raidStartTime).toSeconds());
+        room1Complete = true;
     }
 
 }
