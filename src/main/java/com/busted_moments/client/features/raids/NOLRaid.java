@@ -14,8 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.Date;
 
 import static com.busted_moments.client.features.raids.RaidsCommon.*;
-import static net.minecraft.ChatFormatting.AQUA;
-import static net.minecraft.ChatFormatting.LIGHT_PURPLE;
+import static net.minecraft.ChatFormatting.*;
 
 @Config.Category("Raids")
 @Default(State.ENABLED)
@@ -30,14 +29,14 @@ public class NOLRaid extends Feature {
        if (msg.equals("§fOrphion's Nexus of §lLight") && !inRaid){
         inRaid = true;
         raidStartTime = new Date();
+        raidType = "NOL";
        }else if(msg.equals("§4Raid Failed!") && inRaid){
-           inRaid = false;
-           TIMES.clear();
+           raidOver();
        }else if (msg.equals("§6§lⓞ ⓡ ⓟ ⓗ ⓘ ⓞ ⓝ")) {
            TIMES.add(Duration.since(raidStartTime).toMinutes());
-       }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid){
+       }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid && raidType == "NOL"){
         inRaid = false;
-
+            boolean isPB = Duration.since(raidStartTime).lessThan(NOLPB);
            TextBuilder builder = TextBuilder.of("Room 1: ", LIGHT_PURPLE).next()
                    .append(TIMES.get(0), AQUA)
                    .line()
@@ -45,14 +44,17 @@ public class NOLRaid extends Feature {
                    .append(TIMES.get(1), AQUA)
                    .line()
                    .append("Raid Time:", LIGHT_PURPLE).next()
-                   .append(Duration.since(raidStartTime))
+                   .append(Duration.since(raidStartTime).toMinutes())
                    .line();
 
-           ChatUtil.send(builder);
-
-           if (Duration.since(raidStartTime).lessThan(NOLPB)){
+           if (isPB){
+               builder.append(
+                       "New Personal Best!", GOLD);
                 NOLPB = Duration.since(raidStartTime);
+           }else{
+               builder.append("Your Personal Best: "+ NOLPB.toMinutes(), LIGHT_PURPLE);
            }
+           ChatUtil.send(builder);
 
            RaidsCommon.raidOver();
        }
@@ -61,7 +63,7 @@ public class NOLRaid extends Feature {
     @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
         String msg = event.getComponent().getString();
-        if (!msg.equals("§7[Challenge complete]") || !inRaid) return;
+        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOL") return;
         TIMES.add(Duration.since(raidStartTime).toMinutes());
     }
 
