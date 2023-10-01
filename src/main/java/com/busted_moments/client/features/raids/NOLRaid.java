@@ -57,7 +57,8 @@ public class NOLRaid extends Feature {
                        "New Personal Best!", GOLD);
                 NOLPB = Duration.since(raidStartTime);
            }else{
-               builder.append("Your Personal Best: "+ timeCalc(NOLPB.toSeconds()), LIGHT_PURPLE);
+               builder.append("Your Personal Best: ", LIGHT_PURPLE)
+                       .append(timeCalc(NOLPB.toSeconds()), AQUA);
            }
            ChatUtil.send(builder);
 
