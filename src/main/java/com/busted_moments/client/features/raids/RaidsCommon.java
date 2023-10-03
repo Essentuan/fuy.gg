@@ -1,6 +1,7 @@
 package com.busted_moments.client.features.raids;
 
 import com.busted_moments.core.config.Config;
+import com.busted_moments.core.render.overlay.Hud;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,11 +17,14 @@ public class RaidsCommon extends Config {
     public static Date raidStartTime = new Date();
     @Hidden("Times")
     public static List<Double> TIMES = new ArrayList<>();
+    @Hidden("RoomCount")
+    public static int roomCount = 0;
 
     public static void raidOver(){
         inRaid = false;
         raidType = "None";
         TIMES.clear();
+        roomCount = 0;
     }
 
     public static String timeCalc(double seconds){

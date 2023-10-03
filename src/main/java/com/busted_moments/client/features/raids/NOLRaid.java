@@ -36,7 +36,6 @@ public class NOLRaid extends Feature {
         raidType = "NOL";
        }else if(msg.equals("§4Raid Failed!") && inRaid){
            raidOver();
-           room1Complete = false;
        }else if (msg.equals("§6§lⓞ ⓡ ⓟ ⓗ ⓘ ⓞ ⓝ")) {
            TIMES.add(Duration.since(raidStartTime).toMinutes());
        }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid && raidType == "NOL"){
@@ -63,16 +62,15 @@ public class NOLRaid extends Feature {
            ChatUtil.send(builder);
 
            RaidsCommon.raidOver();
-           room1Complete = false;
        }
     }
 
     @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
         String msg = event.getComponent().getString();
-        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOL" || room1Complete) return;
+        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOL" || roomCount>0) return;
         TIMES.add(Duration.since(raidStartTime).toSeconds());
-        room1Complete = true;
+        roomCount = roomCount+1;
     }
 
 }
