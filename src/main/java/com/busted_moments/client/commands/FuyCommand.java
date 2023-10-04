@@ -2,6 +2,7 @@ package com.busted_moments.client.commands;
 
 import com.busted_moments.client.features.AutoStreamFeature;
 import com.busted_moments.client.features.AutoUpdateFeature;
+import com.busted_moments.client.features.raids.RaidsCommon;
 import com.busted_moments.client.features.war.WeeklyWarCountOverlay;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.api.requests.Find;
@@ -20,6 +21,7 @@ import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.world.entity.raid.Raid;
 
 import java.util.Date;
 import java.util.List;
@@ -180,5 +182,16 @@ public class FuyCommand {
       ChatUtil.message("Finding player %s...".formatted(string), ChatFormatting.GREEN);
 
       new Player.Request(string).thenAccept(optional -> optional.ifPresentOrElse(consumer, () -> ChatUtil.message("Could not find player %s".formatted(string), ChatFormatting.RED)));
+   }
+   @Subcommand("raidStop")
+   private static void raidStart(
+           CommandContext<FabricClientCommandSource> context
+   ) {
+      if (RaidsCommon.inRaid){
+         RaidsCommon.inRaid = false;
+         ChatUtil.message("inRaid set to false!");
+      }else{
+         ChatUtil.message("inRaid already on false!");
+      }
    }
 }
