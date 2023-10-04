@@ -2,7 +2,11 @@ package com.busted_moments.client.screen.territories;
 
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
+import com.busted_moments.client.util.ContainerHelper;
+import com.busted_moments.core.Promise;
+import com.busted_moments.core.time.TimeUnit;
 import com.wynntils.core.components.Managers;
+import com.wynntils.core.components.Services;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashSet;
@@ -42,6 +46,14 @@ public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesSc
             if (!scanner.SCANNING) BUSY = true;
 
             scanner.SCANNING = false;
+
+            Promise.sleep((long) (Services.Ping.getPing() * 1.2D), TimeUnit.MILLISECONDS).thenAccept(v -> {
+               if (ContainerHelper.isOpen(container()) && WAITING) {
+                  BUSY = false;
+                  WAITING = false;
+               }
+            });
+
             return true;
          } else return false;
       }).setScale(1.2F)

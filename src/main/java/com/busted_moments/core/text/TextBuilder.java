@@ -26,22 +26,31 @@ public interface TextBuilder {
    }
 
    default <T> TextBuilder append(Iterable<T> iterable, BiConsumer<T, TextBuilder> consumer) {
+      return append(iterable, consumer, TextBuilder::line);
+   }
+
+   default <T> TextBuilder append(Iterable<T> iterable, BiConsumer<T, TextBuilder> consumer, Consumer<TextBuilder> next) {
       for (var iter = iterable.iterator(); iter.hasNext(); ) {
          consumer.accept(iter.next(), this);
-         if (iter.hasNext()) line();
+         if (iter.hasNext()) next.accept(this);
       }
 
       return this;
    }
 
    default <T> TextBuilder append(Iterable<T> iterable, Consumer<T> consumer) {
+      return append(iterable, consumer, TextBuilder::line);
+   }
+
+   default <T> TextBuilder append(Iterable<T> iterable, Consumer<T> consumer, Consumer<TextBuilder> next) {
       for (var iter = iterable.iterator(); iter.hasNext(); ) {
          consumer.accept(iter.next());
-         if (iter.hasNext()) line();
+         if (iter.hasNext()) next.accept(this);
       }
 
       return this;
    }
+
 
    default TextBuilder appendIf(Supplier<Boolean> condition, String string, ChatFormatting... styles) {
       if (condition.get()) append(string, styles);
@@ -65,11 +74,26 @@ public interface TextBuilder {
       return onHover(new HoverEvent(action, obj));
    };
 
+   default TextBuilder onHover(Consumer<TextBuilder> consumer) {
+      TextBuilder builder = TextBuilder.empty();
+      consumer.accept(builder);
+
+      return onHover(HoverEvent.Action.SHOW_TEXT, builder.toComponent());
+   };
+
    TextBuilder onPartHover(HoverEvent event);
 
    default <T> TextBuilder onPartHover(HoverEvent.Action<T> action, T obj) {
       return onPartHover(new HoverEvent(action, obj));
    };
+
+   default TextBuilder onPartHover(Consumer<TextBuilder> consumer) {
+      TextBuilder builder = TextBuilder.empty();
+      consumer.accept(builder);
+
+      return onPartHover(HoverEvent.Action.SHOW_TEXT, builder.toComponent());
+   };
+
 
    TextBuilder onClick(ClickEvent event);
 
