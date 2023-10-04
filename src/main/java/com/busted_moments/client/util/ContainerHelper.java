@@ -63,6 +63,10 @@ public class ContainerHelper {
       ));
    }
 
+   public static boolean isOpen(int id) {
+      return hasOpened() && getOpened().map(contents -> contents.containerId() == id).orElse(false);
+   }
+
    public static boolean hasOpened() {
       return ID != -1 && ITEMS != null;
    }
