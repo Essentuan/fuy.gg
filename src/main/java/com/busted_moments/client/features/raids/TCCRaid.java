@@ -26,7 +26,7 @@ import static net.minecraft.ChatFormatting.*;
 @Feature.Definition(name = "The Canyon Colossus", description = "")
 public class TCCRaid extends Feature {
     @Hidden("tcc personal best")
-    private static Duration TCCPB = Duration.FOREVER;
+    public static Duration TCCPB = Duration.FOREVER;
 
     private static final Position room2EndPos = new Vec3(11841, 20, 3985);
     private static final Position raidFailPos = new Vec3(665, 49, -4448);
@@ -39,10 +39,10 @@ public class TCCRaid extends Feature {
             inRaid = true;
             raidStartTime = new Date();
             raidType = "TCC";
-        }else if (msg.equals("§8§kThe defense system") && roomCount == 2) { // 2 if size starts from 0
+        }else if (msg.equals("§8§kThe defense system") && roomCount == 3) {
             TIMES.add(Duration.since(raidStartTime).toSeconds());
             roomCount = roomCount+1;
-        }else if (msg.equals("§4§k! SYSTEM FAILURE !") && roomCount == 3){
+        }else if (msg.equals("§4§k! SYSTEM FAILURE !") && roomCount == 4){
             TIMES.add(Duration.since(raidStartTime).toSeconds());
             roomCount = roomCount+1;
         }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid){
@@ -84,13 +84,14 @@ public class TCCRaid extends Feature {
         }
     }
 
+    @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
-        String msg = event.getComponent().getString();
+        String msg = event.getComponent().getString().toLowerCase();
         if (!inRaid || raidType != "TCC") return;
-        if (msg.equals("§7[Challenge complete]")) {
+        if (msg.equals("§7[challenge complete]")) {
             TIMES.add(Duration.since(raidStartTime).toSeconds());
             roomCount = roomCount + 1;
-        }else if(msg.equals("§bto enter the Colossus") && roomCount == 4){
+        }else if(msg.equals("§bto enter the colossus") && roomCount == 5){
             TIMES.add(Duration.since(raidStartTime).toSeconds());
             roomCount = roomCount + 1;
         }

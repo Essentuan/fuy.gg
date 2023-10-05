@@ -10,10 +10,7 @@ import com.busted_moments.core.time.Duration;
 import com.wynntils.mc.event.SubtitleSetTextEvent;
 import com.wynntils.mc.event.TickEvent;
 import com.wynntils.mc.event.TitleSetTextEvent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -81,8 +78,8 @@ public class NOLRaid extends Feature {
 
     @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
-        String msg = event.getComponent().getString();
-        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOL" || roomCount>0) return;
+        String msg = event.getComponent().getString().toLowerCase();
+        if (!msg.equals("§7[challenge complete]") || !inRaid || raidType != "NOL" || roomCount>0) return;
         TIMES.add(Duration.since(raidStartTime).toSeconds());
         roomCount = roomCount+1;
     }

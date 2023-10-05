@@ -7,7 +7,6 @@ import com.busted_moments.core.State;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.mc.event.SubtitleSetTextEvent;
 import com.wynntils.mc.event.TickEvent;
 import com.wynntils.mc.event.TitleSetTextEvent;
@@ -27,7 +26,7 @@ import static net.minecraft.ChatFormatting.*;
 @Feature.Definition(name = "Nest Of The Grootsleng Raid", description = "")
 public class NOGRaid extends Feature {
     @Hidden("NOG personal best")
-    private static Duration NOGPB = Duration.FOREVER;
+    public static Duration NOGPB = Duration.FOREVER;
 
     private static final Position room3EndPos = new Vec3(9282, 174, 3425);
 
@@ -76,9 +75,10 @@ public class NOGRaid extends Feature {
         }
     }
 
+    @SubscribeEvent
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
-        String msg = event.getComponent().getString();
-        if (!msg.equals("§7[Challenge complete]") || !inRaid || raidType != "NOG" || roomCount>1) return;
+        String msg = event.getComponent().getString().toLowerCase();
+        if (!msg.equals("§7[challenge complete]") || !inRaid || raidType != "NOG" || roomCount>1) return;
         TIMES.add(Duration.since(raidStartTime).toSeconds());
         roomCount = roomCount+1;
     }

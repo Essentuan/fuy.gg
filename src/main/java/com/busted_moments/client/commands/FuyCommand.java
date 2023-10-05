@@ -21,13 +21,17 @@ import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.world.entity.raid.Raid;
 
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.client.features.raids.NOGRaid.NOGPB;
+import static com.busted_moments.client.features.raids.NOLRaid.NOLPB;
+import static com.busted_moments.client.features.raids.RaidsCommon.timeCalc;
+import static com.busted_moments.client.features.raids.TCCRaid.TCCPB;
+import static com.busted_moments.client.features.raids.TNARaid.TNAPB;
 import static com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE;
 import static net.minecraft.ChatFormatting.*;
 
@@ -184,7 +188,7 @@ public class FuyCommand {
       new Player.Request(string).thenAccept(optional -> optional.ifPresentOrElse(consumer, () -> ChatUtil.message("Could not find player %s".formatted(string), ChatFormatting.RED)));
    }
    @Subcommand("raidStop")
-   private static void raidStart(
+   private static void raidStop(
            CommandContext<FabricClientCommandSource> context
    ) {
       if (RaidsCommon.inRaid){
@@ -194,4 +198,23 @@ public class FuyCommand {
          ChatUtil.message("inRaid already on false!");
       }
    }
+   @Subcommand("raidPBs")
+   private static void raidPBs(
+           CommandContext<FabricClientCommandSource> context
+   ){
+      TextBuilder builder = TextBuilder.of("The Nameless Anomaly: ", LIGHT_PURPLE).next()
+              .append(timeCalc(TNAPB.toSeconds()), AQUA)
+              .line()
+              .append("The Canyon Colossus: ", LIGHT_PURPLE).next()
+              .append(timeCalc(TCCPB.toSeconds()), AQUA)
+              .line()
+              .append("Nest of The Grootslangs: ", LIGHT_PURPLE).next()
+              .append(timeCalc(NOGPB.toSeconds()), AQUA)
+              .line()
+              .append("Nexus of Light: ", LIGHT_PURPLE).next()
+              .append(timeCalc(NOLPB.toSeconds()), AQUA)
+              .line();
+      ChatUtil.message(builder);
+   }
+
 }
