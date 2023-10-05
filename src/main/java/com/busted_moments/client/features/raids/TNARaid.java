@@ -33,13 +33,13 @@ public class TNARaid extends Feature {
 
     @SubscribeEvent
     private static void titleSetEvent(TitleSetTextEvent event){
-        String msg = event.getComponent().getString();
+        String msg = event.getComponent().getString().toLowerCase();
         if(inRaid && raidType != "TNA") return;
-        if (msg.equals("§9§lThe §1§k§lNameless§9§l Anomaly") && !inRaid) {
+        if (msg.equals("§9§lthe §1§k§lnameless§9§l anomaly") && !inRaid) {
             inRaid = true;
             raidStartTime = new Date();
             raidType = "TNA";
-        }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid){
+        }else if (msg.equals("§a§lraid completed!") && inRaid){
             inRaid = false;
             boolean isPB = Duration.since(raidStartTime).lessThan(TNAPB);
             TextBuilder builder = TextBuilder.of("Room 1: ", LIGHT_PURPLE).next()
@@ -83,7 +83,7 @@ public class TNARaid extends Feature {
                 (playerPos.closerThan(bossStartCoords, 50) && roomCount == 3)
         ){
             roomComplete();
-        }else if(playerPos.closerThan(raidFailPos, 50)){
+        }else if(playerPos.closerThan(raidFailPos, 5)){
             raidOver();
         }
     }
