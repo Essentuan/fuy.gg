@@ -79,8 +79,7 @@ public class NOGRaid extends Feature {
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
         String msg = event.getComponent().getString().toLowerCase();
         if (!msg.equals("§7[challenge complete]") || !inRaid || raidType != "NOG" || roomCount>1) return;
-        TIMES.add(Duration.since(raidStartTime).toSeconds());
-        roomCount = roomCount+1;
+        roomComplete();
     }
 
     @SubscribeEvent
@@ -89,8 +88,7 @@ public class NOGRaid extends Feature {
         Vec3 playerPos = mc().player.position();
 
         if (playerPos.closerThan(room3EndPos, 50) && inRaid){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+            roomComplete();
         }
     }
 }

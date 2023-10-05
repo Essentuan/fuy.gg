@@ -2,6 +2,7 @@ package com.busted_moments.client.features.raids;
 
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.render.overlay.Hud;
+import com.busted_moments.core.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,5 +36,10 @@ public class RaidsCommon extends Config {
         }else{
             return "%s:%s".formatted(Minutes,Seconds);
         }
+    }
+
+    public static void roomComplete(){
+        TIMES.add(Duration.since(raidStartTime).toSeconds());
+        roomCount = roomCount+1;
     }
 }

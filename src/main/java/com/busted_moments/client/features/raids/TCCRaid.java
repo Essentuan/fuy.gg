@@ -40,11 +40,9 @@ public class TCCRaid extends Feature {
             raidStartTime = new Date();
             raidType = "TCC";
         }else if (msg.equals("§8§kThe defense system") && roomCount == 3) {
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+            roomComplete();
         }else if (msg.equals("§4§k! SYSTEM FAILURE !") && roomCount == 4){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+            roomComplete();
         }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid){
             inRaid = false;
             boolean isPB = Duration.since(raidStartTime).lessThan(TCCPB);
@@ -89,11 +87,9 @@ public class TCCRaid extends Feature {
         String msg = event.getComponent().getString().toLowerCase();
         if (!inRaid || raidType != "TCC") return;
         if (msg.equals("§7[challenge complete]")) {
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount + 1;
+            roomComplete();
         }else if(msg.equals("§bto enter the colossus") && roomCount == 5){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount + 1;
+            roomComplete();
         }
     }
 
@@ -103,8 +99,7 @@ public class TCCRaid extends Feature {
         Vec3 playerPos = mc().player.position();
 
         if (playerPos.closerThan(room2EndPos, 50) && roomCount == 1){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+            roomComplete();
         }else if(playerPos.closerThan(raidFailPos, 50)){
             raidOver();
         }

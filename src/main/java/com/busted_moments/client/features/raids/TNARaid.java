@@ -77,18 +77,12 @@ public class TNARaid extends Feature {
         if (!inRaid || raidType != "TNA") return;
         Vec3 playerPos = mc().player.position();
 
-        if (playerPos.closerThan(room1Complete, 50) && roomCount == 0){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
-        }else if (playerPos.closerThan(room2Complete, 50) && roomCount == 1){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
-        }else if (playerPos.closerThan(room3Complete, 50) && roomCount == 2){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
-        }else if (playerPos.closerThan(bossStartCoords, 50) && roomCount == 3){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+        if ((playerPos.closerThan(room1Complete, 50) && roomCount == 0) ||
+                (playerPos.closerThan(room2Complete, 50) && roomCount == 1) ||
+                (playerPos.closerThan(room3Complete, 50) && roomCount == 2) ||
+                (playerPos.closerThan(bossStartCoords, 50) && roomCount == 3)
+        ){
+            roomComplete();
         }else if(playerPos.closerThan(raidFailPos, 50)){
             raidOver();
         }

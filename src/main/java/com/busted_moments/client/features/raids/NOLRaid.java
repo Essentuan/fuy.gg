@@ -45,7 +45,8 @@ public class NOLRaid extends Feature {
            TIMES.add(Duration.since(raidStartTime).toSeconds());
        }else if (msg.equals("§a§lRAID COMPLETED!") && inRaid && raidType == "NOL"){
         inRaid = false;
-            boolean isPB = Duration.since(raidStartTime).lessThan(NOLPB);
+        boolean isPB = Duration.since(raidStartTime).lessThan(NOLPB);
+
            TextBuilder builder = TextBuilder.of("Room 1: ", LIGHT_PURPLE).next()
                    .append(timeCalc(TIMES.get(0)), AQUA)
                    .line()
@@ -71,7 +72,6 @@ public class NOLRaid extends Feature {
                        .append(timeCalc(NOLPB.toSeconds()), AQUA);
            }
            ChatUtil.send(builder);
-
            RaidsCommon.raidOver();
        }
     }
@@ -80,21 +80,18 @@ public class NOLRaid extends Feature {
     private static void subtitleSetEvent(SubtitleSetTextEvent event){
         String msg = event.getComponent().getString().toLowerCase();
         if (!msg.equals("§7[challenge complete]") || !inRaid || raidType != "NOL" || roomCount>0) return;
-        TIMES.add(Duration.since(raidStartTime).toSeconds());
-        roomCount = roomCount+1;
+        roomComplete();
     }
 
     @SubscribeEvent
     private static void onTick(TickEvent event){
-        if (!inRaid || raidType != "NOL" || roomCount == 0) return;
+        if (!inRaid || raidType != "NOL" || roomCount == 0 || mc().player == null) return;
         Vec3 playerPos = mc().player.position();
 
         if (playerPos.closerThan(room2FinishPos, 50) && inRaid && roomCount == 1){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+            roomComplete();
         }else if(playerPos.closerThan(room3FinishPos, 50) && inRaid && roomCount == 2){
-            TIMES.add(Duration.since(raidStartTime).toSeconds());
-            roomCount = roomCount+1;
+            roomComplete();
         }
     }
 
