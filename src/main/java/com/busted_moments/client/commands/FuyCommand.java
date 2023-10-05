@@ -187,6 +187,8 @@ public class FuyCommand {
 
       new Player.Request(string).thenAccept(optional -> optional.ifPresentOrElse(consumer, () -> ChatUtil.message("Could not find player %s".formatted(string), ChatFormatting.RED)));
    }
+
+   @Alias("rs")
    @Subcommand("raidStop")
    private static void raidStop(
            CommandContext<FabricClientCommandSource> context
@@ -198,6 +200,8 @@ public class FuyCommand {
          ChatUtil.message("inRaid already on false!");
       }
    }
+
+   @Alias("rpb")
    @Subcommand("raidPBs")
    private static void raidPBs(
            CommandContext<FabricClientCommandSource> context
