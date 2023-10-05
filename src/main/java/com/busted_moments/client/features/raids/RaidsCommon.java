@@ -1,7 +1,6 @@
 package com.busted_moments.client.features.raids;
 
 import com.busted_moments.core.config.Config;
-import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.time.Duration;
 
 import java.util.ArrayList;
