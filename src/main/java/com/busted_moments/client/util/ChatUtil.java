@@ -3,27 +3,35 @@ package com.busted_moments.client.util;
 import com.busted_moments.client.util.wynntils.ChatTabUtils;
 import com.busted_moments.core.render.FontRenderer;
 import com.busted_moments.core.text.TextBuilder;
-import com.wynntils.core.components.Services;
+import com.busted_moments.core.tuples.Pair;
+import com.wynntils.core.components.Managers;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.core.text.StyledTextPart;
+import com.wynntils.features.chat.ChatCoordinatesFeature;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.handlers.chat.type.MessageType;
 import com.wynntils.handlers.chat.type.RecipientType;
-import com.wynntils.mc.event.ClientsideMessageEvent;
 import me.shedaniel.math.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.wynntils.utils.mc.McUtils.mc;
+import static com.wynntils.utils.mc.McUtils.sendMessageToClient;
 import static net.minecraft.ChatFormatting.*;
 
 public class ChatUtil {
@@ -50,7 +58,15 @@ public class ChatUtil {
    }
 
    public static void message(String message, Object... args) {
-      message(component(message.formatted(args), WHITE));
+      List<ChatFormatting> formatting = new ArrayList<>();
+      message(component(message.formatted(
+              Stream.of(args).filter(obj -> {
+                 if (obj instanceof ChatFormatting format) {
+                    formatting.add(format);
+                    return false;
+                 } else return true;
+              }).toArray()
+      ), formatting.toArray(ChatFormatting[]::new)));
    }
 
    public static void message(String message) {
@@ -64,11 +80,10 @@ public class ChatUtil {
 
 
    public static void message(StyledText message) {
-      if (mc().player == null) {
-         return;
-      }
+      if (mc().player == null) return;
 
-      FontRenderer.split(message, 0).forEach(text -> mc().player.sendSystemMessage(create(text.getComponent())));
+      FontRenderer.split(message, 0).forEach(text ->
+              sendMessageToClient(text.isBlank() ? Component.empty() : create(text.getComponent())));
    }
 
 
@@ -80,8 +95,43 @@ public class ChatUtil {
       send(ChatUtil.toStyledText(component), component);
    }
 
+   private static List<Consumer<ChatMessageReceivedEvent>> HANDLERS;
+
+   //This is purely due to chat coordinates messing with text (mainly in TowerStatsFeature) [and I don't like this solution]
+   private static void process(ChatMessageReceivedEvent event) {
+      if (HANDLERS == null)
+         HANDLERS = Managers.Feature.getFeatures().stream()
+                 .flatMap(feature ->
+                         feature instanceof ChatCoordinatesFeature ?
+                                 Stream.empty() :
+                                 Stream.of(feature.getClass().getDeclaredMethods())
+                                         .filter(m -> m.isAnnotationPresent(SubscribeEvent.class) &&
+                                                 m.getParameterCount() == 1 &&
+                                                 m.getParameterTypes()[0] == ChatMessageReceivedEvent.class)
+                                         .map(m -> Pair.of(feature, m)))
+                 .sorted(Comparator.comparing(pair -> pair.two().getAnnotation(SubscribeEvent.class).priority()))
+                 .map(pair -> {
+                    pair.two().setAccessible(true);
+
+                    return (Consumer<ChatMessageReceivedEvent>) e -> {
+                       if (pair.one().isEnabled()) {
+                          try {
+                             pair.two().invoke(pair.one(), e);
+                          } catch (IllegalAccessException | InvocationTargetException ex) {
+                             throw new RuntimeException(ex);
+                          }
+                       }
+                    };
+                 }).toList();
+
+      HANDLERS.forEach(consumer -> consumer.accept(event));
+   }
+
    private static void send(StyledText text, Component component) {
-      ChatTabUtils.getFeature().onChatReceived(new ChatMessageReceivedEvent(component, text, MessageType.BACKGROUND, RecipientType.CLIENTSIDE));
+      var event = new ChatMessageReceivedEvent(component, text, MessageType.FOREGROUND, RecipientType.CLIENTSIDE);
+      process(event);
+
+      if (!ChatTabUtils.isEnabled()) mc().gui.getChat().addMessage(event.getMessage());
    }
 
    public static void send(StyledText message) {
@@ -145,7 +195,7 @@ public class ChatUtil {
       return styled[0];
    }
 
-   public static boolean equals(@Nullable StyledText text,  @Nullable String string) {
+   public static boolean equals(@Nullable StyledText text, @Nullable String string) {
       return equals(text, string, PartStyle.StyleType.NONE);
    }
 
@@ -155,7 +205,7 @@ public class ChatUtil {
       return text.equalsString(string, style);
    }
 
-   public static boolean equals(@Nullable Component text,  @Nullable String string) {
+   public static boolean equals(@Nullable Component text, @Nullable String string) {
       return equals(text, string, PartStyle.StyleType.NONE);
    }
 
