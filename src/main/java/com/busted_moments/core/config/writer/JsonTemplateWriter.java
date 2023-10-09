@@ -4,21 +4,23 @@ import com.busted_moments.core.config.Config;
 import com.busted_moments.core.config.Writer;
 import com.busted_moments.core.json.Json;
 import com.busted_moments.core.json.template.JsonTemplate;
+import com.busted_moments.core.toml.Toml;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 
 @Config.Writer(JsonTemplate.class)
-public class JsonTemplateWriter extends Writer<JsonTemplate, String> {
+public class JsonTemplateWriter extends Writer<JsonTemplate, Toml> {
    @Override
-   public @Nullable String write(JsonTemplate value, Class<?> type, Type... typeArgs) throws Exception {
-      return toString(value, type, typeArgs);
+   public @Nullable Toml write(JsonTemplate value, Class<?> type, Type... typeArgs) throws Exception {
+      return Toml.of(value.toJson());
    }
 
    @Override
-   public @Nullable JsonTemplate read(@NotNull String value, Class<?> type, Type... typeArgs) throws Exception {
-      return fromString(value, type, typeArgs);
+   @SuppressWarnings("unchecked")
+   public @Nullable JsonTemplate read(@NotNull Toml value, Class<?> type, Type... typeArgs) throws Exception {
+      return Json.of(value).wrap((Class<? extends JsonTemplate>) type);
    }
 
    @Override

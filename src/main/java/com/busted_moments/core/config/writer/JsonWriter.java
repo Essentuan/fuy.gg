@@ -3,21 +3,22 @@ package com.busted_moments.core.config.writer;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.config.Writer;
 import com.busted_moments.core.json.Json;
+import com.busted_moments.core.toml.Toml;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 
 @Config.Writer(Json.class)
-public class JsonWriter extends Writer<Json, String> {
+public class JsonWriter extends Writer<Json, Toml> {
    @Override
-   public @Nullable String write(Json value, Class<?> type, Type... typeArgs) {
-      return toString(value, type, typeArgs);
+   public @Nullable Toml write(Json value, Class<?> type, Type... typeArgs) {
+      return Toml.of(value);
    }
 
    @Override
-   public @Nullable Json read(@NotNull String value, Class<?> type, Type... typeArgs) {
-      return fromString(value, type, typeArgs);
+   public @Nullable Json read(@NotNull Toml value, Class<?> type, Type... typeArgs) {
+      return Json.of(value);
    }
 
    @Override
