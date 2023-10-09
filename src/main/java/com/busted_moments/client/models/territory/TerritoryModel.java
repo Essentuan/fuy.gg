@@ -75,9 +75,11 @@ public class TerritoryModel extends Model {
 
    @SubscribeEvent
    public void onTick(TickEvent event) {
-      CURRENT_TERRITORY = LATEST_TERRITORIES.stream()
-              .filter(territory -> territory.getLocation().isInside(player().position()))
-              .findFirst();
+      if (LATEST_TERRITORIES != null) {
+         CURRENT_TERRITORY = LATEST_TERRITORIES.stream()
+                 .filter(territory -> territory.getLocation().isInside(player().position()))
+                 .findFirst();
+      }
    }
 
    public static MapState getTerritoryList() {

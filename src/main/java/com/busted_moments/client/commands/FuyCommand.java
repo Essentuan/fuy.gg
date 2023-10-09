@@ -11,10 +11,7 @@ import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
 import com.busted_moments.core.time.TimeUnit;
-import com.essentuan.acf.core.annotations.Alias;
-import com.essentuan.acf.core.annotations.Argument;
-import com.essentuan.acf.core.annotations.Command;
-import com.essentuan.acf.core.annotations.Subcommand;
+import com.essentuan.acf.core.annotations.*;
 import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType;
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
@@ -31,6 +28,7 @@ import static net.minecraft.ChatFormatting.*;
 
 @Alias("fy")
 @Command("fuy")
+@Inherit(RaidCommand.class)
 public class FuyCommand {
    @Subcommand("config")
    private static void onConfig(CommandContext<FabricClientCommandSource> context) {
@@ -174,7 +172,6 @@ public class FuyCommand {
 
       AutoUpdateFeature.update().thenAccept(result -> ChatUtil.message(result.getMessage()));
    }
-
 
    private static void getPlayer(String string, Consumer<Player> consumer) {
       ChatUtil.message("Finding player %s...".formatted(string), ChatFormatting.GREEN);
