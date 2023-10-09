@@ -1,5 +1,8 @@
 package com.busted_moments.core.toml;
 
+import com.busted_moments.core.collector.SimpleCollector;
+import com.busted_moments.core.json.Json;
+
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -184,6 +187,15 @@ public interface Toml extends Map<String, Object> {
       return new TomlObject(key, object);
    }
 
+   static Toml of(Json json) {
+      var toml = empty();
+
+      json.forEach((key, value) ->
+              toml.set(key, value instanceof Json j ? of(j) : value));
+
+      return toml;
+   }
+
    static Toml parse(String string) {
       return TomlObject.from(string, me.shedaniel.cloth.clothconfig.shadowed.com.moandjiezana.toml.Toml::read);
    }
@@ -191,5 +203,43 @@ public interface Toml extends Map<String, Object> {
 
    static Toml read(File file) {
       return TomlObject.from(file, me.shedaniel.cloth.clothconfig.shadowed.com.moandjiezana.toml.Toml::read);
+   }
+
+   class Collector<T> extends SimpleCollector<T, Toml, Toml> {
+      private final Function<T, String> keyMapper;
+      private final Function<T, ?> valueMapper;
+
+      @SuppressWarnings("unchecked")
+      public Collector(Function<T, String> keyMapper) {
+         this(keyMapper, value -> value);
+      }
+
+      @SuppressWarnings("unchecked")
+      public Collector(Function<T, String> keyMapper, Function<T, ?> valueMapper) {
+         this.keyMapper = keyMapper;
+         this.valueMapper = valueMapper;
+      }
+
+      @Override
+      protected Toml supply() {
+         return Toml.empty();
+      }
+
+      @Override
+      protected void accumulate(Toml container, T value) {
+         container.set(keyMapper.apply(value), valueMapper.apply(value));
+      }
+
+      @Override
+      protected Toml combine(Toml left, Toml right) {
+         left.putAll(right);
+
+         return left;
+      }
+
+      @Override
+      protected Toml finish(Toml container) {
+         return container;
+      }
    }
 }

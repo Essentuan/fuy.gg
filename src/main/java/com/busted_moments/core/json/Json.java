@@ -5,6 +5,7 @@ import com.busted_moments.core.collector.SimpleCollector;
 import com.busted_moments.core.json.template.JsonTemplate;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.toml.Toml;
 import com.busted_moments.core.util.UUIDUtil;
 import com.google.gson.JsonObject;
 
@@ -247,7 +248,24 @@ public interface Json extends Map<String, Object>, Serializable {
    }
 
    static Json of(Map<String, ?> map) {
+      if (map instanceof Json json) return json;
+
       return new JsonImpl(map);
+   }
+
+   static Json of(Toml toml) {
+      Json json = new JsonImpl(toml);
+
+      for (var iter = json.entrySet().iterator(); iter.hasNext(); ) {
+         var entry = iter.next();
+         var value = entry.getValue();
+
+         if (value instanceof Toml t) {
+            entry.setValue(of(t));
+         }
+      }
+
+      return json;
    }
 
    static Json parse(String string) {
