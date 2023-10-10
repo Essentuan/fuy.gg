@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Locale;
 
 public class NumUtil {
@@ -80,6 +81,30 @@ public class NumUtil {
       if (number == 0) return "0";
 
       return LONG_FORMATTER.format(number);
+   }
+
+   public static double parseDouble(String string) {
+         try {
+            return DOUBLE_FORMATTER.parse(string).doubleValue();
+         } catch (ParseException e) {
+            throw new RuntimeException(e);
+         }
+   }
+
+   public static double parseFloat(String string) {
+      return (float) parseDouble(string);
+   }
+
+   public static int parseInt(String string) {
+      return (int) parseLong(string);
+   }
+
+   public static long parseLong(String string) {
+      try {
+         return LONG_FORMATTER.parse(string).longValue();
+      } catch (ParseException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public static boolean isForever(double number) {
