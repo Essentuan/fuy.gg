@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -96,8 +97,17 @@ public class TempMap<Key, Value> implements Map<Key, Value> {
       this.duration = expiry;
    }
 
-   public synchronized void cleanup() {
-      map.values().removeIf(Entry::hasExpired);
+   public void cleanup(Consumer<Value> consumer) {
+      map.values().removeIf(v -> {
+         if (v.hasExpired()) {
+            consumer.accept(v.get());
+            return true;
+         } else return false;
+      });
+   }
+
+   public void cleanup() {
+      cleanup(v -> {});
    }
 
    private Value getAndValidate(Object key) {
