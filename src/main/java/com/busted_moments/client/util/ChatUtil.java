@@ -58,15 +58,7 @@ public class ChatUtil {
    }
 
    public static void message(String message, Object... args) {
-      List<ChatFormatting> formatting = new ArrayList<>();
-      message(component(message.formatted(
-              Stream.of(args).filter(obj -> {
-                 if (obj instanceof ChatFormatting format) {
-                    formatting.add(format);
-                    return false;
-                 } else return true;
-              }).toArray()
-      ), formatting.toArray(ChatFormatting[]::new)));
+      message(TextBuilder.empty().append(message, args));
    }
 
    public static void message(String message) {
@@ -145,6 +137,10 @@ public class ChatUtil {
 
    public static void send(TextBuilder message) {
       send(message.build());
+   }
+
+   public static void send(String message, Object... args) {
+      send(TextBuilder.empty().append(message, args));
    }
 
 
