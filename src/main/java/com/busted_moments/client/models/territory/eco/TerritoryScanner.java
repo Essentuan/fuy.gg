@@ -4,6 +4,7 @@ import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.core.events.EventListener;
 import com.busted_moments.core.heartbeat.Scheduler;
+import com.wynntils.core.components.Managers;
 import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.mc.event.MenuEvent;
 import net.minecraft.core.Direction;
@@ -66,30 +67,33 @@ public abstract class TerritoryScanner implements Scheduler, EventListener, Clos
       ));
 
 
-      for (Entry entry : page) {
-         if (process(
-                 entry.territory(),
-                 entry.stack(),
-                 entry.slot()
-         )) return;
+      if (SCANNING) {
+         for (Entry entry : page) {
+            if (process(
+                    entry.territory(),
+                    entry.stack(),
+                    entry.slot()
+            )) return;
+         }
+
+         if (direction == Direction.DOWN) {
+            if (!hasNextPage()) {
+               direction = Direction.UP;
+               if (pages.size() > this.page + 1) pages.subList(this.page + 1, pages.size()).clear();
+
+               previousPage();
+            } else nextPage();
+         } else {
+            if (!hasPreviousPage()) {
+               direction = Direction.DOWN;
+
+               nextPage();
+            } else previousPage();
+         }
       }
 
-      if (!SCANNING) return;
-
-      if (direction == Direction.DOWN) {
-         if (!hasNextPage()) {
-            direction = Direction.UP;
-            if (pages.size() > this.page + 1) pages.subList(this.page + 1, pages.size()).clear();
-
-            previousPage();
-         } else nextPage();
-      } else {
-         if (!hasPreviousPage()) {
-            direction = Direction.DOWN;
-
-            nextPage();
-         } else previousPage();
-      }
+      if (!hasNextPage() && !hasPreviousPage())
+         Managers.TickScheduler.scheduleLater(this::rescan, 2);
    }
 
    @SubscribeEvent(priority = EventPriority.HIGHEST)
