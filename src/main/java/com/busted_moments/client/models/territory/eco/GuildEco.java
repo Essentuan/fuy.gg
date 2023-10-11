@@ -1,12 +1,14 @@
 package com.busted_moments.client.models.territory.eco;
 
 import com.busted_moments.client.models.territory.TerritoryModel;
+import com.busted_moments.core.Promise;
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.api.requests.mapstate.version.template.MapTemplate;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class GuildEco implements Territory.List<TerritoryEco> {
    private final Map<String, TerritoryEco> territories = new LinkedHashMap<>();
@@ -15,20 +17,34 @@ public class GuildEco implements Territory.List<TerritoryEco> {
    private MapTemplate template = null;
 
    TerritoryEco HQ = null;
+
+   private Promise<Void> currentUpdate = null;
+
    public GuildEco(List<ItemStack> items) {
       for (ItemStack item : items) {
          TerritoryEco territory = new TerritoryEco(this, item);
          territories.put(territory.getName(), territory);
       }
 
-      var state = TerritoryModel.getTerritoryList();
+      update(eco -> {});
+   }
 
-      state.getVersion().thenAccept(optional -> optional.ifPresent(version -> version.getTemplate().thenAccept(template -> {
-         this.template = template;
+   public void update(Consumer<GuildEco> consumer) {
+      if (currentUpdate == null || currentUpdate.isDone()) {
+         territories.values().forEach(t -> {
+            t.route = null;
+            t.absolute = null;
+         });
 
-         Route.visit(state, template, this, false);
-         Route.visit(state, template, this, true);
-      })));
+         var state = TerritoryModel.getTerritoryList();
+
+         currentUpdate = state.getVersion().thenAccept(optional -> optional.ifPresent(version -> version.getTemplate().thenAccept(template -> {
+            this.template = template;
+
+            Route.visit(state, template, this, false);
+            Route.visit(state, template, this, true);
+         }))).thenAccept(v -> consumer.accept(this));
+      }
    }
 
    public Optional<MapTemplate> getTemplate() {

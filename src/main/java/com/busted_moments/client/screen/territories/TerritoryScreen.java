@@ -1,6 +1,7 @@
 package com.busted_moments.client.screen.territories;
 
 import com.busted_moments.client.features.war.TerritoryHelperMenuFeature;
+import com.busted_moments.client.models.territory.eco.GuildEco;
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.models.territory.eco.tributes.TributeModel;
@@ -24,6 +25,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ContainerSetContentEvent;
+import com.wynntils.mc.event.TickEvent;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.type.TextShadow;
@@ -65,7 +67,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
    protected List<Screen.Widget<?>> baseWidgets = List.of();
 
-   protected List<TerritoryEco> territories = null;
+   protected GuildEco territories = null;
 
    protected final Scanner scanner;
    protected boolean BUSY = false;
@@ -93,7 +95,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       scanner = scanner(CONTAINER_ID);
 
       scanner.onUpdate(e -> {
-         territories = e.stream().toList();
+         territories = e;
 
          rebuild();
       });
@@ -417,7 +419,16 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       if (event.getContainerId() != CONTAINER_ID) return;
       WAITING = false;
    }
-   
+
+   @SubscribeEvent
+   public void onTick(TickEvent event) {
+      if (territories != null)
+         territories.update(eco -> {
+            if (eco == territories)
+               rebuild();
+         });
+   }
+
    protected <T> ClickEvent.Handler<T> getClickHandler(int slot, boolean sound, boolean cancel) {
       return (x, y, button, ignored) -> {
          if (!click(slot, button)) return false;
