@@ -111,6 +111,16 @@ public class ServerList extends JsonTemplate implements Collection<World> {
 
     @Override
     public JsonTemplate load(Json json) {
+        json.getJson("servers").values().forEach(o -> {
+            if (!(o instanceof Json world))
+                return;
+
+            var iter = world.getList("players", Object.class).listIterator();
+            while (iter.hasNext())
+                iter.set(iter.next().toString());
+
+        });
+
         super.load(json);
 
         servers.forEach((worldName, world) -> world.world = worldName);
