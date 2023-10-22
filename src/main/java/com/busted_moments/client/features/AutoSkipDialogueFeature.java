@@ -7,6 +7,7 @@ import com.busted_moments.core.time.TimeUnit;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.handlers.chat.event.NpcDialogEvent;
 import com.wynntils.handlers.chat.type.NpcDialogueType;
+import com.wynntils.handlers.chat.type.RecipientType;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import static net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action;
@@ -24,7 +25,7 @@ public class AutoSkipDialogueFeature extends Feature {
 
     @SubscribeEvent
     public void ChatReceivedEvent(ChatMessageReceivedEvent event){
-        if (!event.getStyledText().contains("§7Press §fSHIFT §7to continue§r")) return;
+        if (event.getRecipientType() == RecipientType.NPC) return;
 
         PacketUtil.Action(Action.PRESS_SHIFT_KEY);
 
