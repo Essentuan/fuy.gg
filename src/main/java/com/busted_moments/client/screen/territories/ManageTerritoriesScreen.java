@@ -4,7 +4,7 @@ import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.models.war.WarModel;
 import com.busted_moments.client.util.SoundUtil;
-import com.wynntils.utils.mc.McUtils;
+import com.wynntils.core.components.Handlers;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
@@ -72,7 +72,7 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
             SCANNING = false;
             BUSY = true;
             close();
-            McUtils.sendCommand("gu territory %s".formatted(TO_SELECT));
+            Handlers.Command.sendCommand("gu territory %s".formatted(TO_SELECT));
          } else if (getPages().size() == 1) rescan();
       }
 
