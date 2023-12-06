@@ -2,6 +2,7 @@ package com.busted_moments.core.render;
 
 import com.busted_moments.client.events.mc.MinecraftStartupEvent;
 import com.busted_moments.core.text.TextBuilder;
+import com.busted_moments.core.util.Reflection;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,6 +15,7 @@ import com.wynntils.features.map.WorldWaypointDistanceFeature;
 import com.wynntils.mc.event.RenderEvent;
 import com.wynntils.mc.event.RenderLevelEvent;
 import com.wynntils.mc.event.RenderTileLevelLastEvent;
+import com.wynntils.mc.event.TickEvent;
 import com.wynntils.models.marker.MarkerModel;
 import com.wynntils.models.marker.type.MarkerProvider;
 import com.wynntils.services.map.pois.WaypointPoi;
@@ -33,6 +35,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Position;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.joml.*;
 
@@ -56,24 +59,11 @@ class BeaconRenderer {
    }
 
    private static BeaconBeamFeature BEACON_BEAM;
-   private static Field RAINBOW_FIELD;
+   private static CustomColor rainbow = CommonColors.WHITE;
+
 
    static CustomColor getCurrentRainbow() {
-      if (BEACON_BEAM == null) BEACON_BEAM = Managers.Feature.getFeatureInstance(BeaconBeamFeature.class);
-      if (RAINBOW_FIELD == null) {
-         try {
-            RAINBOW_FIELD = BeaconBeamFeature.class.getDeclaredField("currentRainbowColor");
-            RAINBOW_FIELD.setAccessible(true);
-         } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-         }
-      }
-
-      try {
-         return (CustomColor) RAINBOW_FIELD.get(BEACON_BEAM);
-      } catch (IllegalAccessException e) {
-         throw new RuntimeException(e);
-      }
+      return rainbow;
    }
 
    static Stream<Beacon> getBeacons() {
@@ -308,6 +298,15 @@ class BeaconRenderer {
             poseStack.popPose();
          }
       }
+   }
+
+   @SubscribeEvent(priority = EventPriority.LOWEST)
+   private static void onTick(TickEvent event) {
+
+      if (BEACON_BEAM == null)
+         BEACON_BEAM = Managers.Feature.getFeatureInstance(BeaconBeamFeature.class);
+
+      rainbow = Reflection.get("currentRainbowColor", BeaconBeamFeature.class, BEACON_BEAM);
    }
 
    static Vec3 worldToScreen(Vector3f delta, Matrix4f projection) {

@@ -208,4 +208,8 @@ public interface Renderer {
    static void beacon(Beacon.Provider provider) {
       BeaconRenderer.register(provider);
    }
+
+   static CustomColor rainbow() {
+      return BeaconRenderer.getCurrentRainbow();
+   }
 }
