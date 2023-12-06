@@ -1,6 +1,7 @@
 package com.busted_moments.core.json.codecs;
 
-import com.busted_moments.core.json.Codec;
+import com.busted_moments.core.json.AbstractCodec;
+import com.busted_moments.core.json.Annotations;
 import com.busted_moments.core.util.UUIDUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,15 +9,15 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Type;
 import java.util.UUID;
 
-@Codec.Definition(UUID.class)
-public class UUIDCodec extends Codec<UUID, String> {
+@AbstractCodec.Definition(UUID.class)
+public class UUIDCodec extends AbstractCodec<UUID, String> {
    @Override
-   public @Nullable String write(UUID value, Class<?> type, Type... typeArgs) throws Exception {
+   public @Nullable String write(UUID value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
       return toString(value, type, typeArgs);
    }
 
    @Override
-   public @Nullable UUID read(@NotNull String value, Class<?> type, Type... typeArgs) throws Exception {
+   public @Nullable UUID read(@NotNull String value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
       return fromString(value, type, typeArgs);
    }
 

@@ -1,20 +1,21 @@
 package com.busted_moments.core.json.codecs.primitives;
 
-import com.busted_moments.core.json.Codec;
+import com.busted_moments.core.json.AbstractCodec;
+import com.busted_moments.core.json.Annotations;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 
-@Codec.Definition(Boolean.class)
-public class BooleanCodec extends Codec<Boolean, Boolean> {
+@AbstractCodec.Definition(Boolean.class)
+public class BooleanCodec extends AbstractCodec<Boolean, Boolean> {
    @Override
-   public @Nullable Boolean write(Boolean value, Class<?> type, Type... typeArgs) throws Exception {
+   public @Nullable Boolean write(Boolean value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
       return value;
    }
 
    @Override
-   public @Nullable Boolean read(@NotNull Boolean value, Class<?> type, Type... typeArgs) throws Exception {
+   public @Nullable Boolean read(@NotNull Boolean value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
       return value;
    }
 

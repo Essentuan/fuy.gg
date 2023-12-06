@@ -1,320 +1,316 @@
 package com.busted_moments.core.json;
 
-
 import com.busted_moments.core.collector.SimpleCollector;
-import com.busted_moments.core.json.template.JsonTemplate;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
 import com.busted_moments.core.toml.Toml;
 import com.busted_moments.core.util.UUIDUtil;
 import com.google.gson.JsonObject;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
-import static com.wynntils.core.json.JsonManager.GSON;
+import static com.wynntils.core.WynntilsMod.GSON;
 
 public interface Json extends Map<String, Object>, Serializable {
-   Json set(final String key, final Object value);
+    Json set(final String key, final Object value);
 
-   default Json addAll(Map<String, Object> map) {
-      putAll(map);
+    Json copy(final String from, final String... to);
 
-      return this;
-   }
+    Json cut(final String from, final String... to);
 
-   Json remove(final String key);
+    default Json addAll(Map<String, Object> map) {
+        putAll(map);
 
-   default Json removeAll(final String... keys) {
-      for (String key : keys) {
-         remove(key);
-      }
+        return this;
+    }
 
-      return this;
-   }
+    Json delete(final String key);
 
-   default Json removeAll(final Collection<String> c) {
-      c.forEach(this::remove);
+    default Json removeAll(final String... keys) {
+        for (String key : keys) {
+            delete(key);
+        }
 
-      return this;
-   }
+        return this;
+    }
 
-   default <T> Json removeAll(final Collection<T> c, Function<T, String> mapper) {
-      c.forEach(obj -> remove(mapper.apply(obj)));
+    default Json removeAll(final Collection<String> c) {
+        c.forEach(this::delete);
 
-      return this;
-   }
+        return this;
+    }
 
+    default <T> Json removeAll(final Collection<T> c, Function<T, String> mapper) {
+        c.forEach(obj -> delete(mapper.apply(obj)));
 
-   <T> T get(final String key, final Class<T> clazz) throws ClassCastException;
+        return this;
+    }
 
-   <T> T get(final String key, final T defaultValue) throws ClassCastException;
 
-   <T> T get(String key, Class<T> clazz, T defaultValue);
+    <T> T get(final Object key, final Class<T> clazz) throws ClassCastException;
 
-   default boolean has(final String key) {
-      return containsKey(key);
-   }
+    <T> T get(final Object key, final T defaultValue) throws ClassCastException;
 
-   Number getNumber(final String key) throws ClassCastException;
+    default boolean has(final Object key) {
+        return containsKey(key);
+    }
 
-   Number getNumber(final String key, final Number defaultValue) throws ClassCastException;
+    default boolean isNull(final Object key) {
+        return !has(key) || get(key) == null;
+    }
 
-   default <T extends Number> T getNumber(final String key, Function<Number, T> getter) throws ClassCastException {
-      Number number = getNumber(key);
+    Number getNumber(final Object key) throws ClassCastException;
 
-      if (number == null) {
-         return null;
-      }
+    default <T extends Number> T getNumber(final Object key, Function<Number, T> getter) throws ClassCastException {
+        Number number = getNumber(key);
 
-      return getter.apply(number);
-   }
+        if (number == null) {
+            return null;
+        }
 
-   default <T extends Number> T getNumber(final String key, Number defaultValue, Function<Number, T> getter) {
-      return getter.apply(getNumber(key, defaultValue));
-   }
+        return getter.apply(number);
+    }
 
-   Integer getInteger(final String key) throws ClassCastException;
+    Integer getInteger(final Object key) throws ClassCastException;
 
-   int getInteger(final String key, final int defaultValue) throws ClassCastException;
+    int getInteger(final Object key, final int defaultValue) throws ClassCastException;
 
-   Long getLong(final String key) throws ClassCastException;
+    Long getLong(final Object key) throws ClassCastException;
+    long getLong(final Object key, final long defaultValue) throws ClassCastException;
 
-   long getLong(final String key, final long defaultValue) throws ClassCastException;
+    Float getFloat(final Object key) throws ClassCastException;
 
-   Float getFloat(final String key) throws ClassCastException;
+    float getFloat(final Object key, final float defaultValue) throws ClassCastException;
 
-   float getFloat(final String key, final float defaultValue) throws ClassCastException;
+    Double getDouble(final Object key) throws ClassCastException;
 
-   Double getDouble(final String key) throws ClassCastException;
+    double getDouble(final Object key, final double defaultValue) throws ClassCastException;
 
-   double getDouble(final String key, final double defaultValue) throws ClassCastException;
+    String getString(final Object key) throws ClassCastException;
 
-   String getString(final String key) throws ClassCastException;
+    String getString(final Object key, final String defaultValue) throws ClassCastException;;
 
-   String getString(final String key, final String defaultValue) throws ClassCastException;
+    Boolean getBoolean(final Object key) throws ClassCastException;
 
-   ;
+    boolean getBoolean(final Object key, final boolean defaultValue) throws ClassCastException;
 
-   Boolean getBoolean(final String key) throws ClassCastException;
+    Date getDate(final Object key) throws ClassCastException;
 
-   boolean getBoolean(final String key, final boolean defaultValue) throws ClassCastException;
+    Date getDate(final Object key, final Date defaultValue) throws ClassCastException;
 
-   Date getDate(final String key) throws ClassCastException;
+    default Date getDate(final Object key, final long defaultValue) throws ClassCastException {
+        return getDate(key, new Date(defaultValue));
+    }
 
-   Date getDate(final String key, final Date defaultValue) throws ClassCastException;
+    default Duration getDuration(final Object key) throws ClassCastException {
+        Object obj = get(key);
 
-   default Date getDate(final String key, final long defaultValue) throws ClassCastException {
-      return getDate(key, new Date(defaultValue));
-   }
+        if (obj instanceof Duration duration)
+            return duration;
+        else if (obj instanceof Json json) {
+            if (json.has("seconds") && json.has("nanos")) {
+                return Duration.of(json.getDouble("seconds"), ChronoUnit.SECONDS)
+                        .add(json.getDouble("nanos"), ChronoUnit.NANOSECONDS);
+            } else
+                return null;
+        } else if (obj == null)
+            return null;
+        else
+            throw new ClassCastException("(%s) cannot be cast to Duration".formatted(obj.getClass().getSimpleName()));
+    }
 
-   default Duration getDuration(final String key) throws ClassCastException {
-      Object obj = get(key);
+    default Duration getDuration(final Object key, final Duration defaultValue) throws ClassCastException {
+        return has(key) ? getDuration(key) : defaultValue;
+    }
 
-      if (obj == null) return null;
-      else if (obj instanceof Duration duration) return duration;
-      else if (obj instanceof Json json) {
-         if (json.has("seconds") && json.has("nanos")) {
-            return Duration.of(json.getDouble("seconds"), TimeUnit.SECONDS)
-                    .add(json.getDouble("nanos"), TimeUnit.NANOSECONDS);
-         } else return null;
-      } else if (obj instanceof Number number) return Duration.of(number.doubleValue(), TimeUnit.MILLISECONDS);
+    default UUID getUUID(final Object key) throws IllegalArgumentException, ClassCastException {
+        return getUUID(key, null);
+    }
 
-      throw new ClassCastException("(%s) cannot be cast to Duration".formatted(obj.getClass().getSimpleName()));
-   }
+    default UUID getUUID(final Object key, final UUID defaultValue) throws IllegalArgumentException, ClassCastException {
+        if (!isUUID(key)) {
+            return defaultValue;
+        }
 
-   default Duration getDuration(final String key, final Duration defaultValue) throws ClassCastException {
-      return has(key) ? getDuration(key) : defaultValue;
-   }
+        if (isString(key)) {
+            return UUID.fromString(getString(key));
+        }
 
-   default UUID getUUID(final String key) throws IllegalArgumentException, ClassCastException {
-      return getUUID(key, null);
-   }
+        return get(key, UUID.class);
+    }
 
-   default UUID getUUID(final String key, final UUID defaultValue) throws IllegalArgumentException, ClassCastException {
-      if (!isUUID(key)) {
-         return defaultValue;
-      }
+    List<Object> getList(final Object key) throws ClassCastException;
 
-      if (isString(key)) {
-         return UUID.fromString(getString(key));
-      }
+    List<Object> getList(final Object key, final List<Object> defaultValue) throws ClassCastException;
 
-      return get(key, UUID.class);
-   }
+    <T> List<T> getList(final Object key, final Class<T> clazz) throws ClassCastException;
 
-   List<Object> getList(final String key) throws ClassCastException;
+    <T> List<T> getList(final Object key, final Class<T> clazz, final List<T> defaultValue) throws ClassCastException;
 
-   List<Object> getList(final String key, final List<Object> defaultValue) throws ClassCastException;
+    Json getJson(final Object key) throws ClassCastException;
 
-   <T> List<T> getList(final String key, final Class<T> clazz) throws ClassCastException;
+    Json getJson(final Object key, final Json defaultValue) throws ClassCastException;
 
-   <T> List<T> getList(final String key, final Class<T> clazz, final List<T> defaultValue) throws ClassCastException;
+    default @Nullable Class<?> getType(final Object key) {
+        return containsKey(key) ? get(key).getClass() : null;
+    }
 
-   Json getJson(final String key) throws ClassCastException;
+    default boolean isType(final Object key, final Class<?> clazz) {
+        Class<?> type = getType(key);
 
-   Json getJson(final String key, final Json defaultValue) throws ClassCastException;
+        return type != null && clazz.isAssignableFrom(type);
+    }
 
-   default @Nullable Class<?> getType(final String key) {
-      return containsKey(key) ? get(key).getClass() : null;
-   }
+    default boolean isPrimitive(final Object key) {
+        Class<?> type = getType(key);
 
-   default boolean isType(final String key, final Class<?> clazz) {
-      Class<?> type = getType(key);
+        return type != null && type.isPrimitive();
+    }
 
-      return type != null && clazz.isAssignableFrom(type);
-   }
+    default boolean isInteger(final Object key) {
+        return isType(key, Integer.class) || isType(key, int.class);
+    }
 
-   default boolean isPrimitive(final String key) {
-      Class<?> type = getType(key);
+    default boolean isLong(final Object key) {
+        return isType(key, Long.class) || isType(key, long.class);
+    }
 
-      return type != null && type.isPrimitive();
-   }
+    default boolean isDouble(final Object key) {
+        return isType(key, Double.class) || isType(key, double.class);
+    }
 
-   default boolean isInteger(final String key) {
-      return isType(key, Integer.class) || isType(key, int.class);
-   }
+    default boolean isBoolean(final Object key) {
+        return isType(key, Boolean.class) || isType(key, boolean.class);
+    }
 
-   default boolean isLong(final String key) {
-      return isType(key, Long.class) || isType(key, long.class);
-   }
+    default boolean isString(final Object key) {
+        return isType(key, String.class);
+    }
 
-   default boolean isDouble(final String key) {
-      return isType(key, Double.class) || isType(key, double.class);
-   }
+    default boolean isDate(final Object key) {
+        return isType(key, Date.class);
+    }
 
-   default boolean isBoolean(final String key) {
-      return isType(key, Boolean.class) || isType(key, boolean.class);
-   }
+    default boolean isDuration(final Object key) {
+        return isType(key, Duration.class);
+    }
 
-   default boolean isString(final String key) {
-      return isType(key, String.class);
-   }
+    default boolean isUUID(final Object key) {
+        return isType(key, UUID.class) || (isString(key) && UUIDUtil.isUUID(getString(key)));
+    }
 
-   default boolean isDate(final String key) {
-      return isType(key, Date.class);
-   }
+    default boolean isList(final Object key) {
+        return isType(key, List.class);
+    }
 
-   default boolean isDuration(final String key) {
-      return isType(key, Duration.class);
-   }
+    default boolean isJson(final Object key) {
+        Class<?> clazz = getType(key);
 
-   default boolean isUUID(final String key) {
-      return isType(key, UUID.class) || (isString(key) & UUIDUtil .isUUID(getString(key)));
-   }
+        return clazz != null && Json.class.isAssignableFrom(clazz);
+    }
 
-   default boolean isList(final String key) {
-      return isType(key, List.class);
-   }
+    String toString();
 
-   default boolean isJsonObject(final String key) {
-      Class<?> clazz = getType(key);
+    @SuppressWarnings("unchecked")
+    default <T extends BaseModel> T wrap(BaseModel.Factory<T> constructor) {
+        return (T) constructor.get().load(this);
+    }
 
-      return clazz != null && Json.class.isAssignableFrom(clazz);
-   }
+    default <T extends BaseModel> T wrap(Class<T> clazz) {
+        return wrap(BaseModel.constructor(clazz));
+    }
 
-   String toString();
+    static Json parse(@Nullable String string) {
+        if (string == null || string.isBlank())
+            return Json.empty();
+        else if (string.trim().charAt(0) == '[')
+            string = "{\"root\": " + string + "}";
 
-   @SuppressWarnings("unchecked")
-   default <T extends JsonTemplate> T wrap(Supplier<T> constructor) {
-      return (T) constructor.get().load(this);
-   }
+        return JsonImpl.convert(GSON.fromJson(string, JsonObject.class));
+    }
 
-   default <T extends JsonTemplate> T wrap(Class<T> clazz) {
-      return wrap(() -> {
-         try {
-            return clazz.getConstructor().newInstance();
-         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-         }
-      });
-   }
+    static Json of(Toml toml) {
+        Json json = new JsonImpl(toml);
 
+        for (var iter = json.entrySet().iterator(); iter.hasNext(); ) {
+            var entry = iter.next();
+            var value = entry.getValue();
 
-   static Json empty() {
-      return new JsonImpl();
-   }
+            if (value instanceof Toml t) {
+                entry.setValue(of(t));
+            }
+        }
 
-   static Json of(String key, Object value) {
-      return empty().set(key, value);
-   }
+        return json;
+    }
 
-   static Json of(JsonObject object) {
-      return JsonImpl.convert(object);
-   }
+    static Optional<Json> tryParse(String string) {
+        try {
+            return Optional.of(parse(string));
+        } catch(Exception e) {
+            return Optional.empty();
+        }
+    }
 
-   static Json of(Map<String, ?> map) {
-      if (map instanceof Json json) return json;
+    static <T extends BaseModel> T wrap(Json json, BaseModel.Factory<T> constructor) {
+        return json.wrap(constructor);
+    }
 
-      return new JsonImpl(map);
-   }
+    static Json empty() {
+        return new JsonImpl();
+    }
 
-   static Json of(Toml toml) {
-      Json json = new JsonImpl(toml);
+    static Json of(String key, Object value) {
+        return empty().set(key, value);
+    }
 
-      for (var iter = json.entrySet().iterator(); iter.hasNext(); ) {
-         var entry = iter.next();
-         var value = entry.getValue();
+    static <T extends BaseModel> Function<Json, T> map(BaseModel.Factory<T> factory) {
+        return json -> json.wrap(factory);
+    }
 
-         if (value instanceof Toml t) {
-            entry.setValue(of(t));
-         }
-      }
+    class Collector<T> extends SimpleCollector<T, Json, Json> {
+        private final Function<T, String> keyMapper;
+        private final Function<T, ?> valueMapper;
 
-      return json;
-   }
+        @SuppressWarnings("unchecked")
+        public Collector(Function<T, String> keyMapper) {
+            this(keyMapper, value -> value);
+        }
 
-   static Json parse(String string) {
-      return JsonImpl.convert(GSON.fromJson(string, JsonObject.class));
-   }
+        @SuppressWarnings("unchecked")
+        public Collector(Function<T, String> keyMapper, Function<T, ?> valueMapper) {
+            this.keyMapper = keyMapper;
+            this.valueMapper = valueMapper;
+        }
 
-   static Optional<Json> tryParse(String string) {
-      try {
-         return Optional.of(parse(string));
-      } catch(Exception e) {
-         return Optional.empty();
-      }
-   }
+        @Override
+        protected Json supply() {
+            return Json.empty();
+        }
 
-   class Collector<T> extends SimpleCollector<T, Json, Json> {
-      private final Function<T, String> keyMapper;
-      private final Function<T, ?> valueMapper;
+        @Override
+        protected void accumulate(Json container, T value) {
+            container.set(keyMapper.apply(value), valueMapper.apply(value));
+        }
 
-      @SuppressWarnings("unchecked")
-      public Collector(Function<T, String> keyMapper) {
-         this(keyMapper, value -> value);
-      }
+        @Override
+        protected Json combine(Json left, Json right) {
+            left.putAll(right);
 
-      @SuppressWarnings("unchecked")
-      public Collector(Function<T, String> keyMapper, Function<T, ?> valueMapper) {
-         this.keyMapper = keyMapper;
-         this.valueMapper = valueMapper;
-      }
+            return left;
+        }
 
-      @Override
-      protected Json supply() {
-         return Json.empty();
-      }
-
-      @Override
-      protected void accumulate(Json container, T value) {
-         container.set(keyMapper.apply(value), valueMapper.apply(value));
-      }
-
-      @Override
-      protected Json combine(Json left, Json right) {
-         left.putAll(right);
-
-         return left;
-      }
-
-      @Override
-      protected Json finish(Json container) {
-         return container;
-      }
-   }
+        @Override
+        protected Json finish(Json container) {
+            return container;
+        }
+    }
 }

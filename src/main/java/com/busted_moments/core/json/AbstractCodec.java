@@ -1,7 +1,7 @@
 package com.busted_moments.core.json;
 
+import com.busted_moments.core.UnexpectedException;
 import com.busted_moments.core.annotated.Annotated;
-import com.busted_moments.core.json.template.EntryWrapper;
 import com.busted_moments.core.util.Priority;
 import com.busted_moments.core.util.Reflection;
 import com.essentuan.acf.util.Primitives;
@@ -21,14 +21,14 @@ import java.util.Map;
 
 import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class Codec<T, Out> extends Annotated {
-   private static final Map<Class<?>, Codec> LOADED = new LinkedHashMap<>();
+@SuppressWarnings({"rawtypes"})
+public abstract class AbstractCodec<T, Out> extends Annotated {
+   private static final Map<Class<?>, AbstractCodec> LOADED = new LinkedHashMap<>();
 
    private final Class<T> clazz;
    private final Priority priority;
 
-   public Codec() {
+   protected AbstractCodec() {
       super(Required(Definition.class));
 
       Definition annotation = getAnnotation(Definition.class);
@@ -37,17 +37,17 @@ public abstract class Codec<T, Out> extends Annotated {
       priority = annotation.priority();
    }
 
-   public @Nullable Out write(EntryWrapper entry) throws Exception {
-      return write(entry.get(), entry.getField().getType(), getTypeArgs(entry.getField().getGenericType()));
+   public @Nullable Out write(BaseModel.Entry entry) throws Exception {
+      return write(entry.get(), entry.getField().getType(), new Annotations(entry.getField()), getTypeArgs(entry.getField().getGenericType()));
    }
 
-   public abstract @Nullable Out write(T value, Class<?> type, Type... typeArgs) throws Exception;
+   public abstract @Nullable Out write(T value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception;
 
-   public @Nullable T read(@NotNull Out value, EntryWrapper entry) throws Exception{
-      return read(value, entry.getField().getType(), getTypeArgs(entry.getField().getGenericType()));
+   public @Nullable T read(@NotNull Out value, BaseModel.Entry entry) throws Exception {
+      return read(value, entry.getField().getType(), new Annotations(entry.getField()), getTypeArgs(entry.getField().getGenericType()));
    }
 
-   public abstract @Nullable T read(@NotNull Out value, Class<?> type, Type... typeArgs) throws Exception;
+   public abstract @Nullable T read(@NotNull Out value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception;
 
    public abstract T fromString(String string, Class<?> type, Type... typeArgs) throws Exception;
 
@@ -65,11 +65,13 @@ public abstract class Codec<T, Out> extends Annotated {
    @Target(ElementType.TYPE)
    public @interface Definition {
       Class<?> value();
+
       Priority priority() default Priority.LOW;
    }
 
-   public static Codec get(Class<?> type) {
-      if (LOADED.isEmpty()) load();
+   public static AbstractCodec get(Class<?> type) {
+      if (LOADED.isEmpty())
+         load();
 
       type = Primitives.wrap(type);
 
@@ -77,7 +79,7 @@ public abstract class Codec<T, Out> extends Annotated {
          return LOADED.get(type);
       }
 
-      for (Codec codec : LOADED.values()) {
+      for (AbstractCodec codec : LOADED.values()) {
          if (codec.getType().equals(type) || type.isAssignableFrom(codec.getType()) || codec.getType().isAssignableFrom(type)) {
             return codec;
          }
@@ -86,22 +88,32 @@ public abstract class Codec<T, Out> extends Annotated {
       throw new RuntimeException();
    }
 
+   protected static Class<?> getClass(Type type) {
+      if (type instanceof Class<?> clazz)
+         return clazz;
+      else if (type instanceof ParameterizedType parameter)
+         return getClass(parameter.getRawType());
+      else
+         throw new IllegalStateException("Unexpected value: " + type);
+   }
+
    protected static Type[] getTypeArgs(Type type) {
       return type instanceof ParameterizedType parameterizedType ? parameterizedType.getActualTypeArguments() : new Type[0];
    }
 
-   private static Codec create(Class<? extends Codec> codec) {
+   private static AbstractCodec create(Class<? extends AbstractCodec> codec) {
       try {
          return codec.getDeclaredConstructor().newInstance();
       } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-         throw new RuntimeException(e);
+         throw UnexpectedException.propagate(e);
       }
    }
 
    private static void load() {
-      CLASS_SCANNER.getSubTypesOf(Codec.class).stream()
+      CLASS_SCANNER.getSubTypesOf(AbstractCodec.class).stream()
               .filter(clazz -> !Reflection.isAbstract(clazz))
-              .map(Codec::create).sorted(Comparator.comparing(Codec::getPriority))
+              .map(AbstractCodec::create).sorted(Comparator.comparing(AbstractCodec::getPriority))
               .forEach(codec -> LOADED.put(codec.getType(), codec));
+
    }
 }

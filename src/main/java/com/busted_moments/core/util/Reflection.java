@@ -1,12 +1,22 @@
 package com.busted_moments.core.util;
 
+import com.busted_moments.core.UnexpectedException;
 import com.google.common.collect.Streams;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class Reflection {
@@ -57,7 +67,10 @@ public class Reflection {
         return "%s%s%s".formatted(method.getDeclaringClass().descriptorString(), method.getName(), getDescriptor(method));
     }
 
-    public static String getUID(Method method, @NotNull Object instance) {
+    public static String getUID(Method method, Object instance) {
+        if (instance == null)
+            return getUID(method);
+
         return "%s%s%s@%s".formatted(method.getDeclaringClass().descriptorString(), method.getName(), getDescriptor(method), instance.hashCode());
     }
 
@@ -74,6 +87,37 @@ public class Reflection {
         return Modifier.isAbstract(clazz.getModifiers());
     }
 
+    private static final Map<Integer, Constructor<?>> CONSTRUCTOR_MAP = new ConcurrentHashMap<>();
+
+    @SuppressWarnings("unchecked")
+    public static <T> Constructor<T> getConstructor(Class<T> clazz, Class<?>... parameterTypes) {
+        return (Constructor<T>) CONSTRUCTOR_MAP.computeIfAbsent(
+                Objects.hash(clazz, Arrays.hashCode(parameterTypes)),
+                i -> {
+                    try {
+                        Constructor<T> c = clazz.getDeclaredConstructor(parameterTypes);
+                        c.setAccessible(true);
+
+                        return c;
+                    } catch (NoSuchMethodException e) {
+                        throw UnexpectedException.propagate(e);
+                    }
+                }
+        );
+    }
+
+    public static <T> T create(Class<T> clazz, Object... args) {
+        Class<?>[] types = new Class[args.length];
+        for (int i = 0; i < args.length; i++)
+            types[i] = args[i].getClass();
+
+        try {
+            return getConstructor(clazz, types).newInstance(args);
+        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            throw UnexpectedException.propagate(e);
+        }
+    }
+
     private static final Map<Integer, Field> FIELD_MAP = new ConcurrentHashMap<>();
 
     public static Field getField(String field, Class<?> clazz) {
@@ -85,7 +129,7 @@ public class Reflection {
                 f = clazz.getDeclaredField(field);
                 f.setAccessible(true);
             } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
+                throw UnexpectedException.propagate(e);
             }
 
             FIELD_MAP.put(hash, f);
@@ -99,7 +143,7 @@ public class Reflection {
         try {
             return (T) getField(field, clazz).get(instance);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw UnexpectedException.propagate(e);
         }
     }
 
@@ -108,7 +152,7 @@ public class Reflection {
         try {
             getField(field, clazz).set(instance, value);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw UnexpectedException.propagate(e);
         }
     }
 
@@ -123,10 +167,10 @@ public class Reflection {
                 m = clazz.getDeclaredMethod(method, parameterTypes);
                 m.setAccessible(true);
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
+                throw UnexpectedException.propagate(e);
             }
 
-           METHOD_MAP.put(hash, m);
+            METHOD_MAP.put(hash, m);
         }
 
         return m;
@@ -135,15 +179,30 @@ public class Reflection {
     @SuppressWarnings("unchecked")
     public static <C, R> R invoke(String method, Class<C> clazz, C instance, Object... args) {
         Class<?>[] types = new Class[args.length];
-        for (int i = 0; i < args.length; i++) types[i] = args[i].getClass();
+        for (int i = 0; i < args.length; i++)
+            types[i] = args[i].getClass();
 
         try {
             return (R) getMethod(method, clazz, types).invoke(instance, args);
         } catch (InvocationTargetException | IllegalAccessException e) {
-           throw new RuntimeException(e);
+            throw UnexpectedException.propagate(e);
         }
     }
 
+    public static StringBuilder toString(Class<?> clazz) {
+        StringBuilder builder = new StringBuilder();
+        if (clazz == null) return builder;
+
+        Class<?> enclosing = clazz;
+        while (enclosing != null) {
+            builder.insert(0, enclosing.getSimpleName());
+            enclosing = enclosing.getEnclosingClass();
+
+            if (enclosing != null) builder.insert(0, "$");
+        }
+
+        return builder.insert(0, clazz.getPackageName() + ".");
+    }
 
     public static String toSimpleString(Class<?> clazz) {
         StringBuilder builder = new StringBuilder(clazz.getSimpleName());
@@ -157,22 +216,35 @@ public class Reflection {
         return builder.toString();
     }
 
+    public static Stream<Field> getFields(Class<?> clazz) {
+        return Stream.of(clazz.getDeclaredFields());
+    }
+
     public static Stream<Class<?>> visit(Class<?> clazz) {
         return Streams.stream(new Iterator<>() {
             private Class<?> iter = clazz;
 
-           @Override
-           public boolean hasNext() {
-              return iter != Object.class;
-           }
+            @Override
+            public boolean hasNext() {
+                return iter != Object.class;
+            }
 
-           @Override
-           public Class<?> next() {
-               Class<?> previous = iter;
-               iter = iter.getSuperclass();
+            @Override
+            public Class<?> next() {
+                Class<?> previous = iter;
+                iter = iter.getSuperclass();
 
-               return previous;
-           }
+                return previous;
+            }
         });
+    }
+
+    public static <T> Predicate<T> instanceOf(Class<?> clazz) {
+        return obj -> {
+            if (obj instanceof Class<?> c1)
+                return clazz.isAssignableFrom(c1);
+            else
+                return clazz.isInstance(obj);
+        };
     }
 }

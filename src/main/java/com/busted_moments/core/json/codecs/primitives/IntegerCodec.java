@@ -1,16 +1,17 @@
 package com.busted_moments.core.json.codecs.primitives;
 
-import com.busted_moments.core.json.Codec;
+import com.busted_moments.core.json.AbstractCodec;
+import com.busted_moments.core.json.Annotations;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 
-@Codec.Definition(Integer.class)
+@AbstractCodec.Definition(Integer.class)
 public class IntegerCodec extends NumberCodec<Integer> {
 
    @Override
-   public @Nullable Integer read(@NotNull Number value, Class<?> type, Type... typeArgs) throws Exception {
+   public @Nullable Integer read(@NotNull Number value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
       return value.intValue();
    }
 
