@@ -124,7 +124,7 @@ public interface Player extends PlayerType, Collection<Character> {
    }
 
    @AbstractRequest.Definition(
-           route = "https://api.wynncraft.com/v3/player/%s?fullResult",
+           route = "https://thesimpleones.net/api/player?q=%s",
            ratelimit = RateLimit.NONE,
            cache_length = 2
    )
