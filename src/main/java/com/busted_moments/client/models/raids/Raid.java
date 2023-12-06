@@ -5,7 +5,7 @@ import com.busted_moments.client.models.raids.events.RoomEvent;
 import com.busted_moments.client.models.raids.rooms.Room;
 import com.busted_moments.client.util.PlayerUtil;
 import com.busted_moments.core.events.EventListener;
-import com.busted_moments.core.json.template.JsonTemplate;
+import com.busted_moments.core.json.BaseModel;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.ChronoUnit;
@@ -19,18 +19,18 @@ import java.util.stream.Stream;
 
 import static net.minecraft.ChatFormatting.*;
 
-public class Raid extends JsonTemplate implements EventListener {
-   @Entry
+public class Raid extends BaseModel implements EventListener {
+   @Key
    private RaidType type;
 
-   @Entry
+   @Key
    private List<Room> rooms;
 
    private int current = -1;
 
-   @Entry
+   @Key
    private Date start;
-   @Entry
+   @Key
    private Date end;
 
    public Raid(RaidType type) {

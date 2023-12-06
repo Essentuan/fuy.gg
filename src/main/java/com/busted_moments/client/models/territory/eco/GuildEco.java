@@ -2,8 +2,8 @@ package com.busted_moments.client.models.territory.eco;
 
 import com.busted_moments.client.models.territory.TerritoryModel;
 import com.busted_moments.core.Promise;
-import com.busted_moments.core.api.requests.mapstate.Territory;
-import com.busted_moments.core.api.requests.mapstate.version.template.MapTemplate;
+import com.busted_moments.core.http.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.version.template.MapTemplate;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 

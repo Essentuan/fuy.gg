@@ -5,7 +5,7 @@ import com.busted_moments.client.models.territory.eco.types.EcoConstants;
 import com.busted_moments.client.models.territory.eco.types.ResourceType;
 import com.busted_moments.client.models.territory.eco.types.UpgradeType;
 import com.busted_moments.client.util.ChatUtil;
-import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.Territory;
 import com.wynntils.core.components.Models;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;

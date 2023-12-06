@@ -6,7 +6,7 @@ import com.busted_moments.core.Default;
 import com.busted_moments.core.Feature;
 import com.busted_moments.core.Promise;
 import com.busted_moments.core.State;
-import com.busted_moments.core.api.requests.Update;
+import com.busted_moments.core.http.requests.Update;
 import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.worlds.event.WorldStateEvent;

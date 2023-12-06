@@ -6,14 +6,17 @@ import com.busted_moments.client.models.raids.rooms.types.SubtitleType;
 import com.busted_moments.client.models.raids.rooms.types.TitleType;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.events.EventListener;
+import com.busted_moments.core.json.AbstractCodec;
+import com.busted_moments.core.json.Annotations;
+import com.busted_moments.core.json.BaseModel;
 import com.busted_moments.core.json.Json;
-import com.busted_moments.core.json.template.JsonTemplate;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.toml.Toml;
 import com.busted_moments.core.util.Priority;
 import com.busted_moments.core.util.Reflection;
 import net.minecraft.ChatFormatting;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -26,15 +29,14 @@ import java.util.stream.Collectors;
 
 import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
 
-public abstract class Room extends JsonTemplate implements EventListener {
-   @Entry
-   String title = null;
+public abstract class Room extends BaseModel implements EventListener {
+   @Key String title = null;
 
-   @Entry
-   @Nullable
+   @Key
+   @Null
    Date start = null;
-   @Entry
-   @Nullable
+   @Key
+   @Null
    Date end = null;
 
    Consumer<Room> onComplete;
@@ -119,22 +121,22 @@ public abstract class Room extends JsonTemplate implements EventListener {
                    Function.identity()
            ));
 
-   @com.busted_moments.core.json.Codec.Definition(value = Room.class, priority = Priority.HIGH)
-   public static class Codec extends com.busted_moments.core.json.Codec<Room, Map<String, ?>> {
+   @AbstractCodec.Definition(value = Room.class, priority = Priority.HIGH)
+   public static class Codec extends AbstractCodec<Room, Map<String, ?>> {
       @Override
-      public @org.jetbrains.annotations.Nullable Json write(Room value, Class<?> type, Type... typeArgs) throws Exception {
+      public @Nullable Map<String, ?> write(Room value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
          return value.toJson();
       }
 
       @Override
-      public @org.jetbrains.annotations.Nullable Room read(@NotNull Map<String, ?> map, Class<?> type, Type... typeArgs) throws Exception {
+      public @Nullable Room read(@NotNull Map<String, ?> value, Class<?> type, Annotations annotations, Type... typeArgs) throws Exception {
          Class<? extends Room> clazz;
          Json data;
 
-         if (map instanceof Toml toml) {
+         if (value instanceof Toml toml) {
             clazz = TYPES.get(toml.getString("type"));
             data = Json.of(toml);
-         } else if (map instanceof Json json) {
+         } else if (value instanceof Json json) {
             clazz = TYPES.get(json.getString("type"));
             data = json;
          } else throw new RuntimeException();
@@ -144,12 +146,12 @@ public abstract class Room extends JsonTemplate implements EventListener {
 
       @Override
       public Room fromString(String string, Class<?> type, Type... typeArgs) throws Exception {
-         return read(Json.parse(string), type, typeArgs);
+         return read(Json.parse(string), type, Annotations.empty(), typeArgs);
       }
 
       @Override
       public String toString(Room value, Class<?> type, Type... typeArgs) throws Exception {
-         var res = write(value, type, typeArgs);
+         var res = write(value, type, Annotations.empty(), typeArgs);
          return res == null ? null : res.toString();
       }
    }

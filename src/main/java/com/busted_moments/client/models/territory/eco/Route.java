@@ -1,8 +1,8 @@
 package com.busted_moments.client.models.territory.eco;
 
-import com.busted_moments.core.api.requests.mapstate.MapState;
-import com.busted_moments.core.api.requests.mapstate.Territory;
-import com.busted_moments.core.api.requests.mapstate.version.template.MapTemplate;
+import com.busted_moments.core.http.requests.mapstate.MapState;
+import com.busted_moments.core.http.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.version.template.MapTemplate;
 import com.busted_moments.core.tuples.Pair;
 import com.wynntils.core.components.Models;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +51,7 @@ public class Route implements Iterable<Territory> {
 
          var territory = state.get(next.one());
 
-         if (!ideal && !Objects.equals(territory.getOwner().getGuild(), guild)) continue;
+         if (!ideal && !Objects.equals(territory.getOwner().name(), guild)) continue;
 
          if (eco.contains(territory)) {
             var terr = eco.get(territory);

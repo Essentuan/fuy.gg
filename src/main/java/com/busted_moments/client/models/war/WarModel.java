@@ -5,7 +5,7 @@ import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
 import com.busted_moments.client.models.war.events.*;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.Model;
-import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.Territory;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;

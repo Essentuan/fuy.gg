@@ -6,7 +6,7 @@ import com.busted_moments.client.models.war.timer.TimerModel;
 import com.busted_moments.core.Default;
 import com.busted_moments.core.Feature;
 import com.busted_moments.core.State;
-import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.Territory;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.render.Beacon;
 import com.busted_moments.core.render.Renderer;

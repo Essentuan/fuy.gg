@@ -1,6 +1,6 @@
 package com.busted_moments.client.models.territory.events;
 
-import com.busted_moments.core.api.requests.mapstate.MapState;
+import com.busted_moments.core.http.requests.mapstate.MapState;
 import com.busted_moments.core.events.BaseEvent;
 
 public class MapUpdateEvent extends BaseEvent {

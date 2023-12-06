@@ -1,6 +1,6 @@
 package com.busted_moments.client.models.war;
 
-import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.Territory;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.ChronoUnit;
 

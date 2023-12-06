@@ -4,8 +4,8 @@ import com.busted_moments.client.events.mc.MinecraftStartupEvent;
 import com.busted_moments.client.models.territory.events.MapUpdateEvent;
 import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
 import com.busted_moments.core.Model;
-import com.busted_moments.core.api.requests.mapstate.MapState;
-import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.MapState;
+import com.busted_moments.core.http.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.Heartbeat;
 import com.busted_moments.core.json.Json;
 import com.busted_moments.core.time.ChronoUnit;
@@ -67,7 +67,7 @@ public class TerritoryModel extends Model {
       if (LATEST_TERRITORIES != null)
          event.getState().forEach(territory -> {
             if (LATEST_TERRITORIES.contains(territory) && !LATEST_TERRITORIES.get(territory).getOwner().equals(territory.getOwner()))
-               new TerritoryCapturedEvent(territory.getName(), territory.getOwner().getPrefix());
+               new TerritoryCapturedEvent(territory.getName(), territory.getOwner().prefix());
          });
 
       LATEST_TERRITORIES = event.getState();

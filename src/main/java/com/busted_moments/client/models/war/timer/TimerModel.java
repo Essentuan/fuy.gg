@@ -5,7 +5,7 @@ import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
 import com.busted_moments.client.models.war.Defense;
 import com.busted_moments.client.models.war.timer.events.TimerStartEvent;
 import com.busted_moments.core.Model;
-import com.busted_moments.core.api.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.ChronoUnit;
