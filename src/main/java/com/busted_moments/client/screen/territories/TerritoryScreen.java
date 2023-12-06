@@ -18,7 +18,7 @@ import com.busted_moments.core.render.screen.Screen;
 import com.busted_moments.core.render.screen.Widget;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.NumUtil;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -407,7 +407,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    private Date LAST_CLICK = new Date();
    
    protected boolean click(int slot, int button) {
-      if (BUSY || WAITING || Duration.since(LAST_CLICK).lessThan(150, TimeUnit.MILLISECONDS) || !ContainerHelper.Click(slot, button, title())) return false;
+      if (BUSY || WAITING || Duration.since(LAST_CLICK).lessThan(150, ChronoUnit.MILLISECONDS) || !ContainerHelper.Click(slot, button, title())) return false;
       WAITING = true;
       LAST_CLICK = new Date();
       

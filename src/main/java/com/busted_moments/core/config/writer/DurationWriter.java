@@ -3,7 +3,7 @@ package com.busted_moments.core.config.writer;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.config.Writer;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,12 +18,12 @@ public class DurationWriter extends Writer<Duration, Number> {
 
    @Override
    public @Nullable Duration read(@NotNull Number value, Class<?> type, Type... typeArgs) {
-      return Duration.of(value, TimeUnit.SECONDS);
+      return Duration.of(value, ChronoUnit.SECONDS);
    }
 
    @Override
    public Duration fromString(String string, Class<?> type, Type... typeArgs)    {
-      return Duration.of(Double.parseDouble(string), TimeUnit.SECONDS);
+      return Duration.of(Double.parseDouble(string), ChronoUnit.SECONDS);
    }
 
    @Override

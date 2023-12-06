@@ -10,7 +10,7 @@ import com.busted_moments.core.api.requests.player.Player;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.essentuan.acf.core.annotations.*;
 import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType;
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
@@ -75,7 +75,7 @@ public class FuyCommand {
                          b -> b.append(", ", AQUA)
                  ));
       }, () -> {
-         if (Duration.since(start).greaterThan(10, TimeUnit.SECONDS)) {
+         if (Duration.since(start).greaterThan(10, ChronoUnit.SECONDS)) {
             ChatUtil.message("Timeout finding guild %s".formatted(string), RED);
          } else ChatUtil.message("Could not find guild %s".formatted(string), RED);
       }));
@@ -109,7 +109,7 @@ public class FuyCommand {
                          .append(" is on ", GRAY)
                          .append(world)), () -> ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA)
                  .append(" was last seen ", GRAY)
-                 .append(lastSeen.getPart(TimeUnit.MINUTES) > 1 ? lastSeen.toString(FormatFlag.COMPACT, TimeUnit.MINUTES) : lastSeen.toString(FormatFlag.COMPACT, TimeUnit.SECONDS), AQUA)
+                 .append(lastSeen.getPart(ChronoUnit.MINUTES) > 1 ? lastSeen.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES) : lastSeen.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS), AQUA)
                  .append(" ago", GRAY)));
       });
    }
@@ -136,7 +136,7 @@ public class FuyCommand {
                      Duration duration = Duration.since(member.getJoinedAt());
 
                      builder.append(". They have been in the guild for ", GRAY)
-                             .append(duration.getPart(TimeUnit.MINUTES) > 1 ? duration.toString(FormatFlag.COMPACT, TimeUnit.MINUTES) : duration.toString(FormatFlag.COMPACT, TimeUnit.SECONDS), AQUA)
+                             .append(duration.getPart(ChronoUnit.MINUTES) > 1 ? duration.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES) : duration.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS), AQUA)
                              .append(".", GRAY);
                   }
                });

@@ -2,7 +2,7 @@ package com.busted_moments.core.api;
 
 import com.busted_moments.core.Promise;
 import com.busted_moments.core.api.internal.Request;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.TempMap;
 
 import java.net.http.HttpClient;
@@ -50,7 +50,7 @@ public class HttpScheduler {
       OUTBOUND_REQUESTS.put(request.getUrl(), request);
 
       Promise.of(CLIENT.sendAsync(request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)))
-              .completeOnTimeout((HttpResponse<String>) null, 10, TimeUnit.SECONDS)
+              .completeOnTimeout((HttpResponse<String>) null, 10, ChronoUnit.SECONDS)
               .thenCatch(t -> onRequestFailure(request, t))
               .thenAccept(res -> {
                  if (res == null) {

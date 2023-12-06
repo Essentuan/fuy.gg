@@ -2,7 +2,7 @@ package com.busted_moments.client.features.keybinds;
 
 import com.busted_moments.core.events.EventListener;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.wynntils.mc.event.TickEvent;
 import net.minecraft.client.KeyMapping;
@@ -17,7 +17,7 @@ import java.util.Date;
 import static com.wynntils.utils.mc.McUtils.mc;
 
 public abstract class Keybind extends KeyMapping implements EventListener {
-   private static final Duration HELD_DURATION = Duration.of(750, TimeUnit.MILLISECONDS);
+   private static final Duration HELD_DURATION = Duration.of(750, ChronoUnit.MILLISECONDS);
 
    @Retention(RetentionPolicy.RUNTIME)
    @Target(ElementType.TYPE)

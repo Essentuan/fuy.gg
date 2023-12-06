@@ -1,7 +1,7 @@
 package com.busted_moments.client.events.mc.entity;
 
 import com.busted_moments.core.events.BaseEvent;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.TempMap;
 import com.wynntils.mc.event.AddEntityEvent;
 import com.wynntils.mc.event.TickEvent;
@@ -89,7 +89,7 @@ public abstract class EntityEvent extends BaseEvent {
    }
 
    public static class Spawn extends EntityEvent {
-      private static final TempMap<UUID, Entity> WAITING = new TempMap<>(50, TimeUnit.MILLISECONDS);
+      private static final TempMap<UUID, Entity> WAITING = new TempMap<>(50, ChronoUnit.MILLISECONDS);
 
       public Spawn(Entity entity) {
          super(entity);

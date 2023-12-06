@@ -1,7 +1,7 @@
 package com.busted_moments.core.util;
 
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,19 +67,19 @@ public class TempMap<Key, Value> implements Map<Key, Value> {
       this(expiry, ConcurrentHashMap::new);
    }
 
-   public TempMap(double length, TimeUnit unit) {
+   public TempMap(double length, ChronoUnit unit) {
       this(Duration.of(length, unit));
    }
 
-   public TempMap(long length, TimeUnit unit) {
+   public TempMap(long length, ChronoUnit unit) {
       this(Duration.of(length, unit));
    }
 
-   public TempMap(long length, TimeUnit unit, Supplier<Map<Key, Entry>> map) {
+   public TempMap(long length, ChronoUnit unit, Supplier<Map<Key, Entry>> map) {
       this(Duration.of(length, unit), map);
    }
 
-   public TempMap(long length, TimeUnit unit, Map<Key, Entry> map) {
+   public TempMap(long length, ChronoUnit unit, Map<Key, Entry> map) {
       this(length, unit, () -> map);
    }
 

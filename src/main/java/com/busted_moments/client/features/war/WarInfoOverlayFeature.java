@@ -11,7 +11,7 @@ import com.busted_moments.core.heartbeat.annotations.Schedule;
 import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.NumUtil;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -65,14 +65,14 @@ public class WarInfoOverlayFeature extends Feature {
       @Override
       protected void onRenderPreview(float x, float y, float width, float height, PoseStack poseStack, float partialTicks, Window window) {
          render(x, y,
-                 Duration.of(224, TimeUnit.SECONDS),
+                 Duration.of(224, ChronoUnit.SECONDS),
                  BigDecimal.valueOf(12523563),
                  BigDecimal.valueOf(48800),
                  BigDecimal.valueOf(72000),
                  BigDecimal.valueOf(0),
                  BigDecimal.valueOf(0),
                  BigDecimal.valueOf(0),
-                 Duration.of(104, TimeUnit.SECONDS)
+                 Duration.of(104, ChronoUnit.SECONDS)
          );
       }
 
@@ -115,7 +115,7 @@ public class WarInfoOverlayFeature extends Feature {
       }
    }
 
-   private static Duration TIME_IN_WAR = Duration.of(0, TimeUnit.SECONDS);
+   private static Duration TIME_IN_WAR = Duration.of(0, ChronoUnit.SECONDS);
    private static BigDecimal TOWER_EHP = new BigDecimal(0);
    private static BigDecimal DPS_MIN = new BigDecimal(0);
    private static BigDecimal DPS_MAX = new BigDecimal(0);
@@ -136,19 +136,19 @@ public class WarInfoOverlayFeature extends Feature {
       DPS_MAX = BigDecimal.valueOf(tower.damageMax() * ATTACK_SPEED * 2);
    }
 
-   @Schedule(rate = 250, unit = TimeUnit.MILLISECONDS)
+   @Schedule(rate = 250, unit = ChronoUnit.MILLISECONDS)
    private void onUpdate() {
       WarModel.current().ifPresent(war -> {
          if (!war.hasStarted()) return;
 
          TIME_IN_WAR = war.getDuration();
 
-         DPS_1_SECOND = BigDecimal.valueOf(war.getDPS(1, TimeUnit.SECONDS));
-         DPS_5_SECONDS = BigDecimal.valueOf(war.getDPS(5, TimeUnit.SECONDS));
+         DPS_1_SECOND = BigDecimal.valueOf(war.getDPS(1, ChronoUnit.SECONDS));
+         DPS_5_SECONDS = BigDecimal.valueOf(war.getDPS(5, ChronoUnit.SECONDS));
          DPS_TOTAL = BigDecimal.valueOf(war.getDPS(Duration.FOREVER));
 
          if (DPS_TOTAL.signum() == 0) TIME_REMAINING = Duration.FOREVER;
-         else TIME_REMAINING = Duration.of(TOWER_EHP.divide(DPS_TOTAL, RoundingMode.DOWN), TimeUnit.SECONDS);
+         else TIME_REMAINING = Duration.of(TOWER_EHP.divide(DPS_TOTAL, RoundingMode.DOWN), ChronoUnit.SECONDS);
       });
    }
 }

@@ -3,7 +3,7 @@ package com.busted_moments.client.features;
 import com.busted_moments.client.util.PacketUtil;
 import com.busted_moments.core.Feature;
 import com.busted_moments.core.heartbeat.Heartbeat;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.handlers.chat.event.NpcDialogEvent;
@@ -23,7 +23,7 @@ public class AutoSkipDialogueFeature extends Feature {
 
         PacketUtil.Action(Action.PRESS_SHIFT_KEY);
 
-        Heartbeat.schedule(() -> PacketUtil.Action(Action.RELEASE_SHIFT_KEY), 50, TimeUnit.MILLISECONDS);
+        Heartbeat.schedule(() -> PacketUtil.Action(Action.RELEASE_SHIFT_KEY), 50, ChronoUnit.MILLISECONDS);
     }
 
     @SubscribeEvent
@@ -32,6 +32,6 @@ public class AutoSkipDialogueFeature extends Feature {
         
         PacketUtil.Action(Action.PRESS_SHIFT_KEY);
 
-        Heartbeat.schedule(() -> PacketUtil.Action(Action.RELEASE_SHIFT_KEY), 50, TimeUnit.MILLISECONDS);
+        Heartbeat.schedule(() -> PacketUtil.Action(Action.RELEASE_SHIFT_KEY), 50, ChronoUnit.MILLISECONDS);
     }
 }

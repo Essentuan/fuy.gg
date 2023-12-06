@@ -8,7 +8,7 @@ import com.busted_moments.core.Model;
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.TempMap;
 import com.busted_moments.core.util.TempSet;
 import com.google.common.collect.Multimap;
@@ -36,10 +36,10 @@ public class TimerModel extends Model {
    private static final Pattern ATTACK_SCREEN_TITLE = Pattern.compile("Attacking: (?<territory>.+)");
 
    private final Multimap<String, Timer> TIMERS = MultimapBuilder.hashKeys().arrayListValues().build();
-   private final Map<String, Defense> KNOWN_DEFENSES = new TempMap<>(10, TimeUnit.SECONDS);
+   private final Map<String, Defense> KNOWN_DEFENSES = new TempMap<>(10, ChronoUnit.SECONDS);
 
 
-   private final Set<String> PERSONALLY_QUEUED = new TempSet<>(10, TimeUnit.SECONDS);
+   private final Set<String> PERSONALLY_QUEUED = new TempSet<>(10, ChronoUnit.SECONDS);
 
 
    @Instance
@@ -88,7 +88,7 @@ public class TimerModel extends Model {
       KNOWN_DEFENSES.put(territory, defense);
 
       for (Timer timer : TIMERS.get(territory)) {
-         if (!timer.confident && Duration.since(timer.getStart()).lessThan(300, TimeUnit.MILLISECONDS)) {
+         if (!timer.confident && Duration.since(timer.getStart()).lessThan(300, ChronoUnit.MILLISECONDS)) {
             timer.defense = defense;
             timer.confident = true;
 
@@ -114,20 +114,20 @@ public class TimerModel extends Model {
    @SubscribeEvent(priority = EventPriority.HIGHEST)
    @SuppressWarnings("ResultOfMethodCallIgnored")
    public void onClear(TickEvent event) {
-      TIMERS.values().removeIf(timer -> timer.getRemaining().lessThanOrEqual(100, TimeUnit.MILLISECONDS));
+      TIMERS.values().removeIf(timer -> timer.getRemaining().lessThanOrEqual(100, ChronoUnit.MILLISECONDS));
       KNOWN_DEFENSES.size();
    }
 
    private Set<Integer> SCOREBOARD = new HashSet<>();
 
-   @Schedule(rate = 500, unit = TimeUnit.MILLISECONDS)
+   @Schedule(rate = 500, unit = ChronoUnit.MILLISECONDS)
    private void HandleScoreboard() {
       Set<Integer> previous = SCOREBOARD;
       SCOREBOARD = new HashSet<>();
 
       for (TerritoryAttackTimer timer : Models.GuildAttackTimer.getAttackTimers()) {
          SCOREBOARD.add(hash(timer)); if (previous.contains(hash(timer))) continue;
-         addTimer(timer.territory(), Duration.of(timer.asSeconds(), TimeUnit.SECONDS), false);
+         addTimer(timer.territory(), Duration.of(timer.asSeconds(), ChronoUnit.SECONDS), false);
       }
    }
 
@@ -155,7 +155,7 @@ public class TimerModel extends Model {
 
    private static Optional<Timer> getTimer(String territory, Duration timeRemaining, BiFunction<String, String, Boolean> comparison) {
       for (Timer timer : getTimers()) {
-         if (comparison.apply(timer.getTerritory(), territory) && timer.getRemaining().subtract(timeRemaining).abs().lessThanOrEqual(10, TimeUnit.SECONDS)) {
+         if (comparison.apply(timer.getTerritory(), territory) && timer.getRemaining().subtract(timeRemaining).abs().lessThanOrEqual(10, ChronoUnit.SECONDS)) {
             return Optional.of(timer);
          }
       }

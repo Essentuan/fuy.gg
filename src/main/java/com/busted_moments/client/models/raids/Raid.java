@@ -8,7 +8,7 @@ import com.busted_moments.core.events.EventListener;
 import com.busted_moments.core.json.template.JsonTemplate;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.mc.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -142,9 +142,9 @@ public class Raid extends JsonTemplate implements EventListener {
       if (optional.isEmpty()) return "--:--";
       Duration duration = optional.orElseThrow();
 
-      int minutes = (int) (duration.getPart(TimeUnit.MINUTES) + (duration.getPart(TimeUnit.HOURS) * 60));
-      int seconds = (int) duration.getPart(TimeUnit.SECONDS);
-      int mills = (int) (duration.getPart(TimeUnit.MILLISECONDS) / 10);
+      int minutes = (int) (duration.getPart(ChronoUnit.MINUTES) + (duration.getPart(ChronoUnit.HOURS) * 60));
+      int seconds = (int) duration.getPart(ChronoUnit.SECONDS);
+      int mills = (int) (duration.getPart(ChronoUnit.MILLISECONDS) / 10);
 
       return ((minutes < 10) ? "0" + minutes : Integer.toString(minutes)) +
               ":" + ((seconds < 10) ? "0" + seconds : Integer.toString(seconds)) +

@@ -6,7 +6,7 @@ import com.busted_moments.core.Default;
 import com.busted_moments.core.Feature;
 import com.busted_moments.core.State;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.wynntils.core.components.Models;
 import com.wynntils.mc.event.TickEvent;
@@ -40,7 +40,7 @@ public class AutoStreamFeature extends Feature {
 
    @SubscribeEvent
    private static void onTick(TickEvent event) {
-      if (Duration.since(lastCommand).greaterThanOrEqual(400, TimeUnit.MILLISECONDS)) {
+      if (Duration.since(lastCommand).greaterThanOrEqual(400, ChronoUnit.MILLISECONDS)) {
          THIS.tryToggle();
       }
 

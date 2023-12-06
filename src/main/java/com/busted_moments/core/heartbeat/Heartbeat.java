@@ -1,6 +1,7 @@
 package com.busted_moments.core.heartbeat;
 
 import com.busted_moments.core.heartbeat.annotations.Schedule;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.util.Reflection;
 import org.jetbrains.annotations.Nullable;
@@ -103,8 +104,8 @@ public class Heartbeat {
       lastCompletion = new Date();
    }
 
-   public static void schedule(Runnable runnable, long delay, com.busted_moments.core.time.TimeUnit unit) {
-      TASK_THREAD_POOL.schedule(runnable, delay, com.busted_moments.core.time.TimeUnit.toNative(unit));
+   public static void schedule(Runnable runnable, long delay, ChronoUnit unit) {
+      TASK_THREAD_POOL.schedule(runnable, delay, ChronoUnit.toNative(unit));
    }
 
    public static void execute(Runnable runnable) {

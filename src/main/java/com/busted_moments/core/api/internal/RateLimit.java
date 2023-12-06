@@ -2,10 +2,9 @@ package com.busted_moments.core.api.internal;
 
 import com.busted_moments.core.heartbeat.Scheduler;
 import com.busted_moments.core.heartbeat.annotations.Schedule;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.Priority;
 
-import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
 
 public enum RateLimit implements Scheduler {
@@ -21,7 +20,7 @@ public enum RateLimit implements Scheduler {
 
         protected int RATELIMIT_RESET = 60;
 
-        @Schedule(rate = 1, unit = TimeUnit.SECONDS)
+        @Schedule(rate = 1, unit = ChronoUnit.SECONDS)
         private void RATELIMIT_RESET() {
             if (RATELIMIT_RESET > 0) {
                 RATELIMIT_RESET--;

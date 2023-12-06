@@ -8,7 +8,7 @@ import com.busted_moments.core.api.requests.mapstate.MapState;
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.heartbeat.Heartbeat;
 import com.busted_moments.core.json.Json;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.mc.event.TickEvent;
@@ -117,7 +117,7 @@ public class TerritoryModel extends Model {
       public void onClose(int code, String reason, boolean remote) {
          LOGGER.warn("Territory socket has disconnected with code {} (reason={}, remote={})", code, reason, reason);
 
-         Heartbeat.schedule(() -> ACTIVE_SOCKET = new Socket(), 10, TimeUnit.SECONDS);
+         Heartbeat.schedule(() -> ACTIVE_SOCKET = new Socket(), 10, ChronoUnit.SECONDS);
       }
 
       @Override

@@ -4,7 +4,7 @@ import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.core.Promise;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.core.components.Managers;
 import com.wynntils.core.components.Services;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +47,7 @@ public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesSc
 
             scanner.SCANNING = false;
 
-            Promise.sleep((long) (Services.Ping.getPing() * 1.2D), TimeUnit.MILLISECONDS).thenAccept(v -> {
+            Promise.sleep((long) (Services.Ping.getPing() * 1.2D), ChronoUnit.MILLISECONDS).thenAccept(v -> {
                if (ContainerHelper.isOpen(container()) && WAITING) {
                   BUSY = false;
                   WAITING = false;

@@ -8,7 +8,7 @@ import com.busted_moments.core.State;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.NumUtil;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -30,7 +30,7 @@ import java.util.List;
 @Config.Category("War")
 @Feature.Definition(name = "Display Weekly War Count")
 public class WeeklyWarCountOverlay extends Feature {
-   private static final Duration WEEK = Duration.of(1, TimeUnit.WEEKS);
+   private static final Duration WEEK = Duration.of(1, ChronoUnit.WEEKS);
 
    @Hud
    private static WeeklyWars HUD;

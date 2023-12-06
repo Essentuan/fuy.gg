@@ -10,7 +10,7 @@ import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.components.Models;
@@ -70,9 +70,9 @@ public class ServerInfoFeature extends Feature {
                     .append("Your World (", ChatFormatting.WHITE)
                     .append(CURRENT_WORLD.getWorld(), ChatFormatting.AQUA)
                     .append("): ", ChatFormatting.WHITE)
-                    .append(uptime.lessThan(1, TimeUnit.MINUTES) ?
-                            uptime.toString(FormatFlag.COMPACT, TimeUnit.SECONDS) :
-                            uptime.toString(FormatFlag.COMPACT, TimeUnit.MINUTES),
+                    .append(uptime.lessThan(1, ChronoUnit.MINUTES) ?
+                            uptime.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS) :
+                            uptime.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES),
                             ChatFormatting.WHITE
                     );
          }
@@ -85,9 +85,9 @@ public class ServerInfoFeature extends Feature {
             builder.append("Newest World (", ChatFormatting.WHITE)
                     .append(NEWEST_WORLD.getWorld(), ChatFormatting.AQUA)
                     .append("): ", ChatFormatting.WHITE)
-                    .append(uptime.lessThan(1, TimeUnit.MINUTES) ?
-                            uptime.toString(FormatFlag.COMPACT, TimeUnit.SECONDS) :
-                            uptime.toString(FormatFlag.COMPACT, TimeUnit.MINUTES),
+                    .append(uptime.lessThan(1, ChronoUnit.MINUTES) ?
+                            uptime.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS) :
+                            uptime.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES),
                             ChatFormatting.WHITE
                     );
          }
@@ -103,7 +103,7 @@ public class ServerInfoFeature extends Feature {
       }
    }
 
-   @Schedule(rate = 10, unit = TimeUnit.SECONDS)
+   @Schedule(rate = 10, unit = ChronoUnit.SECONDS)
    private void updateWorldInfo() {
       new ServerList.Request().thenAccept(optional -> optional.ifPresent(servers -> {
          if (!Models.WorldState.onWorld()) CURRENT_WORLD = null;

@@ -10,7 +10,7 @@ import com.busted_moments.core.State;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.render.overlay.Hud;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.consumers.overlays.OverlayPosition;
@@ -67,10 +67,10 @@ public class AttackTimerOverlayFeature extends Feature {
       @Override
       protected void onRenderPreview(float x, float y, float width, float height, PoseStack poseStack, float partialTicks, Window window) {
          render(List.of(
-                 new Timer("Mine Base Plains", Duration.of(5, TimeUnit.MINUTES).add(40, TimeUnit.SECONDS), Defense.VERY_HIGH),
-                 new Timer("Almuj City", Duration.of(5, TimeUnit.MINUTES).add(13, TimeUnit.SECONDS), Defense.HIGH),
-                 new Timer("Detlas", Duration.of(3, TimeUnit.MINUTES).add(25, TimeUnit.SECONDS), Defense.HIGH),
-                 new Timer("Detlas Savannah Transition", Duration.of(2, TimeUnit.MINUTES).add(47, TimeUnit.SECONDS), Defense.HIGH)
+                 new Timer("Mine Base Plains", Duration.of(5, ChronoUnit.MINUTES).add(40, ChronoUnit.SECONDS), Defense.VERY_HIGH),
+                 new Timer("Almuj City", Duration.of(5, ChronoUnit.MINUTES).add(13, ChronoUnit.SECONDS), Defense.HIGH),
+                 new Timer("Detlas", Duration.of(3, ChronoUnit.MINUTES).add(25, ChronoUnit.SECONDS), Defense.HIGH),
+                 new Timer("Detlas Savannah Transition", Duration.of(2, ChronoUnit.MINUTES).add(47, ChronoUnit.SECONDS), Defense.HIGH)
          ), x, y);
       }
 
@@ -100,8 +100,8 @@ public class AttackTimerOverlayFeature extends Feature {
       }
 
       private static String format(Duration duration) {
-         int minutes = (int) duration.getPart(TimeUnit.MINUTES);
-         int seconds = (int) duration.getPart(TimeUnit.SECONDS);
+         int minutes = (int) duration.getPart(ChronoUnit.MINUTES);
+         int seconds = (int) duration.getPart(ChronoUnit.SECONDS);
 
          return ((minutes < 10) ? "0" + minutes : Integer.toString(minutes)) + ":" + ((seconds < 10) ? "0" + seconds : Integer.toString(seconds));
       }

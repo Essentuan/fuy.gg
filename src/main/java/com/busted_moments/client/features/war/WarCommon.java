@@ -3,7 +3,7 @@ package com.busted_moments.client.features.war;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 
 @Config.Category("War")
 public class WarCommon extends Config {
@@ -13,11 +13,11 @@ public class WarCommon extends Config {
 
    static String format(Duration duration) {
       if (duration.isForever()) return "Forever";
-      else if (duration.lessThan(1, TimeUnit.SECONDS)) return "0s";
+      else if (duration.lessThan(1, ChronoUnit.SECONDS)) return "0s";
       else if (USE_SECONDS) {
          int seconds = (int) duration.toSeconds();
          return seconds + " second" + (seconds == 1 ? "" : "s");
       }
-      else return duration.toString(FormatFlag.COMPACT, TimeUnit.SECONDS);
+      else return duration.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS);
    }
 }

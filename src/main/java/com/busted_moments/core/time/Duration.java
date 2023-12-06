@@ -18,7 +18,7 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
 
    Duration plus(Duration duration);
 
-   default Duration plus(double length, TimeUnit unit) {
+   default Duration plus(double length, ChronoUnit unit) {
       return plus(Duration.of(length, unit));
    }
 
@@ -26,13 +26,13 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
       return plus(duration);
    }
 
-   default Duration add(double length, TimeUnit unit) {
+   default Duration add(double length, ChronoUnit unit) {
       return plus(length, unit);
    }
 
    Duration minus(Duration duration);
 
-   default Duration minus(double length, TimeUnit unit) {
+   default Duration minus(double length, ChronoUnit unit) {
       return minus(Duration.of(length, unit));
    }
 
@@ -40,41 +40,41 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
       return minus(duration);
    }
 
-   default Duration subtract(double length, TimeUnit unit) {
+   default Duration subtract(double length, ChronoUnit unit) {
       return minus(length, unit);
    }
 
    Duration abs();
 
-   double to(TimeUnit unit);
+   double to(ChronoUnit unit);
 
-   double getPart(TimeUnit unit);
+   double getPart(ChronoUnit unit);
 
    boolean greaterThan(Duration duration);
 
-   default boolean greaterThan(double length, TimeUnit unit) {
+   default boolean greaterThan(double length, ChronoUnit unit) {
       return greaterThan(Duration.of(length, unit));
    }
 
    boolean greaterThanOrEqual(Duration duration);
 
-   default boolean greaterThanOrEqual(double length, TimeUnit unit) {
+   default boolean greaterThanOrEqual(double length, ChronoUnit unit) {
       return greaterThanOrEqual(Duration.of(length, unit));
    }
 
    boolean lessThan(Duration duration);
 
-   default boolean lessThan(double length, TimeUnit unit) {
+   default boolean lessThan(double length, ChronoUnit unit) {
       return lessThan(Duration.of(length, unit));
    }
 
    boolean lessThanOrEqual(Duration duration);
 
-   default boolean lessThanOrEqual(double length, TimeUnit unit) {
+   default boolean lessThanOrEqual(double length, ChronoUnit unit) {
       return lessThanOrEqual(Duration.of(length, unit));
    }
 
-   default boolean equals(double length, TimeUnit unit) {
+   default boolean equals(double length, ChronoUnit unit) {
       return equals(Duration.of(length, unit));
    }
 
@@ -87,69 +87,69 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
    java.time.Duration toNative();
 
    default double toNanos() {
-      return to(TimeUnit.NANOSECONDS);
+      return to(ChronoUnit.NANOSECONDS);
    }
 
    default double toMicros() {
-      return to(TimeUnit.MICROSECONDS);
+      return to(ChronoUnit.MICROSECONDS);
    }
 
    default double toMills() {
-      return to(TimeUnit.MILLISECONDS);
+      return to(ChronoUnit.MILLISECONDS);
    }
 
    default double toSeconds() {
-      return to(TimeUnit.SECONDS);
+      return to(ChronoUnit.SECONDS);
    }
 
    default double toMinutes() {
-      return to(TimeUnit.MINUTES);
+      return to(ChronoUnit.MINUTES);
    }
 
    default double toHours() {
-      return to(TimeUnit.HOURS);
+      return to(ChronoUnit.HOURS);
    }
 
    default double toDays() {
-      return to(TimeUnit.DAYS);
+      return to(ChronoUnit.DAYS);
    }
 
    default double toWeeks() {
-      return to(TimeUnit.WEEKS);
+      return to(ChronoUnit.WEEKS);
    }
 
    default double toMonths() {
-      return to(TimeUnit.MONTHS);
+      return to(ChronoUnit.MONTHS);
    }
 
    default double toYears() {
-      return to(TimeUnit.YEARS);
+      return to(ChronoUnit.YEARS);
    }
 
-   static Duration of(double length, TimeUnit unit) {
+   static Duration of(double length, ChronoUnit unit) {
       return new TimeDuration(length * unit.toSeconds());
    }
 
-   static Duration of(Number length, TimeUnit unit) {
+   static Duration of(Number length, ChronoUnit unit) {
       return of(length.doubleValue(), unit);
    }
 
 
    static Duration of(double length, java.util.concurrent.TimeUnit unit) {
-      return of(length, TimeUnit.from(unit));
+      return of(length, ChronoUnit.from(unit));
    }
 
    static Duration of(Date start, Date end) {
-      return of(end.getTime() - start.getTime(), TimeUnit.MILLISECONDS);
+      return of(end.getTime() - start.getTime(), ChronoUnit.MILLISECONDS);
    }
 
    static Duration from(java.time.Duration duration) {
-      return Duration.of(duration.getSeconds(), TimeUnit.SECONDS)
-              .plus(duration.getNano(), TimeUnit.NANOSECONDS);
+      return Duration.of(duration.getSeconds(), ChronoUnit.SECONDS)
+              .plus(duration.getNano(), ChronoUnit.NANOSECONDS);
    }
 
    static Duration since(Date date) {
-      return of(new Date().getTime() - date.getTime(), TimeUnit.MILLISECONDS);
+      return of(new Date().getTime() - date.getTime(), ChronoUnit.MILLISECONDS);
    }
 
    static int compare(Duration duration1, Duration duration2) {
@@ -161,12 +161,12 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
 
       string = string.replaceAll(" ", "").toLowerCase();
 
-      Pattern pattern = TimeUnit.REGEX();
+      Pattern pattern = ChronoUnit.REGEX();
 
-      Duration duration = Duration.of(0, TimeUnit.SECONDS);
+      Duration duration = Duration.of(0, ChronoUnit.SECONDS);
 
       while ((index = StringUtil.indexOf(string, pattern)) != -1) {
-         for (TimeUnit unit : TimeUnit.sorted()) {
+         for (ChronoUnit unit : ChronoUnit.sorted()) {
             int length;
 
             if (string.startsWith(unit.toPlural().toLowerCase(), index)) length = unit.toPlural().length();
@@ -188,13 +188,13 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
          }
       }
 
-      return duration.lessThanOrEqual(0, TimeUnit.SECONDS) ? Optional.empty() : Optional.of(duration);
+      return duration.lessThanOrEqual(0, ChronoUnit.SECONDS) ? Optional.empty() : Optional.of(duration);
    }
 
    class Formatter {
-      protected TimeUnit SMALLEST_UNIT = TimeUnit.MILLISECONDS;
+      protected ChronoUnit SMALLEST_UNIT = ChronoUnit.MILLISECONDS;
 
-      protected BiFunction<Double, TimeUnit, String> SUFFIX_GETTER = (length, unit) -> {
+      protected BiFunction<Double, ChronoUnit, String> SUFFIX_GETTER = (length, unit) -> {
          String suffix = switch (unit) {
             case NANOSECONDS -> " nanosecond";
             case MICROSECONDS -> " microsecond";
@@ -226,11 +226,11 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
          if (duration.isForever()) return "Forever";
          else if (duration.lessThan(1, SMALLEST_UNIT)) return SUFFIX_GETTER.apply(0D, SMALLEST_UNIT);
 
-         List<TimeUnit> units = Lists.reverse(List.of(TimeUnit.values()));
+         List<ChronoUnit> units = Lists.reverse(List.of(ChronoUnit.values()));
 
          StringBuilder builder = new StringBuilder();
 
-         for (TimeUnit unit : units) {
+         for (ChronoUnit unit : units) {
             double value = duration.getPart(unit);
 
             if (value != 0 && !NumUtil.isForever(value)) {

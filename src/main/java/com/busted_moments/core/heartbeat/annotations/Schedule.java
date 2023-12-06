@@ -1,6 +1,6 @@
 package com.busted_moments.core.heartbeat.annotations;
 
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface Schedule {
     int rate();
-    TimeUnit unit();
+    ChronoUnit unit();
 
     boolean parallel() default false;
 }

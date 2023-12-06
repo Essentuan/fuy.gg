@@ -5,7 +5,7 @@ import com.busted_moments.core.annotated.Annotated;
 import com.busted_moments.core.api.HttpScheduler;
 import com.busted_moments.core.json.Json;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.util.Priority;
 import com.wynntils.core.net.NetManager;
 import org.apache.http.HttpStatus;
@@ -106,7 +106,7 @@ public abstract class Request<T> extends Promise<Optional<T>> implements Compara
       return result.isPresent();
    }
 
-   private static java.time.Duration TIMEOUT = Duration.of(10, TimeUnit.SECONDS).toNative();
+   private static java.time.Duration TIMEOUT = Duration.of(10, ChronoUnit.SECONDS).toNative();
 
    protected HttpRequest.Builder getBuilder() {
       return HttpRequest.newBuilder()
@@ -148,6 +148,6 @@ public abstract class Request<T> extends Promise<Optional<T>> implements Compara
        String route();
        RateLimit ratelimit();
        long cache_length() default 1;
-       TimeUnit cache_unit() default TimeUnit.MINUTES;
+       ChronoUnit cache_unit() default ChronoUnit.MINUTES;
    }
 }

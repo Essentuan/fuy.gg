@@ -2,7 +2,7 @@ package com.busted_moments.client.models.war;
 
 import com.busted_moments.core.api.requests.mapstate.Territory;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 
 import java.util.*;
 
@@ -57,12 +57,12 @@ public final class War {
       return (points[0].ehp() - points[1].ehp()) / duration.toSeconds();
    }
 
-   public double getDPS(double length, TimeUnit unit) {
+   public double getDPS(double length, ChronoUnit unit) {
       return getDPS(Duration.of(length, unit));
    }
 
    public Duration getDuration() {
-      if (startedAt == null) return Duration.of(0, TimeUnit.SECONDS);
+      if (startedAt == null) return Duration.of(0, ChronoUnit.SECONDS);
 
       return Duration.since(startedAt);
    }

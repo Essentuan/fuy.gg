@@ -1,7 +1,7 @@
 package com.busted_moments.core;
 
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.tuples.Pair;
 import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
@@ -339,7 +339,7 @@ public class Promise<T> implements Future<T>, CompletionStage<T> {
       return future.get(timeout, unit);
    }
 
-   public T get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+   public T get(long timeout, @NotNull ChronoUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
       return get(Duration.of(timeout, unit));
    }
 
@@ -382,7 +382,7 @@ public class Promise<T> implements Future<T>, CompletionStage<T> {
       return this;
    }
 
-   public Promise<T> completeOnTimeout(Supplier<T> supplier, long timeout, TimeUnit unit) {
+   public Promise<T> completeOnTimeout(Supplier<T> supplier, long timeout, ChronoUnit unit) {
       return completeOnTimeout(supplier, Duration.of(timeout, unit));
    }
 
@@ -390,7 +390,7 @@ public class Promise<T> implements Future<T>, CompletionStage<T> {
       return completeOnTimeout(() -> value, duration);
    }
 
-   public Promise<T> completeOnTimeout(T value, long timeout, TimeUnit unit) {
+   public Promise<T> completeOnTimeout(T value, long timeout, ChronoUnit unit) {
       return completeOnTimeout(value, Duration.of(timeout, unit));
    }
 
@@ -404,11 +404,11 @@ public class Promise<T> implements Future<T>, CompletionStage<T> {
       return this;
    }
 
-   public Promise<T> orTimeout(long timeout, TimeUnit unit) {
+   public Promise<T> orTimeout(long timeout, ChronoUnit unit) {
       return orTimeout(Duration.of(timeout, unit));
    }
 
-   public Promise<T> onTimeout(Runnable runnable, long timeout, TimeUnit unit) {
+   public Promise<T> onTimeout(Runnable runnable, long timeout, ChronoUnit unit) {
       return onTimeout(runnable, Duration.of(timeout, unit));
    }
 
@@ -416,7 +416,7 @@ public class Promise<T> implements Future<T>, CompletionStage<T> {
       return orTimeout(duration).thenCatch(TimeoutException.class, (ignored) -> runnable.run());
    }
 
-   public static Promise<Void> sleep(long duration, TimeUnit unit) {
+   public static Promise<Void> sleep(long duration, ChronoUnit unit) {
       return new Promise<Void>().completeOnTimeout((Void) null, duration, unit);
    }
 

@@ -8,7 +8,7 @@ import com.busted_moments.core.api.requests.player.Class.Class;
 import com.busted_moments.core.json.Json;
 import com.busted_moments.core.json.template.JsonTemplate;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 
 import java.util.*;
 
@@ -82,7 +82,7 @@ public class Player extends JsonTemplate {
    }
 
    public Duration getPlaytime() {
-      return Duration.of(playtime, TimeUnit.MILLISECONDS);
+      return Duration.of(playtime, ChronoUnit.MILLISECONDS);
    }
 
    public boolean isVeteran() {

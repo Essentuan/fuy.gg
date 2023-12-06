@@ -9,7 +9,7 @@ import com.busted_moments.core.Feature;
 import com.busted_moments.core.State;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.heartbeat.Heartbeat;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ContainerClickEvent;
 import com.wynntils.mc.event.ContainerSetContentEvent;
@@ -70,7 +70,7 @@ public class TerritoryHelperMenuFeature extends Feature {
       if (OPEN_TERRITORY_MENU) {
          Heartbeat.schedule(() -> {
             if (OPEN_TERRITORY_MENU) OPEN_TERRITORY_MENU = false;
-         }, 500, TimeUnit.MILLISECONDS);
+         }, 500, ChronoUnit.MILLISECONDS);
       }
    }
 

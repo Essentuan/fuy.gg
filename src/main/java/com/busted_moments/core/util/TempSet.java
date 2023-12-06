@@ -1,7 +1,7 @@
 package com.busted_moments.core.util;
 
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -16,19 +16,19 @@ public class TempSet<T> implements Set<T> {
       this(expiry, ConcurrentHashMap::new);
    }
 
-   public TempSet(double length, TimeUnit unit) {
+   public TempSet(double length, ChronoUnit unit) {
       this(Duration.of(length, unit));
    }
 
-   public TempSet(long length, TimeUnit unit) {
+   public TempSet(long length, ChronoUnit unit) {
       this(Duration.of(length, unit));
    }
 
-   public TempSet(long length, TimeUnit unit, Supplier<Map<T, TempMap<T, Boolean>.Entry>> map) {
+   public TempSet(long length, ChronoUnit unit, Supplier<Map<T, TempMap<T, Boolean>.Entry>> map) {
       this(Duration.of(length, unit), map);
    }
 
-   public TempSet(long length, TimeUnit unit, Map<T, TempMap<T, Boolean>.Entry> map) {
+   public TempSet(long length, ChronoUnit unit, Map<T, TempMap<T, Boolean>.Entry> map) {
       this(length, unit, () -> map);
    }
 

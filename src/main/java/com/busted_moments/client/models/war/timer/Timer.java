@@ -2,7 +2,7 @@ package com.busted_moments.client.models.war.timer;
 
 import com.busted_moments.client.models.war.Defense;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -27,7 +27,7 @@ public final class Timer implements Comparable<Timer> {
    public Timer(String territory, Duration timer, Defense defense) {
       this.territory = territory;
       this.start = new Date();
-      this.timer = timer.add(499, TimeUnit.MILLISECONDS);
+      this.timer = timer.add(499, ChronoUnit.MILLISECONDS);
       this.defense = defense;
       this.confident = true;
    }

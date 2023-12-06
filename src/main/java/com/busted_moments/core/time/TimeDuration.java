@@ -31,12 +31,12 @@ class TimeDuration implements Duration {
    }
 
    @Override
-   public double to(TimeUnit unit) {
+   public double to(ChronoUnit unit) {
       return seconds / unit.toSeconds();
    }
 
    @Override
-   public double getPart(TimeUnit unit) {
+   public double getPart(ChronoUnit unit) {
       return Math.floor(switch (unit) {
          case NANOSECONDS -> toNanos() % 1000;
          case MICROSECONDS -> toMicros() % 1000;
@@ -79,7 +79,7 @@ class TimeDuration implements Duration {
    @Override
    public java.time.Duration toNative() {
       long seconds = (long) Math.min(toSeconds(), Long.MAX_VALUE);
-      int nanos = Math.min((int) ((this.seconds - seconds) / TimeUnit.NANOSECONDS.toSeconds()), 999_999_999);
+      int nanos = Math.min((int) ((this.seconds - seconds) / ChronoUnit.NANOSECONDS.toSeconds()), 999_999_999);
 
       return java.time.Duration.ofSeconds(seconds, nanos);
    }
@@ -91,7 +91,7 @@ class TimeDuration implements Duration {
 
    @Override
    public List<TemporalUnit> getUnits() {
-      return Stream.of(TimeUnit.values())
+      return Stream.of(ChronoUnit.values())
               .filter(unit -> getPart(unit) != 0 && !NumUtil.isForever(getPart(unit)))
               .map(unit -> (TemporalUnit) unit)
               .toList();
@@ -109,7 +109,7 @@ class TimeDuration implements Duration {
 
    @Override
    public String toString() {
-      return toString(TimeUnit.MILLISECONDS);
+      return toString(ChronoUnit.MILLISECONDS);
    }
 
    @Override

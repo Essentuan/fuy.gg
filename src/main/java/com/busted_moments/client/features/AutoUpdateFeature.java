@@ -7,7 +7,7 @@ import com.busted_moments.core.Feature;
 import com.busted_moments.core.Promise;
 import com.busted_moments.core.State;
 import com.busted_moments.core.api.requests.Update;
-import com.busted_moments.core.time.TimeUnit;
+import com.busted_moments.core.time.ChronoUnit;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.models.worlds.event.WorldStateEvent;
 import com.wynntils.utils.FileUtils;
@@ -91,7 +91,7 @@ public class AutoUpdateFeature extends Feature {
 
                     promise.complete(Result.ERROR);
                  }
-              }).completeOnTimeout(Result.ERROR, 1, TimeUnit.MINUTES);
+              }).completeOnTimeout(Result.ERROR, 1, ChronoUnit.MINUTES);
    }
 
    private static File getTempFile() {

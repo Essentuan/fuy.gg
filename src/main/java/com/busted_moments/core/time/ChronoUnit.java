@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum TimeUnit implements TemporalUnit, FormatFlag {
+public enum ChronoUnit implements TemporalUnit, FormatFlag {
    NANOSECONDS((double) 1 / 1_000_000_000, "ns"),
    MICROSECONDS((double) 1 / 1_000_000, "us"),
    MILLISECONDS((double) 1 / 1_000, "ms"),
@@ -17,17 +17,18 @@ public enum TimeUnit implements TemporalUnit, FormatFlag {
    HOURS(MINUTES.toSeconds() * 60, "h"),
    DAYS(HOURS.toSeconds() * 24, "d"),
    WEEKS(DAYS.toSeconds() * 7, "w"),
-   MONTHS(WEEKS.toSeconds() * 5, "mo"),
+   MONTHS(WEEKS.toSeconds() * 4, "mo"),
    YEARS(MONTHS.toSeconds() * 12, "y");
 
-   private static final List<TimeUnit> SORTED = Stream.of(values())
-           .sorted(Comparator.<TimeUnit, Integer>comparing(unit -> unit.getSuffix() == null ? 0 : unit.getSuffix().length()).reversed())
+
+   private static final List<ChronoUnit> SORTED = Stream.of(values())
+           .sorted(Comparator.<ChronoUnit, Integer>comparing(unit -> unit.getSuffix() == null ? 0 : unit.getSuffix().length()).reversed())
            .toList();
 
    private final double seconds;
    private final String suffix;
 
-   TimeUnit(double seconds, String suffix) {
+   ChronoUnit(double seconds, String suffix) {
       this.seconds = seconds;
       this.suffix = suffix;
    }
@@ -91,11 +92,11 @@ public enum TimeUnit implements TemporalUnit, FormatFlag {
               .collect(Collectors.joining("|")));
    }
 
-   public static List<TimeUnit> sorted() {
+   public static List<ChronoUnit> sorted() {
       return SORTED;
    }
 
-   public static java.util.concurrent.TimeUnit toNative(TimeUnit unit) {
+   public static java.util.concurrent.TimeUnit toNative(ChronoUnit unit) {
       return switch(unit) {
          case NANOSECONDS -> java.util.concurrent.TimeUnit.NANOSECONDS;
          case MICROSECONDS -> java.util.concurrent.TimeUnit.MICROSECONDS;
@@ -108,7 +109,7 @@ public enum TimeUnit implements TemporalUnit, FormatFlag {
       };
    }
 
-   public static TimeUnit from(java.util.concurrent.TimeUnit unit) {
+   public static ChronoUnit from(java.util.concurrent.TimeUnit unit) {
       return switch(unit) {
          case NANOSECONDS -> NANOSECONDS;
          case MICROSECONDS -> MICROSECONDS;
