@@ -22,6 +22,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.wynntils.core.WynntilsMod.GSON;
+import static java.lang.String.format;
 
 public class JsonImpl implements Json {
     private final Map<String, Object> map;
@@ -65,9 +66,9 @@ public class JsonImpl implements Json {
                     throw new ClassCastException("Key %s is %s not Json".formatted(part, object.getClass().getSimpleName()));
             }
 
-            return Optional.of(new Pair<>(keys[keys.length - 1], next));
+            return Optional.ofNullable(new Pair<>(keys[keys.length - 1], next));
         } else {
-            return Optional.of(new Pair<>(key, this));
+            return Optional.ofNullable(new Pair<>(key, this));
         }
     }
 
@@ -258,25 +259,41 @@ public class JsonImpl implements Json {
         return this;
     }
 
-    @Override
-    public List<Object> getList(Object key) throws ClassCastException {
-        return getList(key, Object.class);
+    @SuppressWarnings("unchecked")
+    private <T> List<T> constructList(Object key, Class<T> clazz, List<T> defaultValue) {
+        List<T> value = get(key, List.class);
+
+        if (value == null) return defaultValue;
+
+        for (Object item : value) {
+            if (item != null && !clazz.isAssignableFrom(item.getClass())) {
+                throw new ClassCastException(format("List element cannot be cast to %s", clazz.getName()));
+            }
+        }
+        return value;
     }
 
     @Override
-    public List<Object> getList(Object key, List<Object> defaultValue) throws ClassCastException {
-        List<Object> value = getList(key);
-        return value == null ? defaultValue : value;
+    @SuppressWarnings("unchecked")
+    public List<Object> getList(Object key) {
+        return get(key, List.class);
     }
 
     @Override
-    public <T> List<T> getList(Object key, Class<T> clazz) throws ClassCastException {
-        return null;
+    public List<Object> getList(Object key, List<Object> defaultValue) {
+        List<Object> res = getList(key);
+
+        return res == null ? defaultValue : res;
     }
 
     @Override
-    public <T> List<T> getList(Object key, Class<T> clazz, List<T> defaultValue) throws ClassCastException {
-        return null;
+    public <T> List<T> getList(Object key, Class<T> clazz) {
+        return constructList(key, clazz, null);
+    }
+
+    @Override
+    public <T> List<T> getList(Object key, Class<T> clazz, List<T> defaultValue) {
+        return constructList(key, clazz, defaultValue);
     }
 
     @Override
@@ -286,7 +303,7 @@ public class JsonImpl implements Json {
 
     @Override
     public int getInteger(final Object key, final int defaultValue) throws ClassCastException {
-        return Optional.of(getInteger(key)).orElse(defaultValue);
+        return Optional.ofNullable(getInteger(key)).orElse(defaultValue);
     }
 
     @Override
@@ -296,7 +313,7 @@ public class JsonImpl implements Json {
 
     @Override
     public long getLong(final Object key, final long defaultValue) throws ClassCastException {
-        return Optional.of(getLong(key)).orElse(defaultValue);
+        return Optional.ofNullable(getLong(key)).orElse(defaultValue);
     }
 
     @Override
@@ -306,7 +323,7 @@ public class JsonImpl implements Json {
 
     @Override
     public float getFloat(final Object key, final float defaultValue) throws ClassCastException {
-        return Optional.of(getFloat(key)).orElse(defaultValue);
+        return Optional.ofNullable(getFloat(key)).orElse(defaultValue);
     }
 
     @Override
@@ -316,12 +333,14 @@ public class JsonImpl implements Json {
 
     @Override
     public double getDouble(final Object key, final double defaultValue) throws ClassCastException {
-        return Optional.of(getDouble(key)).orElse(defaultValue);
+        return Optional.ofNullable(getDouble(key)).orElse(defaultValue);
     }
 
     @Override
     public String getString(Object key) throws ClassCastException {
-        return null;
+        Object value = get(key);
+
+        return value == null ? null : value.toString();
     }
 
     @Override
@@ -331,12 +350,14 @@ public class JsonImpl implements Json {
 
     @Override
     public Boolean getBoolean(Object key) throws ClassCastException {
-        return null;
+        return get(key, Boolean.class);
     }
 
     @Override
     public boolean getBoolean(Object key, boolean defaultValue) throws ClassCastException {
-        return false;
+        Boolean value = getBoolean(key);
+
+        return value == null ? defaultValue : value;
     }
 
     @Override
