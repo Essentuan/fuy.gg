@@ -145,6 +145,7 @@ public class FuyCommand {
 
          builder.append(Iter.of(
                  servers.stream()
+                         .filter(world -> !world.getWorld().isBlank())
                          .map(world -> Pair.of(
                                  world,
                                  Duration.of(20, MINUTES).minus(world.getUptime().mod(20, MINUTES)).minus(90, SECONDS)
