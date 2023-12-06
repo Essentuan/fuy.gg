@@ -13,7 +13,7 @@ public class MemberModel extends BaseModel implements Guild.Member {
    @Key private Guild.Rank rank;
    @Key private long contributed;
    @Key private Date joined;
-   @Key private String world;
+   @Key @Null private String world;
 
    @Override
    public String username() {
