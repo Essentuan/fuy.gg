@@ -8,11 +8,13 @@ import com.busted_moments.core.http.api.Find;
 import com.busted_moments.core.http.api.guild.Guild;
 import com.busted_moments.core.http.api.guild.GuildType;
 import com.busted_moments.core.http.api.player.Player;
+import com.busted_moments.core.http.requests.serverlist.ServerList;
 import com.busted_moments.core.text.TextBuilder;
 import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.time.Duration;
-import com.busted_moments.core.time.FormatFlag;
+import com.busted_moments.core.tuples.Pair;
 import com.busted_moments.core.util.StringUtil;
+import com.busted_moments.core.util.iterators.Iter;
 import com.essentuan.acf.core.annotations.Alias;
 import com.essentuan.acf.core.annotations.Argument;
 import com.essentuan.acf.core.annotations.Command;
@@ -21,14 +23,20 @@ import com.essentuan.acf.core.annotations.Subcommand;
 import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType;
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
+import com.wynntils.core.components.Managers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.core.time.ChronoUnit.MINUTES;
+import static com.busted_moments.core.time.ChronoUnit.SECONDS;
+import static com.busted_moments.core.time.FormatFlag.COMPACT;
 import static com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE;
 import static net.minecraft.ChatFormatting.AQUA;
 import static net.minecraft.ChatFormatting.DARK_AQUA;
@@ -122,8 +130,41 @@ public class FuyCommand {
                          .append(" is on ", GRAY)
                          .append(world)), () -> ChatUtil.message(TextBuilder.of(player.username(), AQUA)
                  .append(" was last seen ", GRAY)
-                 .append(lastSeen.getPart(ChronoUnit.MINUTES) > 1 ? lastSeen.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES) : lastSeen.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS), AQUA)
+                 .append(lastSeen.getPart(MINUTES) > 1 ? lastSeen.toString(COMPACT, MINUTES) : lastSeen.toString(COMPACT, ChronoUnit.SECONDS), AQUA)
                  .append(" ago", GRAY)));
+      });
+   }
+
+   @Alias("sp")
+   @Subcommand("soulpoints")
+   private static void getSoulPointWorlds(
+           CommandContext<FabricClientCommandSource> context
+   ) {
+      new ServerList.Request().thenApply(Optional::orElseThrow).thenAccept(servers -> {
+         TextBuilder builder = TextBuilder.of("Worlds near Sunrise: ", GRAY).line();
+
+         builder.append(Iter.of(
+                 servers.stream()
+                         .map(world -> Pair.of(
+                                 world,
+                                 Duration.of(20, MINUTES).minus(world.getUptime().mod(20, MINUTES)).minus(90, SECONDS)
+                         )).sorted(Comparator.comparing(Pair::two))
+                         .limit(10)
+                         .iterator()
+         ), pair -> builder.append(pair.one().getWorld(), AQUA)
+                 .append(" is ", GRAY)
+                 .append(pair.two().toString(COMPACT, SECONDS), AQUA)
+                 .append(" away from Sunrise", GRAY)
+                 .onHover(b -> b
+                         .append("Click to switch to ", GRAY)
+                         .append(pair.one().getWorld(), WHITE)
+                         .line()
+                         .append("(Requires ", DARK_PURPLE)
+                         .append("HERO", LIGHT_PURPLE)
+                         .append(" rank)", DARK_PURPLE))
+                 .onClick(ClickEvent.Action.RUN_COMMAND, "/switch " + pair.one().getWorld()));
+
+         Managers.TickScheduler.scheduleNextTick(() -> ChatUtil.message(builder));
       });
    }
 
@@ -151,7 +192,7 @@ public class FuyCommand {
                      Duration duration = Duration.since(member.joinedAt());
 
                      builder.append(". They have been in the guild for ", GRAY)
-                             .append(duration.getPart(ChronoUnit.MINUTES) > 1 ? duration.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES) : duration.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS), AQUA)
+                             .append(duration.getPart(MINUTES) > 1 ? duration.toString(COMPACT, MINUTES) : duration.toString(COMPACT, ChronoUnit.SECONDS), AQUA)
                              .append(".", GRAY);
                   }
                });
