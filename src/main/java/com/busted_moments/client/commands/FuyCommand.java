@@ -4,14 +4,20 @@ import com.busted_moments.client.features.AutoStreamFeature;
 import com.busted_moments.client.features.AutoUpdateFeature;
 import com.busted_moments.client.features.war.WeeklyWarCountOverlay;
 import com.busted_moments.client.util.ChatUtil;
-import com.busted_moments.core.api.requests.Find;
-import com.busted_moments.core.api.requests.Guild;
-import com.busted_moments.core.api.requests.player.Player;
+import com.busted_moments.core.http.api.Find;
+import com.busted_moments.core.http.api.guild.Guild;
+import com.busted_moments.core.http.api.guild.GuildType;
+import com.busted_moments.core.http.api.player.Player;
 import com.busted_moments.core.text.TextBuilder;
+import com.busted_moments.core.time.ChronoUnit;
 import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.FormatFlag;
-import com.busted_moments.core.time.ChronoUnit;
-import com.essentuan.acf.core.annotations.*;
+import com.busted_moments.core.util.StringUtil;
+import com.essentuan.acf.core.annotations.Alias;
+import com.essentuan.acf.core.annotations.Argument;
+import com.essentuan.acf.core.annotations.Command;
+import com.essentuan.acf.core.annotations.Inherit;
+import com.essentuan.acf.core.annotations.Subcommand;
 import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType;
 import com.essentuan.acf.fabric.core.client.FabricClientCommandSource;
 import com.mojang.brigadier.context.CommandContext;
@@ -24,7 +30,14 @@ import java.util.function.Consumer;
 
 import static com.busted_moments.client.FuyMain.CONFIG;
 import static com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE;
-import static net.minecraft.ChatFormatting.*;
+import static net.minecraft.ChatFormatting.AQUA;
+import static net.minecraft.ChatFormatting.DARK_AQUA;
+import static net.minecraft.ChatFormatting.DARK_PURPLE;
+import static net.minecraft.ChatFormatting.GRAY;
+import static net.minecraft.ChatFormatting.LIGHT_PURPLE;
+import static net.minecraft.ChatFormatting.RED;
+import static net.minecraft.ChatFormatting.WHITE;
+import static net.minecraft.ChatFormatting.YELLOW;
 
 @Alias("fy")
 @Command("fuy")
@@ -53,25 +66,25 @@ public class FuyCommand {
 
       Date start = new Date();
       new Guild.Request(string).thenAccept(optional -> optional.ifPresentOrElse(guild -> {
-         List<Guild.Member> online = guild.stream().filter(member -> member.getWorld().isPresent()).toList();
+         List<Guild.Member> online = guild.stream().filter(member -> member.world().isPresent()).toList();
 
-         ChatUtil.message(TextBuilder.of(guild.getName(), AQUA).space()
-                 .append("[", DARK_AQUA).append(guild.getPrefix(), AQUA).append("]", DARK_AQUA).space()
+         ChatUtil.message(TextBuilder.of(guild.name(), AQUA).space()
+                 .append("[", DARK_AQUA).append(guild.prefix(), AQUA).append("]", DARK_AQUA).space()
                  .append("has ", GRAY)
                  .append(online.size(), AQUA)
                  .append(" of ", GRAY)
                  .append(guild.size(), AQUA)
                  .append(" members online: ", GRAY)
                  .append(online, (member, b) -> b
-                                 .append(member.getRank().getStars() + member.getUsername())
+                                 .append(StringUtil.nCopies("\u2605", member.rank().countStars()) + member.username())
                                  .onPartHover(builder -> builder
                                          .append("Click to switch to ", GRAY)
-                                         .append(member.getWorld().orElseThrow(), WHITE)
+                                         .append(member.world().orElseThrow(), WHITE)
                                          .line()
                                          .append("(Requires ", DARK_PURPLE)
                                          .append("HERO", LIGHT_PURPLE)
                                          .append(" rank)", DARK_PURPLE))
-                                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/switch " + member.getWorld().orElseThrow()),
+                                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/switch " + member.world().orElseThrow()),
                          b -> b.append(", ", AQUA)
                  ));
       }, () -> {
@@ -102,12 +115,12 @@ public class FuyCommand {
            @Argument("Player") String string
    ) {
       getPlayer(string, player -> {
-         Duration lastSeen = Duration.since(player.getLastSeen());
+         Duration lastSeen = Duration.since(player.lastJoin());
 
-         player.getWorld().ifPresentOrElse(world ->
-                 ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA)
+         player.world().ifPresentOrElse(world ->
+                 ChatUtil.message(TextBuilder.of(player.username(), AQUA)
                          .append(" is on ", GRAY)
-                         .append(world)), () -> ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA)
+                         .append(world)), () -> ChatUtil.message(TextBuilder.of(player.username(), AQUA)
                  .append(" was last seen ", GRAY)
                  .append(lastSeen.getPart(ChronoUnit.MINUTES) > 1 ? lastSeen.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES) : lastSeen.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS), AQUA)
                  .append(" ago", GRAY)));
@@ -121,19 +134,21 @@ public class FuyCommand {
            @Argument("Player") String string
    ) {
       getPlayer(string, player -> {
-         if (player.getGuildName() == null) {
-            ChatUtil.message(TextBuilder.of(player.getUsername(), AQUA).append(" is not in a ", GRAY).append("guild", AQUA));
+         if (player.guild().isEmpty()) {
+            ChatUtil.message(TextBuilder.of(player.username(), AQUA).append(" is not in a ", GRAY).append("guild", AQUA));
          } else {
-            player.getGuild().thenAccept(optional -> {
-               TextBuilder builder = TextBuilder.of(player.getUsername(), AQUA)
-                       .append(" is a ", GRAY).append(player.getGuildRank().prettyPrint(), AQUA)
+            player.guild().map(GuildType::name).map(Guild.Request::new).orElseThrow().thenAccept(optional -> {
+               Player.Guild playerGuild = player.guild().orElseThrow();
+
+               TextBuilder builder = TextBuilder.of(player.username(), AQUA)
+                       .append(" is a ", GRAY).append(playerGuild.rank().prettyPrint(), AQUA)
                        .append(" in ", GRAY)
-                       .append(player.getGuildName(), AQUA);
+                       .append(playerGuild.prettyPrint(), AQUA);
 
                optional.ifPresent(guild -> {
                   if (guild.contains(player)) {
                      Guild.Member member = guild.get(player);
-                     Duration duration = Duration.since(member.getJoinedAt());
+                     Duration duration = Duration.since(member.joinedAt());
 
                      builder.append(". They have been in the guild for ", GRAY)
                              .append(duration.getPart(ChronoUnit.MINUTES) > 1 ? duration.toString(FormatFlag.COMPACT, ChronoUnit.MINUTES) : duration.toString(FormatFlag.COMPACT, ChronoUnit.SECONDS), AQUA)
