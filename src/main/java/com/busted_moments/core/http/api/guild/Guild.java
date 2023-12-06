@@ -9,7 +9,7 @@ import com.busted_moments.core.http.models.wynncraft.guild.GuildModel;
 import com.busted_moments.core.http.models.wynncraft.guild.list.GuildList;
 import com.busted_moments.core.json.Json;
 import com.busted_moments.core.time.ChronoUnit;
-import org.apache.commons.lang3.StringUtils;
+import net.fabricmc.loader.impl.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -246,7 +246,7 @@ public interface Guild extends Collection<Guild.Member>, GuildType {
       private final String friendlyName;
 
       Rank() {
-         this.friendlyName = StringUtils.capitalize(name());
+         this.friendlyName = StringUtil.capitalize(name().toLowerCase());
       }
 
       @Override
