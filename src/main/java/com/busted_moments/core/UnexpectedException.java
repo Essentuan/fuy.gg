@@ -4,7 +4,7 @@ public class UnexpectedException extends RuntimeException {
    public UnexpectedException() {}
 
    public UnexpectedException(Throwable cause) {
-      super (cause);
+      super(cause);
    }
 
    public UnexpectedException(String message, Object... args) {
@@ -16,10 +16,11 @@ public class UnexpectedException extends RuntimeException {
    }
 
    public static RuntimeException propagate(Throwable e) {
-      return switch (e) {
-         case ReflectiveOperationException roe -> propagate(roe.getCause());
-         case RuntimeException runtime -> runtime;
-         default -> new UnexpectedException(e);
-      };
+      if (e instanceof ReflectiveOperationException roe)
+         return propagate(roe.getCause());
+      else if (e instanceof RuntimeException re)
+         return re;
+      else
+         return new UnexpectedException(e);
    }
 }
