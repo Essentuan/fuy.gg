@@ -119,3 +119,4 @@ run/
 
 # vscode settings
 .vscode/
+.profileconfig.json
