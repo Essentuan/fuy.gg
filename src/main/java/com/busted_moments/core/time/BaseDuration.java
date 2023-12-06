@@ -6,28 +6,63 @@ import org.jetbrains.annotations.NotNull;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalUnit;
 import java.util.List;
+import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Stream;
 
-class TimeDuration implements Duration {
+public class BaseDuration implements Duration {
    private final double seconds;
 
-   protected TimeDuration(double seconds) {
+   protected BaseDuration(double seconds) {
       this.seconds = seconds;
+   }
+
+   private Duration operator(Duration other, DoubleBinaryOperator operator) {
+      return new BaseDuration(operator.applyAsDouble(seconds, seconds(other)));
    }
 
    @Override
    public Duration plus(Duration duration) {
-      return new TimeDuration(seconds + duration.toSeconds());
+      return operator(duration, Double::sum);
    }
 
    @Override
    public Duration minus(Duration duration) {
-      return new TimeDuration(seconds - duration.toSeconds());
+      return operator(duration, (left, right) -> left - right);
+   }
+
+   @Override
+   public Duration multiply(Duration other) {
+      return operator(other, (left, right) -> left * right);
+   }
+
+   @Override
+   public Duration divide(Duration other) {
+      return operator(other, (left, right) -> left / right);
+   }
+
+   @Override
+   public Duration mod(Duration other) {
+      return operator(other, (left, right) -> left % right);
+   }
+
+   @Override
+   public Duration pow(Duration exponent) {
+      return operator(exponent, Math::pow);
+   }
+
+   @Override
+   public Duration min(Duration other) {
+      return lessThan(other) ? this : other;
+   }
+
+   @Override
+   public Duration max(Duration other) {
+      return greaterThan(other) ? this : other;
    }
 
    @Override
    public Duration abs() {
-      return new TimeDuration(Math.abs(seconds));
+      return new BaseDuration(Math.abs(seconds));
    }
 
    @Override
@@ -45,7 +80,7 @@ class TimeDuration implements Duration {
          case MINUTES -> toMinutes() % 60;
          case HOURS -> toHours() % 24;
          case DAYS -> toDays() % 7;
-         case WEEKS -> toWeeks() % 5;
+         case WEEKS -> toWeeks() % 4;
          case MONTHS -> toMonths() % 12;
          case YEARS -> toYears();
       });
@@ -53,22 +88,22 @@ class TimeDuration implements Duration {
 
    @Override
    public boolean greaterThan(Duration duration) {
-      return seconds > duration.toSeconds();
+      return seconds > seconds(duration);
    }
 
    @Override
    public boolean greaterThanOrEqual(Duration duration) {
-      return seconds >= duration.toSeconds();
+      return seconds >= seconds(duration);
    }
 
    @Override
    public boolean lessThan(Duration duration) {
-      return seconds < duration.toSeconds();
+      return seconds < seconds(duration);
    }
 
    @Override
    public boolean lessThanOrEqual(Duration duration) {
-      return seconds <= duration.toSeconds();
+      return seconds <= seconds(duration);
    }
 
    @Override
@@ -93,7 +128,7 @@ class TimeDuration implements Duration {
    public List<TemporalUnit> getUnits() {
       return Stream.of(ChronoUnit.values())
               .filter(unit -> getPart(unit) != 0 && !NumUtil.isForever(getPart(unit)))
-              .map(unit -> (TemporalUnit) unit)
+              .map(TemporalUnit.class::cast)
               .toList();
    }
 
@@ -127,5 +162,13 @@ class TimeDuration implements Duration {
    @Override
    public int hashCode() {
       return Double.hashCode(seconds);
+   }
+
+   private static double seconds(Duration duration) {
+      return duration instanceof BaseDuration obj ? obj.seconds : duration.toSeconds();
+   }
+
+   public double seconds() {
+      return seconds;
    }
 }

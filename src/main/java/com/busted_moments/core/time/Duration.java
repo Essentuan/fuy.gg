@@ -5,8 +5,11 @@ import com.busted_moments.core.util.StringUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.NotNull;
 
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 public interface Duration extends TemporalAmount, Comparable<Duration> {
-   Duration FOREVER = new TimeDuration(Double.MAX_VALUE);
+   Duration FOREVER = new BaseDuration(Double.MAX_VALUE);
 
    Duration plus(Duration duration);
 
@@ -42,6 +45,42 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
 
    default Duration subtract(double length, ChronoUnit unit) {
       return minus(length, unit);
+   }
+
+   Duration multiply(Duration other);
+
+   default Duration multiply(double length, ChronoUnit unit) {
+      return multiply(of(length, unit));
+   }
+
+   Duration divide(Duration other);
+
+   default Duration divide(double length, ChronoUnit unit) {
+      return divide(of(length, unit));
+   }
+
+   Duration mod(Duration other);
+
+   default Duration mod(double length, ChronoUnit unit) {
+      return mod(of(length, unit));
+   }
+
+   Duration pow(Duration exponent);
+
+   default Duration pow(double length, ChronoUnit unit) {
+      return pow(of(length, unit));
+   }
+
+   Duration min(Duration other);
+
+   default Duration min(double length, ChronoUnit unit) {
+      return min(of(length, unit));
+   }
+
+   Duration max(Duration other);
+
+   default Duration max(double length, ChronoUnit unit) {
+      return max(of(length, unit));
    }
 
    Duration abs();
@@ -127,7 +166,7 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
    }
 
    static Duration of(double length, ChronoUnit unit) {
-      return new TimeDuration(length * unit.toSeconds());
+      return new BaseDuration(length * unit.toSeconds());
    }
 
    static Duration of(Number length, ChronoUnit unit) {
@@ -149,7 +188,11 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
    }
 
    static Duration since(Date date) {
-      return of(new Date().getTime() - date.getTime(), ChronoUnit.MILLISECONDS);
+      return of(date, new Date());
+   }
+
+   static Duration until(Date date) {
+      return of(new Date(), date);
    }
 
    static int compare(Duration duration1, Duration duration2) {
@@ -159,7 +202,7 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
    static Optional<Duration> parse(String string) {
       int index;
 
-      string = string.replaceAll(" ", "").toLowerCase();
+      string = string.replace(" ", "").toLowerCase();
 
       Pattern pattern = ChronoUnit.REGEX();
 
@@ -214,17 +257,19 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
       protected final Duration duration;
 
       private Formatter(Duration duration, FormatFlag... flags) {
-            for (FormatFlag flag : flags) {
-                flag.apply(this);
-            }
+         for (FormatFlag flag : flags) {
+            flag.apply(this);
+         }
 
-            this.duration = duration;
+         this.duration = duration;
       }
 
       @Override
       public String toString() {
-         if (duration.isForever()) return "Forever";
-         else if (duration.lessThan(1, SMALLEST_UNIT)) return SUFFIX_GETTER.apply(0D, SMALLEST_UNIT);
+         if (duration.isForever())
+            return "Forever";
+         else if (duration.lessThan(1, SMALLEST_UNIT))
+            return ("0" + SUFFIX_GETTER.apply(0D, SMALLEST_UNIT)).trim();
 
          List<ChronoUnit> units = Lists.reverse(List.of(ChronoUnit.values()));
 
@@ -244,6 +289,120 @@ public interface Duration extends TemporalAmount, Comparable<Duration> {
          }
 
          return builder.toString().trim();
+      }
+   }
+
+   interface Wrapped extends Duration {
+      Duration duration();
+
+      @Override
+      default Duration plus(Duration duration) {
+         return duration().plus(duration);
+      }
+
+      @Override
+      default Duration minus(Duration duration) {
+         return duration().minus(duration);
+      }
+
+      @Override
+      default Duration multiply(Duration other) {
+         return duration().multiply(other);
+      }
+
+      @Override
+      default Duration divide(Duration other) {
+         return duration().divide(other);
+      }
+
+      @Override
+      default Duration mod(Duration other) {
+         return duration().mod(other);
+      }
+
+      @Override
+      default Duration pow(Duration exponent) {
+         return duration().pow(exponent);
+      }
+
+      @Override
+      default Duration min(Duration other) {
+         return duration().min(other);
+      }
+
+      @Override
+      default Duration max(Duration other) {
+         return duration().max(other);
+      }
+
+      @Override
+      default Duration abs() {
+         return duration().abs();
+      }
+
+      @Override
+      default double to(ChronoUnit unit) {
+         return duration().to(unit);
+      }
+
+      @Override
+      default double getPart(ChronoUnit unit) {
+         return duration().getPart(unit);
+      }
+
+      @Override
+      default boolean greaterThan(Duration duration) {
+         return duration.greaterThan(duration);
+      }
+
+      @Override
+      default boolean greaterThanOrEqual(Duration duration) {
+         return duration.greaterThanOrEqual(duration);
+      }
+
+      @Override
+      default boolean lessThan(Duration duration) {
+         return duration.lessThan(duration);
+      }
+
+      @Override
+      default boolean lessThanOrEqual(Duration duration) {
+         return duration.lessThanOrEqual(duration);
+      }
+
+      @Override
+      default boolean isForever() {
+         return duration().isForever();
+      }
+
+      @Override
+      default java.time.Duration toNative() {
+         return duration().toNative();
+      }
+
+      @Override
+      default int compareTo(@NotNull Duration o) {
+         return duration().compareTo(o);
+      }
+
+      @Override
+      default long get(TemporalUnit unit) {
+         return duration().get(unit);
+      }
+
+      @Override
+      default List<TemporalUnit> getUnits() {
+         return duration().getUnits();
+      }
+
+      @Override
+      default Temporal addTo(Temporal temporal) {
+         return duration().addTo(temporal);
+      }
+
+      @Override
+      default Temporal subtractFrom(Temporal temporal) {
+         return duration().subtractFrom(temporal);
       }
    }
 }
