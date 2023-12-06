@@ -47,10 +47,9 @@ public enum ResourceType {
 
    public static ResourceType of(String string) {
       for (ResourceType resource : values()) {
-         if (resource.toString().toLowerCase().startsWith(string.toLowerCase())) return resource;
-         else if (string.toLowerCase().startsWith(resource.toString().toLowerCase())) return resource;
+         if (resource.toString().toLowerCase().startsWith(string.toLowerCase()) || string.toLowerCase().startsWith(resource.toString().toLowerCase()))
+            return resource;
       }
-
 
       throw new IllegalArgumentException("Cannot find resource with name %s".formatted(string));
    }
