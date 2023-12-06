@@ -462,7 +462,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
    @Override
    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-      filter_menu.onKeyDown(keyCode, scanCode, modifiers);
+      if (!search.isFocused())
+         filter_menu.onKeyDown(keyCode, scanCode, modifiers);
 
       return super.keyPressed(keyCode, scanCode, modifiers);
    }
