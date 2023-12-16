@@ -37,7 +37,24 @@ public class StringUtil {
                 bestMatch = Pair.of(t, matches);
         }
 
-        return Optional.ofNullable(bestMatch).map(Pair::one);
+        return Optional.ofNullable(bestMatch).filter(pair -> pair.two() != 0).map(Pair::one);
+    }
+
+    private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("[-_]");
+
+    public static String camelCase(String s) {
+        String[] parts = CAMEL_CASE_PATTERN.matcher(s).replaceAll(" ").split(" ");
+
+        for (int i = 0; i < parts.length; i++) {
+            if (i == 0)
+                parts[0] = parts[0].toLowerCase();
+            else {
+                String part = parts[i];
+                parts[i] = part.substring(0, 1).toUpperCase() + part.substring(1);
+            }
+        }
+
+        return String.join("", parts);
     }
 
     public static String nCopies(String s, int n) {

@@ -65,7 +65,8 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
    private Optional<Filter> getHovered(double mouseY) {
       int line = ((int) (mouseY - getY()) / FontRenderer.lineHeight()) / 2;
 
-      if (isHovered() && line > 0) return Optional.of(Filter.values()[line - 1]);
+      if (isHovered() && line > 0)
+         return Optional.of(Filter.values()[line - 1]);
 
       return Optional.empty();
    }

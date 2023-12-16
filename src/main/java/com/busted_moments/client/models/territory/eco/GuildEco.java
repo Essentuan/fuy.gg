@@ -61,6 +61,10 @@ public class GuildEco implements Territory.List<TerritoryEco> {
       return territories.containsKey(territory);
    }
 
+   public Optional<TerritoryEco> hq() {
+      return Optional.ofNullable(HQ);
+   }
+
    @Override
    public Date getTimestamp() {
       return timestamp;

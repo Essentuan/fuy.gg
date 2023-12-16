@@ -24,6 +24,10 @@ public class Route implements Iterable<Territory> {
       return new Route(route);
    }
 
+   public int size() {
+      return route.size();
+   }
+
    @NotNull
    @Override
    public Iterator<Territory> iterator() {
@@ -47,11 +51,13 @@ public class Route implements Iterable<Territory> {
       while (!queue.isEmpty() && eco.size() > completed.size()) {
          var next = queue.poll();
 
-         if (visited.contains(next.one())) continue;
+         if (visited.contains(next.one()))
+            continue;
 
          var territory = state.get(next.one());
 
-         if (!ideal && !Objects.equals(territory.getOwner().name(), guild)) continue;
+         if (!ideal && !Objects.equals(territory.getOwner().name(), guild))
+            continue;
 
          if (eco.contains(territory)) {
             var terr = eco.get(territory);

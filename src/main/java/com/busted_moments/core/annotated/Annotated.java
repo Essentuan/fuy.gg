@@ -33,6 +33,10 @@ public class Annotated {
 
     private final Map<Class<? extends Annotation>, Validator<?>> validators = new HashMap<>();
 
+    public Annotated() {
+        this(new Validator<?>[0]);
+    }
+
     public Annotated(Validator<?>... annotations) {
         this.element = getClass();
 

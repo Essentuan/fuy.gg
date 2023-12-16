@@ -70,7 +70,7 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
 
          if (WarModel.current().isEmpty()) {
             SCANNING = false;
-            BUSY = true;
+            busy = true;
             close();
             Handlers.Command.sendCommand("gu territory %s".formatted(TO_SELECT));
          } else if (getPages().size() == 1) rescan();
@@ -79,7 +79,7 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
       @Override
       protected boolean process(String territory, ItemStack stack, int slot) {
          if (TO_SELECT != null && TO_SELECT.equals(territory) && click(slot, 0)) {
-            BUSY = true;
+            busy = true;
             return true;
          }
 

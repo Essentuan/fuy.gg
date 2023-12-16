@@ -8,6 +8,10 @@ import com.busted_moments.client.models.territory.eco.tributes.TributeModel;
 import com.busted_moments.client.models.territory.eco.types.ResourceType;
 import com.busted_moments.client.screen.territories.filter.Filter;
 import com.busted_moments.client.screen.territories.filter.FilterMenu;
+import com.busted_moments.client.screen.territories.search.Criteria;
+import com.busted_moments.client.screen.territories.search.Operator;
+import com.busted_moments.client.screen.territories.search.TerritorySearch;
+import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.client.util.ContainerHelper;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.render.FontRenderer;
@@ -15,17 +19,21 @@ import com.busted_moments.core.render.Renderer;
 import com.busted_moments.core.render.screen.ClickEvent;
 import com.busted_moments.core.render.screen.HoverEvent;
 import com.busted_moments.core.render.screen.Screen;
+import com.busted_moments.core.render.screen.ScreenElement;
 import com.busted_moments.core.render.screen.Widget;
+import com.busted_moments.core.render.screen.widgets.TexturedButtonWidget;
 import com.busted_moments.core.text.TextBuilder;
-import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.ChronoUnit;
+import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.util.NumUtil;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ContainerSetContentEvent;
 import com.wynntils.mc.event.TickEvent;
+import com.wynntils.utils.MathUtils;
 import com.wynntils.utils.colors.CommonColors;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.render.type.TextShadow;
@@ -47,52 +55,71 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.busted_moments.client.util.Textures.TerritoryMenu.*;
-import static net.minecraft.ChatFormatting.*;
+import static com.busted_moments.client.util.Textures.TerritoryMenu.BACKGROUND;
+import static com.busted_moments.client.util.Textures.TerritoryMenu.FOREGROUND;
+import static com.busted_moments.client.util.Textures.TerritoryMenu.MASK;
+import static com.busted_moments.client.util.Textures.TerritoryMenu.Production;
+import static com.busted_moments.client.util.Textures.TerritoryMenu.SCROLLBAR;
+import static com.wynntils.utils.render.Texture.INFO;
+import static net.minecraft.ChatFormatting.BLUE;
+import static net.minecraft.ChatFormatting.BOLD;
+import static net.minecraft.ChatFormatting.DARK_GRAY;
+import static net.minecraft.ChatFormatting.GRAY;
+import static net.minecraft.ChatFormatting.GREEN;
+import static net.minecraft.ChatFormatting.RED;
+import static net.minecraft.ChatFormatting.WHITE;
+import static net.minecraft.ChatFormatting.YELLOW;
 
 public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends Screen.Element {
    private static final float ITEM_SCALE = 1.35F;
    private static final int BACK_SLOT = 18;
 
-   private final int CONTAINER_ID;
+   private final int containerId;
 
    private VerticalScrollbar scrollbar;
-   private SearchBox search;
-   private FilterMenu filter_menu;
+   private Search search;
+   private Legend info;
+   private FilterMenu filterMenu;
 
    protected List<Screen.Widget<?>> baseWidgets = List.of();
 
    protected GuildEco territories = null;
 
    protected final Scanner scanner;
-   protected boolean BUSY = false;
+   protected boolean busy = false;
 
    private final Multimap<Filter, AbstractEntry> counts = MultimapBuilder.hashKeys().arrayListValues().build();
 
-   private List<FormattedCharSequence> GUILD_OUTPUT = List.of();
-   private float GUILD_OUTPUT_WIDTH = 0;
-   private float GUILD_OUTPUT_HEIGHT = 0;
-   private float GUILD_OUTPUT_OFFSET_X = 0;
-   private float GUILD_OUTPUT_OFFSET_Y = 0;
+   private List<FormattedCharSequence> guildOutput = List.of();
+   private float guildOutputWidth = 0;
+   private float guildOutputHeight = 0;
+   private float guildOutputOffsetX = 0;
+   private float guildOutputOffsetY = 0;
 
    private final boolean showProduction;
    private final boolean playBackSound;
    private final boolean showPercents;
 
-   public TerritoryScreen(int id, boolean showProduction, boolean playBackSound, boolean showPercents) {
+   protected TerritoryScreen(int id, boolean showProduction, boolean playBackSound, boolean showPercents) {
       super(Component.literal("Manage Territories"));
 
       this.showProduction = showProduction;
       this.playBackSound = playBackSound;
       this.showPercents = showPercents;
 
-      CONTAINER_ID = id;
-      scanner = scanner(CONTAINER_ID);
+      containerId = id;
+      scanner = scanner(containerId);
 
       scanner.onUpdate(e -> {
          territories = e;
@@ -101,8 +128,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       });
 
       FabricLoader.getInstance().getModContainer("legendarytooltips").ifPresent(container -> {
-         GUILD_OUTPUT_OFFSET_Y = 2F;
-         GUILD_OUTPUT_OFFSET_X = 6.5F;
+         guildOutputOffsetY = 2F;
+         guildOutputOffsetX = 6.5F;
       });
    }
 
@@ -115,7 +142,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    protected abstract void build();
 
    protected int container() {
-      return CONTAINER_ID;
+      return containerId;
    }
 
    @Override
@@ -123,8 +150,9 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    protected void init() {
       super.init();
 
-      new SearchBox(0, 0, 150, 20, string -> rebuild(), this)
-              .setScale(0.8F).perform(box -> {
+      new Search(0, 0, 230, 20)
+              .setScale(0.8F)
+              .perform(box -> {
                  this.search = box;
 
                  box.setX((this.width / 2) - box.getWidth() / 2);
@@ -143,10 +171,20 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
               .setScrollIntensity(60)
               .setEasing(EasingMethod.EasingMethodImpl.QUINTIC)
               .onScroll(scroll -> {
-                 TerritoryPosition position = getTerritoryPosition(getTerritories());
+                 TerritoryPosition position = getTerritoryPosition(search.territories());
                  var entries = getWidgets().stream().filter(widget -> AbstractEntry.class.isAssignableFrom(widget.getClass())).toList();
 
                  for (int i = 0; i < entries.size(); i++) ((AbstractEntry) entries.get(i)).update(i, position);
+              })
+              .then(Legend::new)
+              .setScale(0.4F)
+              .perform(info -> {
+                 this.info = info;
+
+                 info.setX(search.getX() + search.getWidth() - info.getWidth() - 3);
+                 info.setY(search.getY() + (search.getHeight() / 2F) - (info.getHeight() / 2) - 0.5F);
+
+                 search.setMaxWidth((int) (search.getMaxTextWidth() - info.getWidth()));
               })
               .then(() -> item(BACK_SLOT, playBackSound, true))
               .setScale(1.05F)
@@ -162,7 +200,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
               }).onUpdate(m -> rebuild())
               .setCounts(counts)
               .perform(menu -> {
-                 this.filter_menu = menu;
+                 this.filterMenu = menu;
 
                  menu.setX((this.width / 2F) + BACKGROUND.width() / 2F);
                  menu.setY((this.height / 2F) - (menu.getHeight() + 6) / 2F);
@@ -173,60 +211,17 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       baseWidgets = List.copyOf(getWidgets());
    }
 
-   private @Nullable List<TerritoryEco> getTerritories() {
-      if (territories == null) return null;
-
-      String search;
-      String[] split;
-
-      if (this.search != null && !this.search.getTextBoxInput().isBlank()) {
-         search = cleanupSearch(this.search.getTextBoxInput());
-         split = search.split(" ");
-      } else {
-         search = null;
-         split = null;
-      }
-
-      return territories.stream()
-              .filter(territory -> {
-                 if (filter_menu.strict() && filter_menu.disjointed(Filter.getFilters(territory))) return false;
-
-                 if (search == null) return true;
-
-                 if (getAcronym(territory).toLowerCase().startsWith(search)) return true;
-
-                 String[] parts = cleanupSearch(territory).split(" ");
-
-                 if (split.length > parts.length) return false;
-
-                 int offset = -1;
-
-                 for (int i = 0; i < parts.length; i++) {
-                    if (offset == -1 && parts[i].contains(split[0])) offset = i;
-                    if (offset == -1) continue;
-
-                    int searchIndex = i - offset;
-                    if (searchIndex >= split.length) break;
-
-                    if (!parts[i].contains(split[i - offset])) offset = -1;
-                 }
-
-                 return offset != -1;
-              })
-              .toList();
-   }
-
    private void rebuild() {
       if (search == null) return;
-      
+
       clear();
 
       baseWidgets.forEach(Screen.Widget::build);
 
-      var territories = getTerritories();
+      var territories = search.territories();
 
-      if (territories == null || territories.isEmpty()) {
-         GUILD_OUTPUT = List.of();
+      if (territories.isEmpty()) {
+         guildOutput = List.of();
          return;
       }
 
@@ -362,13 +357,13 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                          .append("%)", percentColor);
               }).build();
 
-      GUILD_OUTPUT = FontRenderer.split(output, 0)
+      guildOutput = FontRenderer.split(output, 0)
               .stream()
               .map(StyledText::getComponent)
               .map(Component::getVisualOrderText)
               .toList();
-      GUILD_OUTPUT_WIDTH = FontRenderer.getWidth(output, 0) + 16;
-      GUILD_OUTPUT_HEIGHT = FontRenderer.getHeight(output, 0) - 8;
+      guildOutputWidth = FontRenderer.getWidth(output, 0) + 16;
+      guildOutputHeight = FontRenderer.getHeight(output, 0) - 8;
 
 
       new ClearMask().build();
@@ -402,21 +397,22 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                       HoverEvent.PRE
               );
    }
-   
+
    protected boolean WAITING = false;
    private Date LAST_CLICK = new Date();
-   
+
    protected boolean click(int slot, int button) {
-      if (BUSY || WAITING || Duration.since(LAST_CLICK).lessThan(150, ChronoUnit.MILLISECONDS) || !ContainerHelper.Click(slot, button, title())) return false;
+      if (busy || WAITING || Duration.since(LAST_CLICK).lessThan(150, ChronoUnit.MILLISECONDS) || !ContainerHelper.Click(slot, button, title()))
+         return false;
       WAITING = true;
       LAST_CLICK = new Date();
-      
+
       return true;
    }
-   
+
    @SubscribeEvent(priority = EventPriority.HIGHEST)
    public void onMenuSetContents(ContainerSetContentEvent.Pre event) {
-      if (event.getContainerId() != CONTAINER_ID) return;
+      if (event.getContainerId() != containerId) return;
       WAITING = false;
    }
 
@@ -433,7 +429,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       return (x, y, button, ignored) -> {
          if (!click(slot, button)) return false;
          TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
-         BUSY = cancel;
+         busy = cancel;
 
          if (sound) SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.BLOCKS, 1, 1);
 
@@ -452,7 +448,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       scanner.close();
       TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = false;
 
-      if (!BUSY) ContainerUtils.closeContainer(CONTAINER_ID);
+      if (!busy) ContainerUtils.closeContainer(containerId);
    }
 
    @Override
@@ -461,14 +457,22 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
    }
 
    @Override
+   public boolean mouseClicked(double mouseX, double mouseY, int button) {
+      if (info.mouseClicked(mouseX, mouseY, button))
+         return true;
+
+      return super.mouseClicked(mouseX, mouseY, button);
+   }
+
+   @Override
    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
       if (!search.isFocused())
-         filter_menu.onKeyDown(keyCode, scanCode, modifiers);
+         filterMenu.onKeyDown(keyCode, scanCode, modifiers);
 
       return super.keyPressed(keyCode, scanCode, modifiers);
    }
 
-   private boolean IS_INSIDE = false;
+   private boolean isInside = false;
 
    @Override
    protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
@@ -490,9 +494,9 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
       graphics.renderTooltip(
               FontRenderer.font(),
-              GUILD_OUTPUT,
-              (int) (position[0] - GUILD_OUTPUT_OFFSET_X - GUILD_OUTPUT_WIDTH - 4),
-              (int) (position[1] - GUILD_OUTPUT_OFFSET_Y - GUILD_OUTPUT_HEIGHT / 2)
+              guildOutput,
+              (int) (position[0] - guildOutputOffsetX - guildOutputWidth - 4),
+              (int) (position[1] - guildOutputOffsetY - guildOutputHeight / 2)
       );
 
       if (territories != null && territories.isEmpty()) {
@@ -518,7 +522,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       float x = 6.5F + (this.width / 2F) - FOREGROUND.width() / 2F;
       float y = 8F + (this.height / 2F) - FOREGROUND.height() / 2F;
 
-      IS_INSIDE = mouseX >= x && mouseY >= y && mouseX < x + FOREGROUND.width() - 2 && mouseY < y + FOREGROUND.height() - 2;
+      isInside = mouseX >= x && mouseY >= y && mouseX < x + FOREGROUND.width() - 2 && mouseY < y + FOREGROUND.height() - 2;
    }
 
    private static String cleanupSearch(String string) {
@@ -589,8 +593,13 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       }
 
       @Override
+      public boolean isMouseOver(double mouseX, double mouseY) {
+         return isInside && super.isMouseOver(mouseX, mouseY);
+      }
+
+      @Override
       protected boolean onMouseDown(double mouseX, double mouseY, int button) {
-         if (IS_INSIDE && isMouseOver(mouseX, mouseY) && !BUSY && button == GLFW.GLFW_MOUSE_BUTTON_1) {
+         if (isMouseOver(mouseX, mouseY) && !busy && button == GLFW.GLFW_MOUSE_BUTTON_1) {
             click();
 
             return true;
@@ -607,14 +616,14 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
          PoseStack poseStack = graphics.pose();
 
-         if (IS_INSIDE && isMouseOver(mouseX, mouseY)) color = new CustomColor(255, 255, 255, 127);
+         if (isMouseOver(mouseX, mouseY)) color = new CustomColor(255, 255, 255, 127);
          else {
             var iter = filters.iterator();
 
             while (iter.hasNext() && color == null) {
                var next = iter.next();
 
-               if (filter_menu.isEnabled(next)) color = next.getColor();
+               if (filterMenu.isEnabled(next)) color = next.getColor();
             }
          }
 
@@ -709,6 +718,141 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       @Override
       protected void onRender(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
          Renderer.clear_mask();
+      }
+   }
+
+   private class Search extends TerritorySearch<Search> {
+      protected Search(int x, int y, int width, int height) {
+         super(x, y, width, height, TerritoryScreen.this);
+      }
+
+      @Override
+      protected @Nullable GuildEco guild() {
+         return TerritoryScreen.this.territories;
+      }
+
+      @Override
+      protected FilterMenu filters() {
+         return filterMenu;
+      }
+
+      @Override
+      public TerritoryScreen<?> getElement() {
+         return TerritoryScreen.this;
+      }
+
+      @Override
+      protected void onUpdate(String text) {
+         super.onUpdate(text);
+
+         rebuild();
+      }
+   }
+
+   private class Legend extends TexturedButtonWidget<Legend> {
+      private static final long NUMBER_OF_ITEMS_PER_PAGE = 5;
+
+      private int page = 0;
+      private final int maxPages;
+      private List<FormattedCharSequence> entries = List.of();
+
+      private Legend() {
+         setTexture(INFO)
+                 .onHover(this::onHover, HoverEvent.PRE)
+                 .onClick(this::onClick);
+
+         this.maxPages = (int) Math.ceil((float) Criteria.values().size() / NUMBER_OF_ITEMS_PER_PAGE);
+
+         updatePage();
+      }
+
+      private void updatePage() {
+         List<Criteria.Factory> criteria = Criteria.values().stream()
+                 .skip(5L * page)
+                 .limit(NUMBER_OF_ITEMS_PER_PAGE)
+                 .toList();
+
+         StyledText text = TextBuilder.of("Legend", BOLD)
+                 .line().line()
+                 .append(criteria, (factory, builder) -> {
+                    List<String> suggestions = factory.create(Iterables.getFirst(factory.operators(), Operator.EQUALS)).suggestions();
+
+                    builder.append("%s | %sb%s",
+                                    factory.prefix(),
+                                    ChatUtil.COLOR_CHAR,
+                                    factory.operators()
+                                            .stream()
+                                            .map(Operator::asString)
+                                            .collect(
+                                                    Collectors.joining(ChatFormatting.GRAY + ", " + ChatFormatting.AQUA)
+                                            ),
+                                    YELLOW
+                            ).line()
+                            .appendIf(
+                                    !suggestions.isEmpty(),
+                                    "Options: %sb%s\n",
+                                    ChatUtil.COLOR_CHAR,
+                                    String.join(ChatFormatting.GRAY + ", " + ChatFormatting.AQUA, suggestions),
+                                    GRAY
+                            );
+                 }).line()
+                 .append("Page %s/%s", page + 1, maxPages, GRAY, BOLD).line()
+                 .append("(Switch pages with Left/Right click)", GRAY)
+                 .build();
+
+         entries = FontRenderer.split(text, 0)
+                 .stream()
+                 .map(StyledText::getComponent)
+                 .map(Component::getVisualOrderText)
+                 .toList();
+      }
+
+      protected void onHover(double x, double y, Legend widget) {
+         new Tooltip().build();
+      }
+
+      protected boolean onClick(double x, double y, int button, Legend widget) {
+         if (!isHovered()) {
+            return false;
+         } else if (button == 1) {
+            this.page = MathUtils.overflowInRange(this.page, -1, 0, maxPages - 1);
+
+            updatePage();
+            SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.BLOCKS, 1, 1);
+
+            return true;
+         } else if (button == 0) {
+            this.page = MathUtils.overflowInRange(this.page, 1, 0, maxPages - 1);
+
+            updatePage();
+            SoundUtil.play(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_ON, SoundSource.BLOCKS, 1, 1);
+
+            return true;
+         } else {
+            return false;
+         }
+      }
+
+      @Override
+      public Screen.Element getElement() {
+         return TerritoryScreen.this;
+      }
+
+      private class Tooltip extends ScreenElement<Tooltip> {
+         @Override
+         public Screen.Element getElement() {
+            return Legend.this.getElement();
+         }
+
+         @Override
+         public void render(@NotNull GuiGraphics graphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+            graphics.renderTooltip(
+                    FontRenderer.font(),
+                    entries,
+                    mouseX,
+                    mouseY
+            );
+         }
       }
    }
 

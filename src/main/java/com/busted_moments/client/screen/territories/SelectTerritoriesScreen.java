@@ -43,13 +43,13 @@ public class SelectTerritoriesScreen extends TerritoryScreen<SelectTerritoriesSc
 
       item(0, (mouseX, mouseY, button, widget) -> {
          if (handler.accept(mouseX, mouseY, button, widget)) {
-            if (!scanner.SCANNING) BUSY = true;
+            if (!scanner.SCANNING) busy = true;
 
             scanner.SCANNING = false;
 
             Promise.sleep((long) (Services.Ping.getPing() * 1.2D), ChronoUnit.MILLISECONDS).thenAccept(v -> {
                if (ContainerHelper.isOpen(container()) && WAITING) {
-                  BUSY = false;
+                  busy = false;
                   WAITING = false;
                }
             });

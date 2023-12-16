@@ -6,6 +6,7 @@ import com.busted_moments.client.models.territory.eco.types.ResourceType;
 import com.busted_moments.client.models.territory.eco.types.UpgradeType;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.http.requests.mapstate.Territory;
+import com.busted_moments.core.http.requests.mapstate.version.template.MapTemplate;
 import com.wynntils.core.components.Models;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -108,6 +109,7 @@ public class TerritoryEco implements Territory {
       return eco.getTemplate().map(template -> template.get(this).getProduction().get(resource)).orElse(0L);
    }
 
+
    public long getProduction(ResourceType resource) {
       return production.computeIfAbsent(resource, k -> 0L);
    }
@@ -139,6 +141,10 @@ public class TerritoryEco implements Territory {
       return cost.computeIfAbsent(resource, k -> 0L);
    }
 
+   public double getTreasury() {
+      return treasury;
+   }
+
    public Optional<Route> getRoute() {
       return Optional.ofNullable(route);
    }
@@ -149,6 +155,34 @@ public class TerritoryEco implements Territory {
 
    public boolean isHQ() {
       return isHQ;
+   }
+
+   public boolean isConnection() {
+      Optional<MapTemplate> optional = eco.getTemplate();
+
+      if (optional.isEmpty())
+         return false;
+
+      if (eco.HQ == null)
+         return false;
+
+      return optional.get().get(this).getConnections().contains(eco.HQ.getName());
+   }
+
+   public boolean isExternal() {
+      Optional<MapTemplate> optional = eco.getTemplate();
+
+      if (optional.isEmpty())
+         return false;
+
+      if (eco.HQ == null)
+         return false;
+
+      return isHQ() || getIdealRoute().map(r -> r.size() <= 3).orElse(false);
+   }
+
+   public Set<String> getConnections() {
+      return eco.getTemplate().map(template -> template.get(this).getConnections()).orElse(Set.of());
    }
 
    @Override
