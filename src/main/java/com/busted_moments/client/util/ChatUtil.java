@@ -22,7 +22,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,15 @@ import java.util.stream.Stream;
 
 import static com.wynntils.utils.mc.McUtils.mc;
 import static com.wynntils.utils.mc.McUtils.sendMessageToClient;
-import static net.minecraft.ChatFormatting.*;
+import static net.minecraft.ChatFormatting.AQUA;
+import static net.minecraft.ChatFormatting.BLUE;
+import static net.minecraft.ChatFormatting.DARK_GREEN;
+import static net.minecraft.ChatFormatting.GOLD;
+import static net.minecraft.ChatFormatting.GREEN;
+import static net.minecraft.ChatFormatting.RED;
+import static net.minecraft.ChatFormatting.RESET;
+import static net.minecraft.ChatFormatting.WHITE;
+import static net.minecraft.ChatFormatting.YELLOW;
 
 public class ChatUtil {
    private static final Component PREFIX = component("[", DARK_GREEN)
@@ -47,7 +54,7 @@ public class ChatUtil {
            .append(component("", RESET));
 
    public static final char COLOR_CHAR = '§';
-   private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-OR]");
+   public static final Pattern COLOR_PATTERN = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-ORr]");
 
    public static MutableComponent create(String text, ChatFormatting... formats) {
       return create(component(text, formats));
@@ -155,7 +162,7 @@ public class ChatUtil {
    public static String strip(String input) {
       if (input == null) return null;
 
-      return STRIP_COLOR_PATTERN.matcher(input).replaceAll("");
+      return COLOR_PATTERN.matcher(input).replaceAll("");
    }
 
    public static String strip(Component component) {
