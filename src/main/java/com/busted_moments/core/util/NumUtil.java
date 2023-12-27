@@ -64,34 +64,43 @@ public class NumUtil {
 
 
    public static String truncate(double number, int decimals) {
-      return new BigDecimal(number).setScale(decimals, RoundingMode.FLOOR).toString();
+      return BigDecimal.valueOf(number).setScale(decimals, RoundingMode.FLOOR).toString();
    }
 
+   private static final char ZERO_WIDTH = '\u200C';
    private static final DecimalFormatSymbols SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
    private static final NumberFormat DOUBLE_FORMATTER = new DecimalFormat("#,###.00", SYMBOLS);
    private static final NumberFormat LONG_FORMATTER = new DecimalFormat("#,###", SYMBOLS);
 
+   private static String fixCommas(String number) {
+      return number.replace(",", ZERO_WIDTH + "," + ZERO_WIDTH);
+   }
+
+   private static String removeZeroWidth(String number) {
+      return number.replace(ZERO_WIDTH + "," + ZERO_WIDTH, ",");
+   }
+
    public static String format(double number) {
       if (number == 0) return "0";
 
-      return DOUBLE_FORMATTER.format(number);
+      return fixCommas(DOUBLE_FORMATTER.format(number));
    }
 
    public static String format(long number) {
       if (number == 0) return "0";
 
-      return LONG_FORMATTER.format(number);
+      return fixCommas(LONG_FORMATTER.format(number));
    }
 
    public static double parseDouble(String string) {
          try {
-            return DOUBLE_FORMATTER.parse(string).doubleValue();
+            return DOUBLE_FORMATTER.parse(removeZeroWidth(string)).doubleValue();
          } catch (ParseException e) {
             throw new RuntimeException(e);
          }
    }
 
-   public static double parseFloat(String string) {
+   public static float parseFloat(String string) {
       return (float) parseDouble(string);
    }
 
@@ -101,7 +110,7 @@ public class NumUtil {
 
    public static long parseLong(String string) {
       try {
-         return LONG_FORMATTER.parse(string).longValue();
+         return LONG_FORMATTER.parse(removeZeroWidth(string)).longValue();
       } catch (ParseException e) {
          throw new RuntimeException(e);
       }
