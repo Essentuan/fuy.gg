@@ -3,6 +3,7 @@ package com.busted_moments.core.config.entry;
 import com.busted_moments.core.config.Buildable;
 import com.busted_moments.core.config.Config;
 import com.busted_moments.core.config.entry.list.*;
+import com.busted_moments.core.json.AbstractCodec;
 import com.google.common.primitives.Primitives;
 import net.minecraft.network.chat.Component;
 
@@ -26,7 +27,7 @@ enum ListType {
    public static ConfigEntry<?> create(Object ref, Field field, Buildable<?, ?> parent) {
       Component title = Component.literal(field.getAnnotation(Config.Array.class).value());
 
-      Class<?> type = Primitives.wrap(field.getType());
+      Class<?> type = Primitives.wrap((Class<?>) AbstractCodec.getTypeArgs(field.getGenericType())[0]);
 
       for (ListType e : values()) {
          if (e.type.isAssignableFrom(type)) {

@@ -97,7 +97,7 @@ public abstract class AbstractCodec<T, Out> extends Annotated {
          throw new IllegalStateException("Unexpected value: " + type);
    }
 
-   protected static Type[] getTypeArgs(Type type) {
+   public static Type[] getTypeArgs(Type type) {
       return type instanceof ParameterizedType parameterizedType ? parameterizedType.getActualTypeArguments() : new Type[0];
    }
 
