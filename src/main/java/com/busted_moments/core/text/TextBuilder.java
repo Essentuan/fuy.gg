@@ -1,6 +1,7 @@
 package com.busted_moments.core.text;
 
 import com.wynntils.core.text.StyledText;
+import com.wynntils.core.text.StyledTextPart;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -17,6 +18,8 @@ public interface TextBuilder {
    TextBuilder append(StyledText text);
 
    TextBuilder append(Component text);
+
+   TextBuilder append(StyledTextPart part);
 
    default TextBuilder append(Component text, ChatFormatting... styles) {
       return append(text.getString(), styles);

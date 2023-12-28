@@ -4,7 +4,6 @@ import com.busted_moments.client.util.ChatUtil;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.core.text.StyledTextPart;
-import com.wynntils.utils.mc.ComponentUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -60,6 +59,11 @@ class TextBuilderImpl implements TextBuilder {
       current = current.append(StyledText.fromComponent(text));
 
       return this;
+   }
+
+   @Override
+   public TextBuilder append(StyledTextPart part) {
+      return append(StyledText.fromPart(part));
    }
 
    @Override
