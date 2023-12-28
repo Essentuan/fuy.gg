@@ -3,5 +3,10 @@
     "sounds": [
       "fuy:war_horn"
     ]
+  },
+  "cheep.cheep": {
+    "sounds": [
+      "fuy:cheep_cheep"
+    ]
   }
 }
