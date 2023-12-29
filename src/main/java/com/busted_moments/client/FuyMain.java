@@ -31,7 +31,7 @@ public class FuyMain implements ClientModInitializer, FuyExtension {
    private static ModContainer CONTAINER;
 
    @Override
-   public void onInitializeClient() {  
+   public void onInitializeClient() {
       ConfigurationBuilder builder = new ConfigurationBuilder();
 
       CONTAINER = FabricLoader.getInstance().getModContainer("fuy_gg").orElseThrow(
@@ -90,7 +90,8 @@ public class FuyMain implements ClientModInitializer, FuyExtension {
    @Override
    public String[] getSounds() {
       return new String[]{
-         "fuy:war.horn"
+              "fuy:war.horn",
+              "fuy:cheep.cheep"
       };
    }
 }
