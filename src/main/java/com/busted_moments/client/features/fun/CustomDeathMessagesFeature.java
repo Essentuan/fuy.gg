@@ -7,7 +7,9 @@ import com.busted_moments.client.models.death.messages.functions.PlayFunction;
 import com.busted_moments.client.models.death.messages.templates.FunctionalTemplate;
 import com.busted_moments.client.models.death.messages.templates.PlayerTemplate;
 import com.busted_moments.client.models.death.messages.types.DefaultMessage;
+import com.busted_moments.core.Default;
 import com.busted_moments.core.Feature;
+import com.busted_moments.core.State;
 import com.busted_moments.core.config.Config;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 import static com.busted_moments.client.models.war.WarModel.DEATH_REGEX;
 import static com.wynntils.utils.mc.McUtils.player;
 
+@Default(State.ENABLED)
 @Config.Category("Fun")
 @Feature.Definition(name = "Custom Death Messages", description = "Replaces the default death messages")
 public class CustomDeathMessagesFeature extends Feature {
