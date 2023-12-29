@@ -3,7 +3,6 @@ package com.busted_moments.client.features;
 import com.busted_moments.core.Default;
 import com.busted_moments.core.Feature;
 import com.busted_moments.core.State;
-import com.google.common.base.Objects;
 import com.wynntils.core.components.Models;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.core.text.StyledText;
@@ -14,29 +13,27 @@ import com.wynntils.utils.type.IterationDecision;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Default(State.ENABLED)
 @Feature.Definition(name = "Reveal Nicknames")
 public class RevealNicknamesFeature extends Feature {
-   private final static Pattern NICK_REGEX = Pattern.compile("(?<nick>.+)'s real username is (?<username>.+)");
+   public static final Pattern NICK_REGEX = Pattern.compile("(?<nick>.+)'s real username is (?<username>.+)");
 
    @Value("Replace nicknames")
    private static boolean REPLACE_NICKNAMES = false;
 
-   @SubscribeEvent(priority = EventPriority.HIGHEST)
+   @SubscribeEvent
    public void onChatReceived(ChatMessageReceivedEvent e) {
       if (!Models.WorldState.onWorld()) return;
 
       e.setMessage(revealNicknames(e.getStyledText()).getComponent());
    }
 
-   @SubscribeEvent(priority = EventPriority.HIGHEST)
+   @SubscribeEvent
    public void onClientsideMessage(ClientsideMessageEvent e) {
       if (!Models.WorldState.onWorld()) return;
 

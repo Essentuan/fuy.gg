@@ -22,7 +22,7 @@ public class SoundProvider implements Config.Dropdown.Provider<SoundEvent> {
    }
 
    @Override
-   public @Nullable SoundEvent get(String string) throws Throwable {
+   public @Nullable SoundEvent get(String string) {
       return getSounds().get(string);
    }
 

@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class WarModel extends Model implements ClientboundBossEventPacket.Handler {
    private static final Pattern TERRITORY_CAPTURE_REGEX = Pattern.compile("^\\[WAR\\] You have taken control of (?<territory>.+) from \\[(?<guild>.+)\\]!.*");
-   private static final Pattern DEATH_REGEX = Pattern.compile("^You have died...");
+   public static final Pattern DEATH_REGEX = Pattern.compile("^You have died...");
 
    private War current;
    private boolean HAS_ENDED = false;
