@@ -1,11 +1,13 @@
 package com.busted_moments.core.text;
 
+import com.busted_moments.client.util.ItemUtil;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.core.text.StyledTextPart;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,8 @@ public interface TextBuilder {
 
    TextBuilder append(String string, ChatFormatting... styles);
 
+   TextBuilder append(ItemStack stack);
+
    default TextBuilder append(String format, Object... args) {
       List<ChatFormatting> formattings = new ArrayList<>();
 
@@ -41,6 +45,8 @@ public interface TextBuilder {
                     return component.getString();
                  else if (obj instanceof StyledText text)
                     return text.getString();
+                 else if (obj instanceof ItemStack item)
+                    return ItemUtil.forChat(item);
                  else return obj;
               }).toArray()
       ), formattings.toArray(ChatFormatting[]::new));
@@ -124,8 +130,6 @@ public interface TextBuilder {
       return onHover(new HoverEvent(action, obj));
    }
 
-   ;
-
    default TextBuilder onHover(Consumer<TextBuilder> consumer) {
       TextBuilder builder = TextBuilder.empty();
       consumer.accept(builder);
@@ -133,15 +137,11 @@ public interface TextBuilder {
       return onHover(HoverEvent.Action.SHOW_TEXT, builder.toComponent());
    }
 
-   ;
-
    TextBuilder onPartHover(HoverEvent event);
 
    default <T> TextBuilder onPartHover(HoverEvent.Action<T> action, T obj) {
       return onPartHover(new HoverEvent(action, obj));
    }
-
-   ;
 
    default TextBuilder onPartHover(Consumer<TextBuilder> consumer) {
       TextBuilder builder = TextBuilder.empty();
@@ -149,9 +149,6 @@ public interface TextBuilder {
 
       return onPartHover(HoverEvent.Action.SHOW_TEXT, builder.toComponent());
    }
-
-   ;
-
 
    TextBuilder onClick(ClickEvent event);
 
@@ -165,6 +162,45 @@ public interface TextBuilder {
       return onPartClick(new ClickEvent(action, value));
    }
 
+   TextBuilder color(ChatFormatting color);
+
+   default TextBuilder underline() {
+      return underline(true);
+   }
+
+   TextBuilder underline(boolean active);
+
+   default TextBuilder italicize() {
+      return italicize(true);
+   }
+
+   TextBuilder italicize(boolean active);
+
+   default TextBuilder bold() {
+      return bold(true);
+   }
+
+   TextBuilder bold(boolean active);
+
+   default TextBuilder strikethrough() {
+      return strikethrough(true);
+   }
+
+   TextBuilder strikethrough(boolean active);
+
+   default TextBuilder obfuscate() {
+      return obfuscate(true);
+   }
+
+   TextBuilder obfuscate(boolean active);
+
+   TextBuilder reset();
+
+   default TextBuilder center() {
+      return center(0);
+   }
+
+   TextBuilder center(int offset);
 
    TextBuilder next();
 
