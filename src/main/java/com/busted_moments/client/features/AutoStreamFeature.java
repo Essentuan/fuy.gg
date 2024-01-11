@@ -54,6 +54,7 @@ public class AutoStreamFeature extends Feature {
          lastInput = isTabPressed;
       }
    }
+
    private static boolean inHuntedMode() {
       if (mc().player != null) {
          String itemName = mc().player.getInventory().getItem(9).toString();

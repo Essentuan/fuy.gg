@@ -52,6 +52,7 @@ public class ChatUtil {
            .append(component("]", DARK_GREEN))
            .append(component(" ⋙ ", WHITE))
            .append(component("", RESET));
+   private static final int PREFIX_LENGTH = StyledText.fromComponent(PREFIX).length();
 
    public static final char COLOR_CHAR = '§';
    public static final Pattern COLOR_PATTERN = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-ORr]");
@@ -216,5 +217,9 @@ public class ChatUtil {
       if (text == null || string == null) return string == null && text == null;
 
       return StyledText.fromComponent(text).equalsString(string, style);
+   }
+
+   public static int prefixLength() {
+      return PREFIX_LENGTH;
    }
 }

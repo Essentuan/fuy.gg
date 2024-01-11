@@ -49,7 +49,7 @@ import static net.minecraft.ChatFormatting.YELLOW;
 
 @Alias("fy")
 @Command("fuy")
-@Inherit(RaidCommand.class)
+@Inherit({RaidCommand.class, LootrunCommand.class})
 public class FuyCommand {
    @Subcommand("config")
    private static void onConfig(CommandContext<FabricClientCommandSource> context) {
