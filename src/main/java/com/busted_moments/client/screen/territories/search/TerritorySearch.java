@@ -35,12 +35,13 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public abstract class TerritorySearch<This extends TerritorySearch<This>> extends SearchBoxWidget<This> {
+   private static Field HIGHLIGHTED_FIELD;
+   private static String rawText = "";
+
    protected List<TerritoryEco> territories = null;
    protected String input = "";
    protected String search = "";
    protected List<Criteria.Compiled> criteria = new ArrayList<>();
-
-   private static Field HIGHLIGHTED_FIELD;
 
    private State state = State.STRIPPED;
 
@@ -54,16 +55,25 @@ public abstract class TerritorySearch<This extends TerritorySearch<This>> extend
       super(x, y, width, height, null, textboxScreen);
 
       this.maxWidth = super.getMaxTextWidth();
+
+      if (!rawText.isEmpty())
+         setTextBoxInput(rawText);
+   }
+
+   public void reset() {
+      setTextBoxInput("");
    }
 
    @Override
    protected void onUpdate(String text) {
       criteria.clear();
 
+      rawText = ChatUtil.strip(text);
+
       StringBuilder partBuilder = new StringBuilder();
       StringBuilder inputBuilder = new StringBuilder();
       StringBuilder searchBuilder = new StringBuilder();
-      StringReader reader = new StringReader(ChatUtil.strip(text));
+      StringReader reader = new StringReader(rawText);
 
       boolean inString = false;
 

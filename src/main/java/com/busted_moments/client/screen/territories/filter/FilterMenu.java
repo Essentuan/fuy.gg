@@ -1,7 +1,6 @@
 package com.busted_moments.client.screen.territories.filter;
 
 import com.busted_moments.client.features.keybinds.Keybind;
-import com.busted_moments.client.features.war.TerritoryHelperMenuFeature;
 import com.busted_moments.client.util.SoundUtil;
 import com.busted_moments.core.render.FontRenderer;
 import com.busted_moments.core.render.screen.Widget;
@@ -17,13 +16,17 @@ import net.minecraft.sounds.SoundSource;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public abstract class FilterMenu extends Widget<FilterMenu> {
    final static StyledText LEGEND = getLegend(null, Set.of(Filter.values()), null);
 
-   private static Set<Filter> selected = new HashSet<>(List.of(Filter.values()));
+   static Set<Filter> selected = EnumSet.allOf(Filter.class);
 
    private Multimap<Filter, ?> counts = null;
 
@@ -31,13 +34,16 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
    };
 
    public FilterMenu() {
-      if (TerritoryHelperMenuFeature.resetFiltersOnExit()) selected = new HashSet<>(List.of(Filter.values()));
       setSize(
               FontRenderer.getWidth(FilterMenu.LEGEND, 0),
               FontRenderer.getHeight(FilterMenu.LEGEND, 0)
       );
 
       selected.remove(Filter.STRICT_MODE);
+   }
+
+   public void reset() {
+      selected = EnumSet.allOf(Filter.class);
    }
 
    public boolean isEnabled(Filter filter) {
@@ -87,7 +93,7 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
 
       var filter = optional.get();
 
-      if (filter.equals(Filter.PLACEHOLDER)) return false;
+      if (filter.getName().isBlank()) return false;
 
       if (Keybind.isKeyDown(InputConstants.KEY_LSHIFT) || Keybind.isKeyDown(InputConstants.KEY_RSHIFT)) {
          selected.removeIf(Filter::isClickable);

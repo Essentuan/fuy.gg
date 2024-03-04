@@ -2,6 +2,7 @@ package com.busted_moments.client.screen.territories.filter;
 
 import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.types.UpgradeType;
+import com.busted_moments.client.screen.territories.TerritoryScreen;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.collector.LinkedSetCollector;
 import com.google.common.collect.Multimap;
@@ -14,6 +15,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public enum Filter {
+   IGNORED("Ignored", TerritoryScreen::shouldIgnore, ChatFormatting.DARK_GRAY, true),
+   SPACER_1(" ", t -> false, ChatFormatting.WHITE, false),
    CUT_OFF_TERRITORY("No Route", territory -> territory.getRoute().isEmpty(), ChatFormatting.RED, true),
    MULTIPLE_BONUSES("Multiple Bonuses", Filter::hasMultipleBonuses, ChatFormatting.WHITE, true),
    MULTI_ATTACK(UpgradeType.MULTI_ATTACK, ChatFormatting.AQUA),
@@ -22,7 +25,7 @@ public enum Filter {
    MOB_XP(UpgradeType.MOB_EXPERIENCE, ChatFormatting.YELLOW),
    MOB_DAMAGE(UpgradeType.MOB_DAMAGE, ChatFormatting.LIGHT_PURPLE),
    GATHERING_XP(UpgradeType.GATHERING_EXPERIENCE, ChatFormatting.DARK_PURPLE),
-   PLACEHOLDER(" ", t -> false, ChatFormatting.WHITE, false),
+   SPACER_2(" ", t -> false, ChatFormatting.WHITE, false),
    STRICT_MODE("Strict Mode", t -> false, ChatFormatting.WHITE, false);
 
    private final String name;

@@ -149,6 +149,11 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       return containerId;
    }
 
+   public void reset() {
+      filterMenu.reset();
+      search.reset();
+   }
+
    @Override
    @SuppressWarnings("unchecked")
    protected void init() {
@@ -248,10 +253,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       Map<ResourceType, Long> tributes = TributeModel.getNetTributes();
 
       for (TerritoryEco entry : this.territories) {
-         if (ignoreCutOffResources() && entry.getRoute().isEmpty())
-            continue;
-
-         if (ignoreBlacklistedTerritories() && blacklist().contains(entry.getName()))
+         if (shouldIgnore(entry))
             continue;
 
          for (ResourceType resource : ResourceType.values()) {
@@ -289,14 +291,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
       for (int i = 0; i < territories.size(); i++) {
          var entry = territories.get(i);
-         if (
-                 hideIgnoredTerritories() &&
-                 !(this instanceof SelectTerritoriesScreen) &&
-                 (
-                     (ignoreCutOffResources() && entry.getRoute().isEmpty()) ||
-                     (ignoreBlacklistedTerritories() && blacklist().contains(entry.getName()))
-                 )
-         ) continue;
+         if (hideIgnoredTerritories() && !(this instanceof SelectTerritoriesScreen) && shouldIgnore(entry))
+            continue;
 
          entry(entry)
                  .update(i, position)
@@ -712,6 +708,10 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
          poseStack.popPose();
          bufferSource.endBatch();
       }
+   }
+
+   public static boolean shouldIgnore(TerritoryEco eco) {
+      return (ignoreCutOffResources() && eco.getRoute().isEmpty()) || (ignoreBlacklistedTerritories() && blacklist().contains(eco.getName()));
    }
 
    private class Mask extends Widget<TerritoryScreen<Scanner>.Mask> {
