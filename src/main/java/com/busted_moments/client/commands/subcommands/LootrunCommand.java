@@ -1,4 +1,4 @@
-package com.busted_moments.client.commands;
+package com.busted_moments.client.commands.subcommands;
 
 import com.busted_moments.client.features.lootrun.LootrunDryStreakFeature;
 import com.busted_moments.client.util.ChatUtil;

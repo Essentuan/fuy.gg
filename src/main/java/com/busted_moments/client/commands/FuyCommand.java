@@ -1,5 +1,6 @@
 package com.busted_moments.client.commands;
 
+import com.busted_moments.client.commands.subcommands.LootrunCommand;
 import com.busted_moments.client.features.AutoStreamFeature;
 import com.busted_moments.client.features.AutoUpdateFeature;
 import com.busted_moments.client.features.war.WeeklyWarCountOverlay;

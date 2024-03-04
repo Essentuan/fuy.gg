@@ -19,7 +19,9 @@ public class CommandFeature extends Feature {
    @Override
    protected void onInit() {
       COMMAND_LOADER = new FabricCommandBuilder.Client()
-              .inPackage(() -> new ArrayList<>(CLASS_SCANNER.getTypesAnnotatedWith(Command.class)))
+              .inPackage(() -> CLASS_SCANNER.getTypesAnnotatedWith(Command.class).stream()
+                      .filter(c -> !c.getPackageName().contains("subcommands"))
+                      .toList())
               .withArguments(() -> new ArrayList<>(CLASS_SCANNER.getSubTypesOf(ArgumentType.class)))
               .build();
    }
