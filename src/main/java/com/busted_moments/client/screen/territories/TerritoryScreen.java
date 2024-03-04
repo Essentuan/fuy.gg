@@ -245,6 +245,12 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
       for (TerritoryEco entry : this.territories) {
          for (ResourceType resource : ResourceType.values()) {
+            if (entry.getRoute().isEmpty() && TerritoryHelperMenuFeature.getIgnoreNoRoute())
+               continue;
+
+            if (TerritoryHelperMenuFeature.getIgnoredTerritories().contains(entry.getName()) && TerritoryHelperMenuFeature.getUseBlacklist())
+               continue;
+
             production.compute(resource, (r, total) -> {
                var prod = entry.getProduction(resource);
                if (total == null) return prod;
