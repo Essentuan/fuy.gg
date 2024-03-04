@@ -31,7 +31,7 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
    };
 
    public FilterMenu() {
-      if (TerritoryHelperMenuFeature.getResetFiltersOnMenuExit()) selected = new HashSet<>(List.of(Filter.values()));
+      if (TerritoryHelperMenuFeature.resetFiltersOnExit()) selected = new HashSet<>(List.of(Filter.values()));
       setSize(
               FontRenderer.getWidth(FilterMenu.LEGEND, 0),
               FontRenderer.getHeight(FilterMenu.LEGEND, 0)

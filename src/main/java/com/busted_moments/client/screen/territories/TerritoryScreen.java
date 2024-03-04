@@ -66,6 +66,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.busted_moments.client.features.war.TerritoryHelperMenuFeature.blacklist;
+import static com.busted_moments.client.features.war.TerritoryHelperMenuFeature.hideIgnoredTerritories;
+import static com.busted_moments.client.features.war.TerritoryHelperMenuFeature.ignoreBlacklistedTerritories;
+import static com.busted_moments.client.features.war.TerritoryHelperMenuFeature.ignoreCutOffResources;
 import static com.busted_moments.client.util.Textures.TerritoryMenu.BACKGROUND;
 import static com.busted_moments.client.util.Textures.TerritoryMenu.FOREGROUND;
 import static com.busted_moments.client.util.Textures.TerritoryMenu.MASK;
@@ -244,11 +248,12 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       Map<ResourceType, Long> tributes = TributeModel.getNetTributes();
 
       for (TerritoryEco entry : this.territories) {
-         if (entry.getRoute().isEmpty() && TerritoryHelperMenuFeature.getIgnoreNoRoute())
+         if (ignoreCutOffResources() && entry.getRoute().isEmpty())
             continue;
 
-         if (TerritoryHelperMenuFeature.getIgnoredTerritories().contains(entry.getName()) && TerritoryHelperMenuFeature.getUseBlacklist())
+         if (ignoreBlacklistedTerritories() && blacklist().contains(entry.getName()))
             continue;
+
          for (ResourceType resource : ResourceType.values()) {
             production.compute(resource, (r, total) -> {
                var prod = entry.getProduction(resource);
@@ -284,19 +289,15 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
       for (int i = 0; i < territories.size(); i++) {
          var entry = territories.get(i);
-         if (TerritoryHelperMenuFeature.getHideIgnoredTerritories()) {
-            if (
-            TerritoryHelperMenuFeature.getIgnoreNoRoute() &&
-            entry.getRoute().isEmpty()
-            )
-            continue;
+         if (
+                 hideIgnoredTerritories() &&
+                 !(this instanceof SelectTerritoriesScreen) &&
+                 (
+                     (ignoreCutOffResources() && entry.getRoute().isEmpty()) ||
+                     (ignoreBlacklistedTerritories() && blacklist().contains(entry.getName()))
+                 )
+         ) continue;
 
-            if (
-            TerritoryHelperMenuFeature.getUseBlacklist() &&
-            TerritoryHelperMenuFeature.getIgnoredTerritories().contains(entry.getName())
-            )
-            continue;
-         }
          entry(entry)
                  .update(i, position)
                  .tooltip()

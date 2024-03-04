@@ -20,51 +20,68 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import static com.busted_moments.client.models.territory.eco.Patterns.GUILD_MANAGE_MENU;
 import static com.busted_moments.client.screen.territories.ManageTerritoriesScreen.TERRITORY_MENU_PATTERN;
 import static com.busted_moments.client.screen.territories.SelectTerritoriesScreen.SELECT_TERRITORIES_MENU;
 import static com.wynntils.utils.mc.McUtils.mc;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 @Config.Category("War")
 @Default(State.ENABLED)
 @Feature.Definition(name = "Territory Helper Menu")
 public class TerritoryHelperMenuFeature extends Feature {
-   @Value("Ignore No Route Resources")
-   static boolean ignoreNoRoute = false;
-
-   @Value("Reset Filters On Menu Exit")
-   static boolean resetFiltersOnMenuExit = false;
-
-   @Value("Use blacklist")
-	static boolean useBlacklist = false;
-
-   public static boolean getResetFiltersOnMenuExit() {
-      return resetFiltersOnMenuExit;
-   }
-   public static boolean getIgnoreNoRoute() {
-      return ignoreNoRoute;
-   }
-   public static boolean getUseBlacklist() {
-      return useBlacklist;
-   }
-
-   @Value("Ignore resources from")
-   static String ignoredTerritories = "Light Forest West Upper,Light Forest West Mid,Light Forest East Lower,Light Forest East Mid,Light Forest Canyon,Aldorei Valley South Entrance,Aldorei's North Exit,Cinfras County Lower,Path To The Arch,Ghostly Path,Aldorei's Arch,Burning Farm,Heavenly Ingress,Primal Fen,Luminous Plateau,Field of Life,Path to Light,Otherwordly Monolith,Azure Frontier,Nexus of Light,Jungle Lake,Herb Cave,Great Bridge Jungle,Jungle Lower,Jungle Mid,Jungle Upper,Dernel Jungle Mid,Dernel Jungle Lower,Dernel Jungle Upper";
-
-   public static Set<String> getIgnoredTerritories() {
-      return new HashSet<>(Arrays.asList(ignoredTerritories.split(",")));
-   }
+   @Value("Reset filters on menu exit")
+   private static boolean resetFIlterOnExit = true;
 
    @Value("Hide ignored territories")
-   static boolean hideIgnoredTerritories = false;
+   @Tooltip({
+           "Will hide ignored territories",
+           "",
+           "Does not apply to the loadouts menu"
+   })
+   private static boolean hideIgnoredTerritories = false;
 
-   public static boolean getHideIgnoredTerritories() {
-      return hideIgnoredTerritories;
-   }
+   @Value("Ignore cut off resources")
+   private static boolean ignoreCutOffResources = true;
+
+   @Value("Ignore resources from blacklist")
+   @Tooltip("When enabled, will ignore resources from territories on the blacklist")
+   private static boolean ignoreBlacklistedResources = true;
+
+   @Array("Blacklist")
+   private static List<String> blacklist = List.of(
+           "Light Forest West Upper",
+           "Light Forest West Mid",
+           "Light Forest East Lower",
+           "Light Forest East Mid",
+           "Light Forest Canyon",
+           "Aldorei Valley South Entrance",
+           "Aldorei's North Exit",
+           "Cinfras County Lower",
+           "Path To The Arch,Ghostly Path",
+           "Aldorei's Arch",
+           "Burning Farm",
+           "Heavenly Ingress",
+           "Primal Fen",
+           "Luminous Plateau",
+           "Field of Life",
+           "Path to Light",
+           "Otherwordly Monolith",
+           "Azure Frontier",
+           "Nexus of Light",
+           "Jungle Lake",
+           "Herb Cave",
+           "Great Bridge Jungle",
+           "Jungle Lower",
+           "Jungle Mid",
+           "Jungle Upper",
+           "Dernel Jungle Mid",
+           "Dernel Jungle Lower",
+           "Dernel Jungle Upper"
+   );
 
    @Value("Display production")
    static boolean production = true;
@@ -75,6 +92,26 @@ public class TerritoryHelperMenuFeature extends Feature {
    @Value("Replace loadouts menu")
    static boolean replaceLoadouts = true;
 
+   public static boolean hideIgnoredTerritories() {
+      return hideIgnoredTerritories;
+   }
+
+   public static boolean ignoreCutOffResources() {
+      return ignoreCutOffResources;
+   }
+
+   public static boolean resetFiltersOnExit() {
+      return resetFIlterOnExit;
+   }
+
+   public static boolean ignoreBlacklistedTerritories() {
+      return ignoreBlacklistedResources;
+   }
+
+   public static Set<String> blacklist() {
+      return new HashSet<>(blacklist);
+   }
+
    @SubscribeEvent(priority = EventPriority.LOWEST)
    public void onMenuOpen(MenuEvent.MenuOpenedEvent event) {
       StyledText text = StyledText.fromComponent(event.getTitle());
@@ -83,8 +120,8 @@ public class TerritoryHelperMenuFeature extends Feature {
          mc().setScreen(new ManageTerritoriesScreen(event.getContainerId(), production, percents));
          event.setCanceled(true);
       } else if (replaceLoadouts && text.matches(SELECT_TERRITORIES_MENU)) {
-        mc().setScreen(new SelectTerritoriesScreen(event.getContainerId(), production, percents));
-        event.setCanceled(true);
+         mc().setScreen(new SelectTerritoriesScreen(event.getContainerId(), production, percents));
+         event.setCanceled(true);
       } else if (text.matches(GUILD_MANAGE_MENU) && OPEN_TERRITORY_MENU) event.setCanceled(true);
    }
 
