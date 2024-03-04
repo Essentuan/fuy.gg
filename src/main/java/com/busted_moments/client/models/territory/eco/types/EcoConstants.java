@@ -20,6 +20,7 @@ public interface EcoConstants {
    }
 
    static long getStorage(ResourceType type, TerritoryEco eco) {
+      if (eco == null) return 0;
       var storage = (type == ResourceType.EMERALDS) ? getEmeraldStorage(eco.isHQ()) : getResourceStorage(eco.isHQ());
 
       return (long) (((eco.getUpgrade(type == ResourceType.EMERALDS ? UpgradeType.EMERALD_STORAGE : UpgradeType.RESOURCE_STORAGE).bonus() / 100) + 1) * storage);
