@@ -59,6 +59,13 @@ public class TerritoryHelperMenuFeature extends Feature {
       return new HashSet<>(Arrays.asList(ignoredTerritories.split(",")));
    }
 
+   @Value("Hide ignored territories")
+   static boolean hideIgnoredTerritories = false;
+
+   public static boolean getHideIgnoredTerritories() {
+      return hideIgnoredTerritories;
+   }
+
    @Value("Display production")
    static boolean production = true;
 

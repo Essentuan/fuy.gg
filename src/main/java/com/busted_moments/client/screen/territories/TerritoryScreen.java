@@ -244,13 +244,12 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
       Map<ResourceType, Long> tributes = TributeModel.getNetTributes();
 
       for (TerritoryEco entry : this.territories) {
+         if (entry.getRoute().isEmpty() && TerritoryHelperMenuFeature.getIgnoreNoRoute())
+            continue;
+
+         if (TerritoryHelperMenuFeature.getIgnoredTerritories().contains(entry.getName()) && TerritoryHelperMenuFeature.getUseBlacklist())
+            continue;
          for (ResourceType resource : ResourceType.values()) {
-            if (entry.getRoute().isEmpty() && TerritoryHelperMenuFeature.getIgnoreNoRoute())
-               continue;
-
-            if (TerritoryHelperMenuFeature.getIgnoredTerritories().contains(entry.getName()) && TerritoryHelperMenuFeature.getUseBlacklist())
-               continue;
-
             production.compute(resource, (r, total) -> {
                var prod = entry.getProduction(resource);
                if (total == null) return prod;
@@ -285,7 +284,19 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
 
       for (int i = 0; i < territories.size(); i++) {
          var entry = territories.get(i);
+         if (TerritoryHelperMenuFeature.getHideIgnoredTerritories()) {
+            if (
+            TerritoryHelperMenuFeature.getIgnoreNoRoute() &&
+            entry.getRoute().isEmpty()
+            )
+            continue;
 
+            if (
+            TerritoryHelperMenuFeature.getUseBlacklist() &&
+            TerritoryHelperMenuFeature.getIgnoredTerritories().contains(entry.getName())
+            )
+            continue;
+         }
          entry(entry)
                  .update(i, position)
                  .tooltip()
@@ -301,7 +312,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                  String symbol = resource.getPrettySymbol();
 
                  var color = resource.getColor();
-                 TerritoryEco.Storage s = storage.get(resource);
+                 TerritoryEco.Storage s = storage.getOrDefault(resource, TerritoryEco.Storage.empty(resource, null));
 
                  builder
                          .append(symbol)
