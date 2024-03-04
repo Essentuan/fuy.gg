@@ -45,6 +45,9 @@ public class LootrunDryStreakFeature extends Feature {
    @Hidden("Pulls")
    private static int pullsSinceLastMythic = 0;
 
+   @Hidden("Flag")
+   private static boolean hasSet = false;
+
    private static Vector2d pos;
    private static int pulls = 0;
    private static boolean readyForPull = false;
@@ -54,6 +57,16 @@ public class LootrunDryStreakFeature extends Feature {
    private static LootrunDryStreakFeature INSTANCE;
 
    private static final Set<UUID> items = new HashSet<>();
+
+   @Override
+   protected boolean shouldEnable() {
+      if (!hasSet) {
+         hasSet = true;
+         return true;
+      }
+
+      return super.shouldEnable();
+   }
 
    @SubscribeEvent
    private static void onEntitySpawn(EntityEvent.SetData event) {
