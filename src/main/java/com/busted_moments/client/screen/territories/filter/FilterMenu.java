@@ -44,6 +44,7 @@ public abstract class FilterMenu extends Widget<FilterMenu> {
 
    public void reset() {
       selected = EnumSet.allOf(Filter.class);
+      selected.remove(Filter.STRICT_MODE);
    }
 
    public boolean isEnabled(Filter filter) {
