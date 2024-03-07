@@ -4,7 +4,6 @@ import com.busted_moments.client.models.territory.eco.TerritoryEco;
 import com.busted_moments.client.models.territory.eco.TerritoryScanner;
 import com.busted_moments.client.models.war.WarModel;
 import com.busted_moments.client.util.SoundUtil;
-import com.wynntils.core.components.Handlers;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
@@ -12,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.regex.Pattern;
 
 import static com.busted_moments.client.util.Textures.TerritoryMenu.BACKGROUND;
+import static com.wynntils.utils.mc.McUtils.mc;
 
 public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesScreen.Scanner> {
    public static final Pattern TERRITORY_MENU_PATTERN = Pattern.compile("^(?<guild>.+): Territories$");
@@ -72,7 +72,7 @@ public class ManageTerritoriesScreen extends TerritoryScreen<ManageTerritoriesSc
             SCANNING = false;
             busy = true;
             close();
-            Handlers.Command.sendCommand("gu territory %s".formatted(TO_SELECT));
+            mc().getConnection().sendCommand("gu territory %s".formatted(TO_SELECT));
          } else if (getPages().size() == 1) rescan();
       }
 

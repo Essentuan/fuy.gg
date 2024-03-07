@@ -3,7 +3,8 @@ package com.busted_moments.client.keybinds;
 import com.busted_moments.client.features.keybinds.Keybind;
 import com.busted_moments.client.features.war.TerritoryHelperMenuFeature;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.wynntils.core.components.Handlers;
+
+import static com.wynntils.utils.mc.McUtils.mc;
 
 @Keybind.Definition(name = "Territory Menu", defaultKey = InputConstants.KEY_U)
 public class TerritoryMenuKeybind extends Keybind {
@@ -14,6 +15,6 @@ public class TerritoryMenuKeybind extends Keybind {
    @Override
    protected void onKeyDown() {
       TerritoryHelperMenuFeature.OPEN_TERRITORY_MENU = true;
-      Handlers.Command.sendCommand("gu manage");
+      mc().getConnection().sendCommand("gu manage");
    }
 }

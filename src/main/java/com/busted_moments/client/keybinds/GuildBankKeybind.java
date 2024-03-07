@@ -2,7 +2,6 @@ package com.busted_moments.client.keybinds;
 
 import com.busted_moments.client.features.keybinds.Keybind;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.wynntils.core.components.Handlers;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.core.text.StyledText;
 import com.wynntils.mc.event.ContainerSetContentEvent;
@@ -31,7 +30,7 @@ public class GuildBankKeybind extends Keybind {
    protected void onKeyDown() {
       if (!OPENING_BANK && mc().getConnection() != null) {
          OPENING_BANK = true;
-         Handlers.Command.sendCommand("gu manage");
+         mc().getConnection().sendCommand("gu manage");
       }
    }
 
