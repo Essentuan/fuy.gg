@@ -15,8 +15,6 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.world.item.ItemStack;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -24,8 +22,6 @@ import static com.wynntils.utils.mc.McUtils.mc;
 
 class TextBuilderImpl implements TextBuilder {
    protected static final Field parts;
-   protected static final Method ADD_CLICK_EVENT;
-   protected static final Method ADD_HOVER_EVENT;
    private static int SPACE_WIDTH = -1;
 
 
@@ -33,13 +29,7 @@ class TextBuilderImpl implements TextBuilder {
       try {
          parts = StyledText.class.getDeclaredField("parts");
          parts.setAccessible(true);
-
-         ADD_CLICK_EVENT = StyledText.class.getDeclaredMethod("addClickEvent", ClickEvent.class);
-         ADD_CLICK_EVENT.setAccessible(true);
-
-         ADD_HOVER_EVENT = StyledText.class.getDeclaredMethod("addHoverEvent", HoverEvent.class);
-         ADD_HOVER_EVENT.setAccessible(true);
-      } catch (NoSuchFieldException | NoSuchMethodException e) {
+      } catch (NoSuchFieldException e) {
          throw new RuntimeException(e);
       }
    }
@@ -241,22 +231,6 @@ class TextBuilderImpl implements TextBuilder {
       try {
          return (List<StyledTextPart>) parts.get(text);
       } catch (IllegalAccessException e) {
-         throw new RuntimeException(e);
-      }
-   }
-
-   private static void addClickEvent(StyledText text, ClickEvent event) {
-      try {
-         ADD_CLICK_EVENT.invoke(text, event);
-      } catch (IllegalAccessException | InvocationTargetException e) {
-         throw new RuntimeException(e);
-      }
-   }
-
-   private static void addHoverEvent(StyledText text, HoverEvent event) {
-      try {
-         ADD_HOVER_EVENT.invoke(text, event);
-      } catch (IllegalAccessException | InvocationTargetException e) {
          throw new RuntimeException(e);
       }
    }
