@@ -2,6 +2,7 @@ package com.busted_moments.core.json.codecs;
 
 import com.busted_moments.core.json.AbstractCodec;
 import com.busted_moments.core.json.Annotations;
+import com.busted_moments.core.util.Base64;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.item.ItemStack;
@@ -24,11 +25,14 @@ public class ItemStackCodec extends AbstractCodec<ItemStack, String> {
 
    @Override
    public ItemStack fromString(String string, Class<?> type, Type... typeArgs) throws Exception {
+      if (string.charAt(0) != '{')
+         string = Base64.decode(string);
+
       return ItemStack.of(TagParser.parseTag(string));
    }
 
    @Override
    public String toString(ItemStack value, Class<?> type, Type... typeArgs) throws Exception {
-      return value.save(new CompoundTag()).toString();
+      return Base64.encode(value.save(new CompoundTag()).toString());
    }
 }
