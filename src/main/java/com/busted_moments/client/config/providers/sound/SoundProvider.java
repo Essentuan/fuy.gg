@@ -1,6 +1,6 @@
 package com.busted_moments.client.config.providers.sound;
 
-import com.busted_moments.core.FuyExtension;
+import com.busted_moments.FuyExtension;
 import com.busted_moments.core.config.Config;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;

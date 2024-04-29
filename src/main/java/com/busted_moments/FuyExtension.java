@@ -1,4 +1,4 @@
-package com.busted_moments.core;
+package com.busted_moments;
 
 public interface FuyExtension {
    String getPackage();

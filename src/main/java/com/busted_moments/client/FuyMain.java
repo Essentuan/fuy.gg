@@ -1,6 +1,6 @@
 package com.busted_moments.client;
 
-import com.busted_moments.core.FuyExtension;
+import com.busted_moments.FuyExtension;
 import com.busted_moments.core.config.ModConfig;
 import com.busted_moments.core.events.BaseEvent;
 import com.busted_moments.core.heartbeat.Heartbeat;
