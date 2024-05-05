@@ -21,8 +21,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
-import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CONFIG;
 import static com.wynntils.utils.mc.McUtils.mc;
 
 public class ModConfig implements Buildable<Screen, ConfigBuilder> {

@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public abstract class AbstractRequest<T> extends Promise<Optional<T>> implements Comparable<AbstractRequest<?>> {
    private final String url;

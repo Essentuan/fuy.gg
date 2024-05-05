@@ -13,13 +13,13 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.busted_moments.client.FuyMain"
+      "com.busted_moments.client.Client"
     ],
     "modmenu": [
       "com.busted_moments.core.config.ConfigScreen"
     ],
     "fuy_gg": [
-      "com.busted_moments.client.FuyMain"
+      "com.busted_moments.client.Client"
     ]
   },
   "mixins": [

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 public abstract class Criteria extends Annotated {
    private static final Map<String, Factory> CRITERIA = new LinkedHashMap<>();

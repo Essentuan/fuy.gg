@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public class HttpScheduler {
    private static final int MAX_PENDING_REQUESTS = 50;

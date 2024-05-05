@@ -4,7 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public class EnumMapCollector<T, K extends Enum<K>, V> extends SimpleCollector<T, Map<K, V>, Map<K, V>> {
 

@@ -1,6 +1,6 @@
 package com.busted_moments.core;
 
-import com.busted_moments.client.FuyMain;
+import com.busted_moments.client.Client;
 import com.busted_moments.client.events.mc.MinecraftStartupEvent;
 import com.busted_moments.client.features.war.AuraNotificationFeature;
 import com.busted_moments.core.annotated.Annotated;
@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.client.Client.CONFIG;
 
 public abstract class Feature extends Config implements EventListener, Scheduler {
    @Retention(RetentionPolicy.RUNTIME)
@@ -43,7 +43,7 @@ public abstract class Feature extends Config implements EventListener, Scheduler
 
    private final Definition definition;
 
-   protected static final Logger LOGGER = FuyMain.LOGGER;
+   protected static final Logger LOGGER = Client.LOGGER;
 
    @Value("Enabled")
    private boolean enabled;

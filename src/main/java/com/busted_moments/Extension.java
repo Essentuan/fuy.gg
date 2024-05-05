@@ -1,6 +1,6 @@
 package com.busted_moments;
 
-public interface FuyExtension {
+public interface Extension {
    String getPackage();
 
    //This is mainly for SoundProvider

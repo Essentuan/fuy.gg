@@ -10,7 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 @Feature.Definition(name = "Command Loader", required = true)
 public class CommandFeature extends Feature {

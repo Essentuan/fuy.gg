@@ -17,8 +17,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public class Heartbeat {
    private final static Duration WARNING_DURATION = Duration.of(1, TimeUnit.SECONDS);

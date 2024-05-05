@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 public abstract class Function<T> extends com.wynntils.core.consumers.functions.Function<T> implements EventListener, Scheduler {
    private final List<String> aliases;

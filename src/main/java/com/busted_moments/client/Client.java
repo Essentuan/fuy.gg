@@ -1,6 +1,6 @@
 package com.busted_moments.client;
 
-import com.busted_moments.FuyExtension;
+import com.busted_moments.Extension;
 import com.busted_moments.core.config.ModConfig;
 import com.busted_moments.core.events.BaseEvent;
 import com.busted_moments.core.heartbeat.Heartbeat;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.reflect.Field;
 
-public class FuyMain implements ClientModInitializer, FuyExtension {
+public class Client implements ClientModInitializer, Extension {
    public static Reflections CLASS_SCANNER;
 
    public static final Logger LOGGER = LoggerFactory.getLogger("fuy_gg");
@@ -39,7 +39,7 @@ public class FuyMain implements ClientModInitializer, FuyExtension {
       );
 
       FabricLoader.getInstance()
-              .getEntrypointContainers("fuy_gg", FuyExtension.class)
+              .getEntrypointContainers("fuy_gg", Extension.class)
               .forEach(container -> builder.forPackage(container.getEntrypoint().getPackage()));
 
       builder.addScanners(Scanners.SubTypes, Scanners.TypesAnnotated, Scanners.MethodsAnnotated);

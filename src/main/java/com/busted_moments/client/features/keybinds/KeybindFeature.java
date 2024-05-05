@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 @Feature.Definition(name = "Keybind Loader", description = "Loads and creates keybinds", required = true)
 public class KeybindFeature extends Feature {

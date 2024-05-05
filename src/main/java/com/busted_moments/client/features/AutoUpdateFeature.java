@@ -1,6 +1,6 @@
 package com.busted_moments.client.features;
 
-import com.busted_moments.client.FuyMain;
+import com.busted_moments.client.Client;
 import com.busted_moments.client.util.ChatUtil;
 import com.busted_moments.core.Default;
 import com.busted_moments.core.Feature;
@@ -38,7 +38,7 @@ public class AutoUpdateFeature extends Feature {
          }
 
          try {
-            FileUtils.copyFile(temp, FuyMain.getJar());
+            FileUtils.copyFile(temp, Client.getJar());
             temp.delete();
          } catch (IOException e) {
             throw new RuntimeException(e);
@@ -72,7 +72,7 @@ public class AutoUpdateFeature extends Feature {
                     return;
                  } else update = optional.get();
 
-                 if (!update.greaterThan(FuyMain.getVersion())) {
+                 if (!update.greaterThan(Client.getVersion())) {
                     promise.complete(Result.ON_LATEST);
                     return;
                  }

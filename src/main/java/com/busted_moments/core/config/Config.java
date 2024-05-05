@@ -1,6 +1,6 @@
 package com.busted_moments.core.config;
 
-import com.busted_moments.client.FuyMain;
+import com.busted_moments.client.Client;
 import com.busted_moments.core.annotated.Annotated;
 import com.busted_moments.core.config.entry.ConfigEntry;
 import com.busted_moments.core.util.Priority;
@@ -20,14 +20,14 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.client.Client.CONFIG;
 
 public abstract class Config extends Annotated implements Buildable<Void, Void> {
    private final java.util.List<ConfigEntry<?>> entries = new ArrayList<>();
 
    private final Multimap<Field, Consumer<Object>> listeners = MultimapBuilder.hashKeys().arrayListValues().build();
 
-   protected static final Logger LOGGER = FuyMain.LOGGER;
+   protected static final Logger LOGGER = Client.LOGGER;
 
    @SuppressWarnings("ExtractMethodRecommender")
    public Config(Validator<?>... validators) {

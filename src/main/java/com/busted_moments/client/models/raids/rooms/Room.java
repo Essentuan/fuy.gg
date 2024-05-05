@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 public abstract class Room extends BaseModel implements EventListener {
    @Key String title = null;

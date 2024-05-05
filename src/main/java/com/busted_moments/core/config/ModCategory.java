@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public class ModCategory extends ArrayList<ConfigEntry<?>> implements Buildable<ConfigBuilder, ConfigCategory> {
    private final String title;

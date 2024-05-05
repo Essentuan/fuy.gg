@@ -14,7 +14,7 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public class Promise<T> implements Future<T>, CompletionStage<T> {
    private CompletableFuture<T> future;

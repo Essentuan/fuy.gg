@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.busted_moments.client.FuyMain.LOGGER;
+import static com.busted_moments.client.Client.LOGGER;
 
 public abstract class BaseModel extends Annotated {
    private final Map<String, Entry> entries = new LinkedHashMap<>();

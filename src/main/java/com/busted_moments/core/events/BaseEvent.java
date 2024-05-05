@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static com.busted_moments.client.FuyMain.*;
+import static com.busted_moments.client.Client.*;
 
 public class BaseEvent extends Event {
    public boolean post() {

@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class Writer<T, Out> extends Annotated {

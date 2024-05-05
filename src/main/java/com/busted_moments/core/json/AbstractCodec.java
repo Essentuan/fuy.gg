@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.busted_moments.client.FuyMain.CLASS_SCANNER;
+import static com.busted_moments.client.Client.CLASS_SCANNER;
 
 @SuppressWarnings({"rawtypes"})
 public abstract class AbstractCodec<T, Out> extends Annotated {

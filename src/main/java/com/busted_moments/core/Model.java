@@ -9,7 +9,7 @@ import com.wynntils.core.components.Models;
 import com.wynntils.models.worlds.type.WorldState;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.client.Client.CONFIG;
 
 public abstract class Model extends Config implements EventListener, Scheduler {
 
