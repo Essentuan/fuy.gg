@@ -316,7 +316,7 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                          .append("+", color)
                          .append(NumUtil.format(production.getOrDefault(resource, 0L)), color).space()
                          .append(resource.getName(), color)
-                         .append(" per hour").line();
+                         .append(" per hour", color).line();
 
                  long gained = tributes.getOrDefault(resource, 0L);
 
@@ -331,8 +331,8 @@ public abstract class TerritoryScreen<Scanner extends TerritoryScanner> extends 
                          .append(symbol)
                          .append(NumUtil.format(s.stored()), color)
                          .append("/", color)
-                         .append(NumUtil.format(s.capacity()))
-                         .append(" in storage");
+                         .append(NumUtil.format(s.capacity()), color)
+                         .append(" in storage", color);
               }).line().line()
               .append("Overall Cost (per hour):", GREEN).line()
               .append(List.of(ResourceType.values()), (resource, builder) -> {

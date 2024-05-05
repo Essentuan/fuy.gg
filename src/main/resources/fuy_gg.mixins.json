@@ -9,7 +9,8 @@
     "ClientPacketListenerMixin",
     "MinecraftMixin",
     "MouseHandlerAccessor",
-    "ScreenMixin"
+    "ScreenMixin",
+    "GuildAttackTimerModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

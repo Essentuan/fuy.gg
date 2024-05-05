@@ -3,29 +3,30 @@ package com.busted_moments.client.models.war.timer;
 import com.busted_moments.client.models.territory.TerritoryModel;
 import com.busted_moments.client.models.territory.events.TerritoryCapturedEvent;
 import com.busted_moments.client.models.war.Defense;
+import com.busted_moments.client.models.war.timer.events.ScoreboardTimerAddEvent;
 import com.busted_moments.client.models.war.timer.events.TimerStartEvent;
 import com.busted_moments.core.Model;
 import com.busted_moments.core.http.requests.mapstate.Territory;
-import com.busted_moments.core.heartbeat.annotations.Schedule;
-import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.time.ChronoUnit;
+import com.busted_moments.core.time.Duration;
 import com.busted_moments.core.util.TempMap;
 import com.busted_moments.core.util.TempSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import com.wynntils.core.components.Models;
 import com.wynntils.core.text.PartStyle;
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent;
 import com.wynntils.handlers.chat.type.RecipientType;
 import com.wynntils.mc.event.InventoryMouseClickedEvent;
 import com.wynntils.mc.event.TickEvent;
-import com.wynntils.models.territories.TerritoryAttackTimer;
 import com.wynntils.utils.mc.McUtils;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -118,24 +119,11 @@ public class TimerModel extends Model {
       KNOWN_DEFENSES.size();
    }
 
-   private Set<Integer> SCOREBOARD = new HashSet<>();
+   @SubscribeEvent
+   public void onScoreboardTimerAdd(ScoreboardTimerAddEvent event) {
+      var timer = event.getTimer();
 
-   @Schedule(rate = 500, unit = ChronoUnit.MILLISECONDS)
-   private void HandleScoreboard() {
-      Set<Integer> previous = SCOREBOARD;
-      SCOREBOARD = new HashSet<>();
-
-      for (TerritoryAttackTimer timer : Models.GuildAttackTimer.getAttackTimers()) {
-         SCOREBOARD.add(hash(timer)); if (previous.contains(hash(timer))) continue;
-         addTimer(timer.territory(), Duration.of(timer.asSeconds(), ChronoUnit.SECONDS), false);
-      }
-   }
-
-   private static int hash(TerritoryAttackTimer timer) {
-      return Objects.hash(
-              timer.territory(),
-              timer.asSeconds()
-      );
+      addTimer(timer.territoryName(), Duration.of(timer.asSeconds(), ChronoUnit.SECONDS), false);
    }
 
    private static @Nullable String findBestMatch(String name) {
