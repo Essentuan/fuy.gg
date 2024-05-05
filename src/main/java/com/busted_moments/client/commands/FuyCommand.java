@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static com.busted_moments.client.FuyMain.CONFIG;
+import static com.busted_moments.client.Client.CONFIG;
 import static com.busted_moments.client.util.ChatUtil.prefixLength;
 import static com.busted_moments.core.time.ChronoUnit.MINUTES;
 import static com.busted_moments.core.time.ChronoUnit.SECONDS;
@@ -86,7 +86,7 @@ public class FuyCommand {
                  .append(guild.size(), AQUA)
                  .append(" members online: ", GRAY)
                  .append(online, (member, b) -> b
-                                 .append(StringUtil.nCopies("\u2605", member.rank().countStars()) + member.username())
+                                 .append(StringUtil.nCopies("\u2605", member.rank().countStars()) + member.username(), AQUA)
                                  .onPartHover(builder -> builder
                                          .append("Click to switch to ", GRAY)
                                          .append(member.world().orElseThrow(), WHITE)
@@ -313,7 +313,7 @@ public class FuyCommand {
 
       if (hasPrevious)
          builder
-                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/fuy lootrun drystreak history page " + (page - 1));
+                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/fuy drystreak history page " + (page - 1));
       else
          builder.strikethrough();
 
@@ -328,7 +328,7 @@ public class FuyCommand {
 
       if (hasNext)
          builder
-                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/fuy lootrun drystreak history page " + (page + 1));
+                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/fuy drystreak history page " + (page + 1));
       else
          builder.strikethrough();
 
