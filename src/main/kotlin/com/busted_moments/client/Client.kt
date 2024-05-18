@@ -1,10 +1,10 @@
 package com.busted_moments.client
 
-import com.busted_moments.framework.Extension
-import com.busted_moments.framework.FabricLoader
-import com.busted_moments.framework.Scan
-import com.busted_moments.framework.events.events
-import com.busted_moments.framework.events.post
+import com.busted_moments.client.framework.Extension
+import com.busted_moments.client.framework.FabricLoader
+import com.busted_moments.client.framework.Scan
+import com.busted_moments.client.framework.config.Config
+import com.busted_moments.client.framework.events.events
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import net.essentuan.esl.iteration.extensions.toTypedArray
@@ -12,9 +12,11 @@ import net.essentuan.esl.reflections.Reflections
 import net.essentuan.esl.reflections.extensions.instance
 import net.essentuan.esl.reflections.extensions.isObject
 import net.essentuan.esl.scheduling.Scheduler
+import net.essentuan.esl.scheduling.annotations.isAutoLoaded
 import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModMetadata
 import net.fabricmc.loader.api.metadata.ModOrigin
+import net.minecraft.ChatFormatting
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
@@ -24,7 +26,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.Optional
 
-@Scan("com.busted_moments.client", "com.busted_moments.framework")
+@Scan("com.busted_moments.client")
 object Client : Extension, ModContainer, Logger by LoggerFactory.getLogger("fuy_gg") {
     private lateinit var container: ModContainer
 
@@ -33,15 +35,6 @@ object Client : Extension, ModContainer, Logger by LoggerFactory.getLogger("fuy_
         container = FabricLoader
             .getModContainer("fuy_gg")
             .orElseThrow { IllegalStateException("Where is fuy.gg? :(") }
-
-        Scheduler.apply {
-            capacity = 50
-            @OptIn(DelicateCoroutinesApi::class)
-            DISPATCHER = GlobalScope
-            this += this@Client
-
-            start()
-        }
 
         Reflections.register(
             *FabricLoader
@@ -63,12 +56,23 @@ object Client : Extension, ModContainer, Logger by LoggerFactory.getLogger("fuy_
                 .toTypedArray()
         )
 
+        Scheduler.apply {
+            capacity = 50
+            @OptIn(DelicateCoroutinesApi::class)
+            DISPATCHER = GlobalScope
+            this += this@Client
+
+            start()
+        }
+
         Reflections.types.forEach {
             it.java.events.register()
 
-            if (it.isObject)
+            if (it.isObject && it.isAutoLoaded)
                 it.instance?.events?.register()
         }
+
+        Config.read()
     }
 
     override fun getMetadata(): ModMetadata =
