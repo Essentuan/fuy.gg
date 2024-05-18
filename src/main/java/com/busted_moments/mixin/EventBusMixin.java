@@ -1,5 +1,10 @@
 package com.busted_moments.mixin;
 
+import com.google.common.collect.Iterators;
+import kotlin.collections.ArraysKt;
+import kotlin.sequences.SequencesKt;
+import net.essentuan.esl.iteration.IteratorsKt;
+import net.essentuan.esl.reflections.extensions.ClassExtensionsKt;
 import net.minecraftforge.eventbus.EventBus;
 import org.objectweb.asm.Type;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +25,14 @@ public abstract class EventBusMixin {
            )
    )
    private Method[] getObjectMethods(Class<?> instance) {
-      return instance.getDeclaredMethods();
+      return SequencesKt.toList(
+              SequencesKt.flatten(
+                      SequencesKt.map(
+                              ClassExtensionsKt.visit(instance, true),
+                              cls -> ArraysKt.asSequence(cls.getDeclaredMethods())
+                      )
+              )
+      ).toArray(Method[]::new);
    }
 
    @Redirect(
@@ -31,7 +43,14 @@ public abstract class EventBusMixin {
            )
    )
    private Method[] getClassMethods(Class<?> instance) {
-      return instance.getDeclaredMethods();
+      return SequencesKt.toList(
+              SequencesKt.flatten(
+                      SequencesKt.map(
+                              ClassExtensionsKt.visit(instance, true),
+                              (cls) -> ArraysKt.asSequence(cls.getDeclaredMethods())
+                      )
+              )
+      ).toArray(Method[]::new);
    }
 
    @Redirect(
