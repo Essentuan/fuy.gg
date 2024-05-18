@@ -1,11 +1,11 @@
 @file:Suppress("PropertyName")
 
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 import java.net.URI
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import kotlin.io.path.div
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 
 //Kotlin
 val kotlin_version: String by project
@@ -97,8 +97,8 @@ fun wynntils(): ConfigurableFileCollection {
         .resolve("artemis")
         .resolve("$name.jar")
 
-    if (!Files.exists(out)) {
-        Files.createDirectory(out.parent)
+    if (!out.exists()) {
+        out.parent.createDirectories()
 
         url.openStream().use {
             Files.copy(
@@ -113,10 +113,9 @@ fun wynntils(): ConfigurableFileCollection {
             .resolve("mods")
             .resolve("wynntils.jar")
 
-        Files.copy(
-            out,
+        out.copyTo(
             run,
-            StandardCopyOption.REPLACE_EXISTING
+            overwrite = true
         )
     }
 
@@ -160,7 +159,10 @@ dependencies {
     shadow("org.objenesis:objenesis:$objenesis_version")
 
     //ACF
-    shadow(fileTree("libs/acf") { exclude("*-sources.jar") })
+    modImplementation(files("libs/acf/acf-fabric-${acf_fabric_version}.jar"))
+    include(group = "", name = "acf-fabric-${acf_fabric_version}")
+
+    shadow(files("libs/acf/ACF-${acf_version}.jar"))
 
     //DevAuth
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${devauth_version}")

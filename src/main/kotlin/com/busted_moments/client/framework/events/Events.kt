@@ -1,7 +1,10 @@
-package com.busted_moments.framework.events
+package com.busted_moments.client.framework.events
 
 import com.wynntils.core.WynntilsMod
 import net.minecraftforge.eventbus.api.Event
+import net.minecraftforge.eventbus.api.SubscribeEvent
+
+typealias Subscribe = SubscribeEvent
 
 @JvmInline
 value class Events(private val obj: Any) {

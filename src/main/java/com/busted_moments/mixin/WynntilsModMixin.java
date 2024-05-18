@@ -1,6 +1,6 @@
 package com.busted_moments.mixin;
 
-import com.busted_moments.framework.Extension;
+import com.busted_moments.client.framework.Extension;
 import com.wynntils.core.WynntilsMod;
 import net.fabricmc.loader.api.FabricLoader;
 import org.spongepowered.asm.mixin.Mixin;

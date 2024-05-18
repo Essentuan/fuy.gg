@@ -10,6 +10,13 @@
     "ClassLoaderFactoryMixin",
     "EventBusMixin",
     "EventListenerHelperMixin",
-    "WynntilsModMixin"
+    "WynntilsModMixin",
+    "accessors.PartStyleAccessor",
+    "accessors.StyledTextPartAccessor",
+    "extensions.CustomColorExtension",
+    "extensions.TextureExtension"
+  ],
+  "client": [
+    "MinecraftMixin"
   ]
 }
