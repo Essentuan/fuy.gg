@@ -292,8 +292,7 @@ class BeaconRenderer {
                     MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             DUMMY_WAYPOINT
                     .getPointerPoi()
-                    .renderAt(
-                            poseStack, bufferSource, pointerDisplayPositionX, pointerDisplayPositionY, false, 1, 1);
+                    .renderAt(poseStack, bufferSource, pointerDisplayPositionX, pointerDisplayPositionY, false, 1, 1, 50);
             bufferSource.endBatch();
             poseStack.popPose();
          }
