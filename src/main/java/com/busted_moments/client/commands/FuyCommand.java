@@ -1,6 +1,7 @@
 package com.busted_moments.client.commands;
 
 import com.busted_moments.client.features.AutoStreamFeature;
+import com.busted_moments.client.features.ExtendedGuildOnlineMembersFeature;
 import com.busted_moments.client.features.AutoUpdateFeature;
 import com.busted_moments.client.features.lootrun.LootrunDryStreakFeature;
 import com.busted_moments.client.features.war.WeeklyWarCountOverlay;
@@ -32,6 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.busted_moments.client.Client.CONFIG;
@@ -73,7 +75,8 @@ public class FuyCommand {
            @Argument("Guild") @StringType(GREEDY_PHRASE) String string
    ) {
       ChatUtil.message("Finding guild %s...".formatted(string), ChatFormatting.GREEN);
-
+	  ExtendedGuildOnlineMembersFeature OMFeature = ExtendedGuildOnlineMembersFeature.get();
+      boolean extended = OMFeature.isEnabled();
       Date start = new Date();
       new Guild.Request(string).thenAccept(optional -> optional.ifPresentOrElse(guild -> {
          List<Guild.Member> online = guild.stream().filter(member -> member.world().isPresent()).toList();
@@ -89,6 +92,20 @@ public class FuyCommand {
                                  .append(StringUtil.nCopies("\u2605", member.rank().countStars()) + member.username(), AQUA)
                                  .onPartHover(builder -> builder
                                          .append("Click to switch to ", GRAY)
+                                         .append(member.world().orElseThrow(), WHITE)
+                                         .line()
+                                         .append("(Requires ", DARK_PURPLE)
+                                         .append("HERO", LIGHT_PURPLE)
+                                         .append(" rank)", DARK_PURPLE))
+                                 .onPartClick(ClickEvent.Action.RUN_COMMAND, "/switch " + member.world().orElseThrow())
+								 .append(extended ? " (" + member.world().orElseThrow() + ")": "", (Objects.equals(OMFeature.getLastKnownServer(member.username()),member.world().orElseThrow())) ? GRAY : YELLOW)
+                                 .onPartHover(builder -> builder
+                                         .append("Player has moved ", GRAY)
+										 .append( (OMFeature.getLastKnownServer(member.username()) == null) ? "None" : OMFeature.getLastKnownServer(member.username()), WHITE)
+										 .append(" -> ", GRAY)
+                                         .append(OMFeature.setLastKnownServer(member.username(),member.world().orElseThrow()), WHITE)
+										 .line()
+										 .append("Click to switch to ", GRAY)
                                          .append(member.world().orElseThrow(), WHITE)
                                          .line()
                                          .append("(Requires ", DARK_PURPLE)
