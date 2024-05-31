@@ -1,7 +1,7 @@
 package com.busted_moments.client.commands;
 
 import com.busted_moments.client.features.AutoStreamFeature;
-import com.busted_moments.client.features.ExtendedGuildOnlineMembersFeature;
+import com.busted_moments.client.features.commands.ExtendedGuildOnlineMembersFeature;
 import com.busted_moments.client.features.AutoUpdateFeature;
 import com.busted_moments.client.features.lootrun.LootrunDryStreakFeature;
 import com.busted_moments.client.features.war.WeeklyWarCountOverlay;
