@@ -363,7 +363,8 @@ public interface Guild extends Collection<Guild.Member>, GuildType {
    @AbstractRequest.Definition(
            route = "https://thesimpleones.net/api/guild?q=%s",
            ratelimit = RateLimit.NONE,
-           cache_length = 10
+           cache_length = 20,
+           cache_unit = ChronoUnit.SECONDS
    )
    class Request extends GetRequest<Guild> {
       public Request(String guild) {
