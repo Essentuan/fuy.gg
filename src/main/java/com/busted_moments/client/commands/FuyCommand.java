@@ -55,6 +55,7 @@ import static net.minecraft.ChatFormatting.YELLOW;
 @Command("fuy")
 @Inherit({RaidCommand.class})
 public class FuyCommand {
+   @Alias("cf")
    @Subcommand("config")
    private static void onConfig(CommandContext<FabricClientCommandSource> context) {
       CONFIG.open();
