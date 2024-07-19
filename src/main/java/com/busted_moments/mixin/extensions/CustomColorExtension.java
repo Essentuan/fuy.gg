@@ -1,6 +1,7 @@
 package com.busted_moments.mixin.extensions;
 
 import com.wynntils.utils.colors.CustomColor;
+import kotlin.Triple;
 import net.essentuan.esl.color.Color;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
@@ -100,6 +101,18 @@ public abstract class CustomColorExtension implements Color {
    @Override
    public float @NotNull [] asFloatArray() {
       return new float[]{r / 255f, g / 255f, b / 255f};
+   }
+
+   @NotNull
+   @Override
+   public Triple<Float, Float, Float> asHsl() {
+      return Color.DefaultImpls.asHsl(this);
+   }
+
+   @NotNull
+   @Override
+   public Triple<Float, Float, Float> asHSV() {
+      return Color.DefaultImpls.asHSV(this);
    }
 
    @NotNull
