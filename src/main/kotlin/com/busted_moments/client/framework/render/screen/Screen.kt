@@ -1,10 +1,11 @@
 package com.busted_moments.client.framework.render.screen
 
 import com.busted_moments.client.framework.events.events
-import com.busted_moments.client.framework.features.Overlay.Context
 import com.busted_moments.client.framework.render.Element
 import com.busted_moments.client.framework.render.Renderer
-import com.busted_moments.client.framework.render.helpers.Floats
+import com.busted_moments.client.framework.render.Renderer.Companion.contains
+import com.busted_moments.client.framework.render.Sizable
+import com.busted_moments.client.framework.render.helpers.Context
 import com.busted_moments.client.framework.render.helpers.IContext
 import com.busted_moments.client.framework.text.Text
 import com.mojang.blaze3d.platform.Window
@@ -14,9 +15,14 @@ import net.essentuan.esl.reflections.Constructors
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.tags
 import net.essentuan.esl.scheduling.tasks
+import net.essentuan.esl.tuples.numbers.FloatPair
+import net.minecraft.client.DeltaTracker
+import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.network.chat.Component
+import org.joml.Matrix4f
 import kotlin.reflect.KClass
 
 typealias McScreen = net.minecraft.client.gui.screens.Screen
@@ -29,8 +35,8 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
 
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         this.graphics = guiGraphics
-        this.mouse = Floats(mouseX.toFloat(), mouseY.toFloat())
-        this.partialTicks = partialTick
+        this.mouse = FloatPair(mouseX.toFloat(), mouseY.toFloat())
+        this.deltaTracker = mc().timer
         this.window = mc().window
 
         if (render(context))
@@ -39,6 +45,8 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
                 (child as Renderer<Context>).render(context)
 
         first = elements.isEmpty()
+
+        guiGraphics.bufferSource().endBatch()
     }
 
     override fun init() {
@@ -55,16 +63,22 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
 
     protected open fun close() = Unit
 
-    override fun plusAssign(child: Element<out Context>) =
+    override fun plusAssign(child: Element<out Context>) {
         elements.plusAssign(child)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun register(listener: GuiEventListener) {
+        (children() as MutableList<GuiEventListener>).add(listener)
+    }
 
     override fun iterator(): Iterator<Element<out Context>> =
-        elements.iterator()
+        elements.toList().iterator()
 
     private lateinit var graphics: GuiGraphics
-    private var mouse: Floats = Floats.ZERO
+    private var mouse: FloatPair = FloatPair.ZERO
     private lateinit var window: Window
-    private var partialTicks: Float = 0f
+    private lateinit var deltaTracker: DeltaTracker
 
     private val context = Context()
 
@@ -75,7 +89,7 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
         val graphics: GuiGraphics
             get() = this@Screen.graphics
 
-        val mouse: Floats
+        val mouse: FloatPair
             get() = this@Screen.mouse
 
         val mouseX: Float
@@ -86,14 +100,47 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
 
         override val pose: PoseStack
             get() = this@Screen.graphics.pose()
-        override val buffer: MultiBufferSource
+        override val buffer: MultiBufferSource.BufferSource
             get() = this@Screen.graphics.bufferSource()
-        override val partialTicks: Float
-            get() = this@Screen.partialTicks
+        override val deltaTracker: DeltaTracker
+            get() = this@Screen.deltaTracker
         override val window: Window
             get() = this@Screen.window
 
     }
+
+    abstract class Widget : Element<Screen.Context>(), Sizable, GuiEventListener {
+        private var added: Boolean = false
+        private var focused: Boolean = false
+        private var matrix = Matrix4f()
+
+        final override fun isFocused(): Boolean = focused
+
+        final override fun setFocused(focused: Boolean) {
+            this.focused = focused
+        }
+
+        override fun isMouseOver(mouseX: Double, mouseY: Double): Boolean {
+            return contains(mouseX.toFloat(), mouseY.toFloat(), matrix)
+        }
+
+        final override fun draw(ctx: Context): Boolean {
+            matrix = ctx.pose.last().pose()
+
+            if (!added) {
+                ctx.screen.register(this)
+                added = true
+            }
+
+            return renderWidget(ctx)
+        }
+
+        protected abstract fun renderWidget(ctx: Context): Boolean
+    }
+}
+
+fun McScreen.open() {
+    mc().setScreen(this)
 }
 
 @Target(AnnotationTarget.CLASS)
