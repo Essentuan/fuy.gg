@@ -7,20 +7,31 @@ import com.essentuan.acf.fabric.core.FabricCommandBuilder
 import com.essentuan.acf.fabric.core.client.FabricClientCommandLoader
 import com.mojang.brigadier.context.CommandContext
 import com.wynntils.mc.event.CommandSentEvent
+import net.essentuan.esl.isPresent
+import net.essentuan.esl.orElse
 import net.essentuan.esl.reflections.Functions.Companion.static
 import net.essentuan.esl.reflections.Reflections
 import net.essentuan.esl.reflections.extensions.annotatedWith
 import net.essentuan.esl.reflections.extensions.isObject
+import net.essentuan.esl.reflections.extensions.isStatic
+import net.essentuan.esl.scheduling.annotations.Auto
+import net.essentuan.esl.unsafe
 import kotlin.reflect.jvm.javaMethod
 
 typealias ACFEvent = com.essentuan.acf.fabric.core.client.events.CommandSentEvent
 
+@Auto(false)
 object CommandLoader : FabricClientCommandLoader(
     FabricCommandBuilder.Client()
         .inPackage {
             Reflections.functions
-                .withSignature(CommandContext::class)
-                .static()
+                .filter {
+                    try {
+                        it.javaMethod?.isStatic() == true
+                    } catch(ex: Throwable) {
+                        false
+                    }
+                }
                 .map { it.javaMethod?.declaringClass }
                 .filter { it != null && it annotatedWith Command::class }
                 .distinct()
