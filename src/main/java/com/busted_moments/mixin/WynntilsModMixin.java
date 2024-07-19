@@ -1,5 +1,6 @@
 package com.busted_moments.mixin;
 
+import com.busted_moments.client.Client;
 import com.busted_moments.client.framework.Extension;
 import com.wynntils.core.WynntilsMod;
 import net.fabricmc.loader.api.FabricLoader;
@@ -27,9 +28,14 @@ public abstract class WynntilsModMixin {
            File modFile,
            CallbackInfo ci
    ) {
+      Client.INSTANCE.init();
+
       FabricLoader.getInstance().getEntrypointContainers(
               "fuy_gg",
               Extension.class
-      ).forEach(it -> it.getEntrypoint().init());
+      ).forEach(it -> {
+         if (it.getEntrypoint() != Client.INSTANCE)
+            it.getEntrypoint().init();
+      });
    }
 }
