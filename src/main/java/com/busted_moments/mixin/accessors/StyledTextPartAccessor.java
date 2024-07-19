@@ -9,7 +9,4 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface StyledTextPartAccessor {
    @Accessor
    String getText();
-
-   @Accessor
-   PartStyle getStyle();
 }
