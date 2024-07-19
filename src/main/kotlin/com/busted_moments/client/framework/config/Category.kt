@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component
 
 typealias Section = SubCategoryBuilder
 
-internal class Category(private val title: String) : ArrayList<Config.Entry<*>.Bound>() {
+internal class Category(private val title: String) : ArrayList<Pair<Storage, Config.Entry<*>>>() {
     fun build(builder: ConfigBuilder): ConfigCategory =
         builder.getOrCreateCategory(Text.component(title)).apply {
             val entryBuilder = ConfigEntryBuilder.create()
@@ -23,7 +23,7 @@ internal class Category(private val title: String) : ArrayList<Config.Entry<*>.B
                 entryBuilder.startSubCategory(Component.literal(Config.nameOf(title))).also { entries += it::build }
             }
 
-            sortWith { e1, e2 ->
+            sortWith { (_, e1), (_, e2) ->
                 when {
                     e1.section != null && e2.section == null -> -1
                     e1.section == null && e2.section != null -> 1
@@ -31,14 +31,14 @@ internal class Category(private val title: String) : ArrayList<Config.Entry<*>.B
                 }
             }
 
-            for (entry in this@Category) {
-                if (entry.instanceOf<HiddenEntry<*>>())
+            for ((owner, entry) in this@Category) {
+                if (entry is HiddenEntry<*>)
                     continue
 
                 if (entry.section == null)
-                    entries.add { entry.open(entryBuilder) }
+                    entries.add { entry.open(owner, entryBuilder) }
                 else
-                    section(entry.section!!)+= entry.open(entryBuilder)
+                    section(entry.section!!)+= entry.open(owner, entryBuilder)
             }
 
             entries.forEach { addEntry(it()) }

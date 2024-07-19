@@ -13,7 +13,7 @@ class EnumValue<T: Enum<*>>(
     override fun T.open(builder: ConfigEntryBuilder): AbstractFieldBuilder<T, *, *> {
         return builder.startEnumSelector(
             title,
-            kotlin.returnType.javaClass as Class<T>,
+            type.cls as Class<T>,
             this
         )
     }

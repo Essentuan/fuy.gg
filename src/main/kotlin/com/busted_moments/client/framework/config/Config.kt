@@ -5,43 +5,58 @@ import com.busted_moments.client.events.MinecraftEvent
 import com.busted_moments.client.framework.FabricLoader
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Floating
-import com.busted_moments.client.framework.config.annotations.Override
 import com.busted_moments.client.framework.config.annotations.Section
 import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.HiddenEntry
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
+import com.busted_moments.client.framework.features.Feature
 import com.busted_moments.client.framework.text.Text
+import com.wynntils.core.WynntilsMod
+import com.wynntils.core.components.Managers
+import com.wynntils.mc.event.ConnectionEvent
+import com.wynntils.utils.mc.McUtils.mc
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder
 import me.shedaniel.clothconfig2.impl.builders.AbstractFieldBuilder
 import net.essentuan.esl.json.Json
 import net.essentuan.esl.json.type.AnyJson
-import net.essentuan.esl.model.BaseModel
-import net.essentuan.esl.model.impl.IBound
-import net.essentuan.esl.model.impl.Property
-import net.essentuan.esl.other.Result
-import net.essentuan.esl.other.ofNullable
-import net.essentuan.esl.other.orElse
-import net.essentuan.esl.other.orNull
-import net.essentuan.esl.other.result
+import net.essentuan.esl.Result
+import net.essentuan.esl.get
+import net.essentuan.esl.ifPresent
+import net.essentuan.esl.map
+import net.essentuan.esl.model.Model
+import net.essentuan.esl.model.Model.Companion.export
+import net.essentuan.esl.model.Model.Companion.load
+import net.essentuan.esl.model.field.Parameter
+import net.essentuan.esl.model.field.Property
+import net.essentuan.esl.model.impl.PropertyImpl
+import net.essentuan.esl.ofNullable
+import net.essentuan.esl.orElse
+import net.essentuan.esl.orNull
+import net.essentuan.esl.other.unsupported
+import net.essentuan.esl.result
 import net.essentuan.esl.reflections.Reflections
 import net.essentuan.esl.reflections.Types.Companion.objects
 import net.essentuan.esl.reflections.extensions.annotatedWith
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instance
+import net.essentuan.esl.reflections.extensions.instanceof
+import net.essentuan.esl.reflections.extensions.isDelegated
 import net.essentuan.esl.reflections.extensions.simpleString
 import net.essentuan.esl.reflections.extensions.tags
 import net.essentuan.esl.scheduling.tasks
 import net.essentuan.esl.string.reader.consume
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
+import java.io.File
 import java.nio.file.Path
 import java.util.Calendar
 import java.util.Calendar.DAY_OF_MONTH
 import java.util.Calendar.MONTH
 import java.util.Calendar.YEAR
+import java.util.LinkedList
 import java.util.function.Consumer
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
@@ -50,7 +65,11 @@ import kotlin.io.path.div
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
+import kotlin.sequences.flatMap
 
 object NoCopy
 
@@ -71,74 +90,109 @@ object Config {
 
     //TODO: Add legacy config reading
     fun read() {
-        if (Config::storages.isInitialized)
-            return
+        val initalized = ::storages.isInitialized
 
-        storages = Reflections.types
-            .subtypesOf(Storage::class)
-            .objects()
-            .map { it.instance }
-            .filterNotNull()
-            .onEach {
-                it.events.register()
-                it.tasks.resume()
+        if (!initalized)
+            storages = Reflections.types
+                .subtypesOf(Storage::class)
+                .objects()
+                .filter { it.java.enclosingClass == null }
+                .sortedBy { it.simpleName }
+                .flatMap {
+                    sequence<KClass<out Storage>> {
+                        yield(it)
 
-                it.properties
-                    .values
-                    .forEach { bound ->
-                        if (bound is Entry<*>.Bound)
-                            bound.init()
+                        val stack = LinkedList<Class<*>>(it.java.declaredClasses.asList())
+
+                        while (stack.isNotEmpty()) {
+                            val next = stack.pop()
+
+                            @Suppress("UNCHECKED_CAST")
+                            if (next instanceof Storage::class)
+                                yield(next.kotlin as KClass<out Storage>)
+
+
+                            val classes = next.declaredClasses
+                            for (i in (classes.size - 1) downTo 0) {
+                                stack.offerFirst(classes[i])
+                            }
+                        }
                     }
-            }
-            .toList()
+                }
+                .map { it.instance }
+                .filterNotNull()
+                .onEach {
+                    if (it !is Feature) {
+                        it.events.register()
+                        it.tasks.resume()
+                    }
+
+                    Model.descriptor(it.javaClass)
+                        .forEach { prop ->
+                            if (prop is Entry<*>)
+                                prop.init(it)
+                        }
+                }
+                .toList()
 
         val files: MutableMap<String, Result<Json>> = mutableMapOf()
 
-        fun file(str: String): Json? =
-            files.computeIfAbsent(str) {
-                val file = path / str
+        fun read(storage: Storage, block: Storage.(Json) -> Unit) {
+            val str = storage.file.replace("{uuid}", mc().user.profileId.toString())
+            val file = path / str
+            var json = files[str]
 
-                return@computeIfAbsent try {
-                    Json.read(file).ofNullable()
-                } catch (ex: Throwable) {
-                    val name = str.removeSuffix(".json")
-                    val date = Calendar.getInstance()
-
-                    val baseName = "$name-${date[DAY_OF_MONTH]}-${date[MONTH]}-${date[YEAR]}"
-
-                    var i = 0L
-                    var out = path / "backup" / "$baseName.json"
-
-                    while (out.exists() && i < Long.MAX_VALUE) {
-                        i++
-
-                        out = path / "backup" / "$baseName-$i.json"
-                    }
-
-                    out.parent.createDirectories()
-
-                    file.copyTo(
-                        out,
-                        overwrite = true
-                    )
-
-                    file.deleteIfExists()
-
-                    Client.error("Error reading config file $str! A backup has been moved to $out.", ex)
-
-                    failed += file to out
-
-                    Result.empty()
+            try {
+                if (json == null) {
+                    json = Json.read(file).ofNullable()
+                    files[str] = json
                 }
-            }.orNull()
+
+                json.ifPresent { storage.block(it) }
+            } catch (ex: Throwable) {
+                val name = str.removeSuffix(".json")
+                val date = Calendar.getInstance()
+
+                val baseName = "$name-${date[DAY_OF_MONTH]}-${date[MONTH]}-${date[YEAR]}"
+
+                var i = 0L
+                var out = path / "backup" / "$baseName.json"
+
+                while (out.exists() && i < Long.MAX_VALUE) {
+                    i++
+
+                    out = path / "backup" / "$baseName-$i.json"
+                }
+
+                out.parent.createDirectories()
+
+                file.copyTo(
+                    out,
+                    overwrite = true
+                )
+
+                file.deleteIfExists()
+
+                Client.error("Error reading config file $str! A backup has been moved to $out.", ex)
+
+                failed += file to out
+
+                files[str] = Result.empty()
+            }
+        }
 
         for (storage in storages) {
-            storage.load(
-                file(storage.file)
-                    ?.getJson(storage.category.lowercase())
-                    ?.getJson(keyOf(storage.javaClass.simpleString()))
-                    ?: continue
-            )
+            read(storage) {
+                load(
+                    it
+                        .getJson(storage.category.lowercase())
+                        ?.getJson(keyOf(storage.javaClass.simpleString()))
+                        ?: return@read
+                )
+            }
+
+            if (!initalized)
+                storage.ready()
         }
     }
 
@@ -149,7 +203,7 @@ object Config {
 
         for (storage in storages) {
             val name = keyOf(storage.javaClass.simpleString())
-            val file = file(storage.file)
+            val file = file(storage.file.replace("{uuid}", mc().user.profileId.toString()))
             val category = file
                 .getJson(storage.category.lowercase())
                 ?.getJson(name)
@@ -180,11 +234,15 @@ object Config {
                 )
 
                 storages.asSequence()
-                    .sortedBy { it.javaClass.simpleName }
-                    .flatMap { it.properties.values }
-                    .filterIsInstance<Entry<*>.Bound>()
+                    .flatMap {
+                        Model.descriptor(it.javaClass)
+                            .filterIsInstance<Entry<*>>()
+                            .map { e -> it to e }
+                    }
                     .forEach {
-                        categories.computeIfAbsent(it.category) { title -> CategoryBuilder(title) }.add(it)
+                        categories.computeIfAbsent(it.second.category) { title ->
+                            CategoryBuilder(title)
+                        }.add(it)
                     }
 
                 categories.values.forEach { it.build(this) }
@@ -249,21 +307,54 @@ object Config {
         return builder.toString()
     }
 
+    @Subscribe
+    private fun ConnectionEvent.ConnectedEvent.on() {
+        read()
+    }
+
+    @Subscribe
+    private fun ConnectionEvent.DisconnectedEvent.on() {
+        write()
+    }
+
     abstract class Entry<T>(
         kotlin: KProperty<T?>,
         var title: Component
-    ) : Property(
-        kotlin.tags[Override::class]?.value ?: keyOf(kotlin.name),
-        kotlin
-    ) {
+    ) : PropertyImpl(kotlin) {
         constructor(
             kotlin: KProperty<T?>,
             title: String
         ) : this(kotlin, Text.component(title))
 
-        private val tooltip: Array<Component>? = kotlin.tags[Tooltip::class]?.run {
+        lateinit var file: File
+            private set
+
+        lateinit var category: String
+            private set
+
+        var section: String? = null
+
+        var default: Any? = NoCopy
+            private set
+
+        var tooltip: Array<Component>? = kotlin.tags[Tooltip::class]?.run {
             Array(value.size) { Text.component(value[it]) }
         }
+
+        internal fun init(obj: Storage) {
+            if (::category.isInitialized)
+                return
+
+            category = tags[Category::class]?.value ?: obj.category
+
+            if (!this.annotatedWith(Floating::class))
+                section = tags[Section::class]?.value ?: obj.section
+
+            if (this@Entry !is HiddenEntry)
+                default = get(obj).copy().orElse(NoCopy)
+        }
+
+        protected open fun default(value: Any?): Any? = value
 
         protected fun <U : AbstractFieldBuilder<T, *, *>> T.create(constructor: (Component, T) -> U) =
             constructor(title, this)
@@ -273,66 +364,21 @@ object Config {
         @Suppress("UNCHECKED_CAST")
         protected open fun mutate(value: Any?): T? = value as T?
 
-        override fun bind(obj: BaseModel<*>): IBound {
-            return Bound(obj)
-        }
+        @Suppress("UNCHECKED_CAST")
+        open fun open(model: Storage, builder: ConfigEntryBuilder): AbstractConfigListEntry<*> =
+            (get(model) as T).open(builder).apply {
+                saveConsumer = Consumer { set(model, mutate(it)) }
+                @Suppress("UNCHECKED_CAST")
 
-        inner class Bound(
-            obj: BaseModel<*>
-        ) : Property.Bound(obj), Consumer<T> {
-            inline fun <reified T> instanceOf(): Boolean {
-                return this@Entry is T
-            }
+                if (default !is NoCopy)
+                    setDefaultValue(default(default as T) as T)
 
-            var title: Component
-                get() = this@Entry.title
-                set(value) {
-                    this@Entry.title = value
-                }
+                setTooltip(*tooltip ?: return@apply)
+            }.build()
 
-            val file: String
-                get() = (obj as Storage).file
-
-            lateinit var category: String
-                private set
-
-            var section: String? = null
-
-            private var default: Any? = NoCopy
-
-            internal fun init() {
-                category = tags[Category::class]?.value ?: (obj as Storage).category
-
-                if (!this.annotatedWith(Floating::class))
-                    section = tags[Section::class]?.value ?: (obj as Storage).section
-
-                if (this@Entry !is HiddenEntry)
-                    default = value.copy().orElse(NoCopy)
-            }
-
-            @Suppress("UNCHECKED_CAST")
-            internal fun open(builder: ConfigEntryBuilder): AbstractConfigListEntry<*> =
-                (value as T).open(builder).apply {
-                    saveConsumer = this@Bound
-                    @Suppress("UNCHECKED_CAST")
-
-                    if (default !is NoCopy)
-                        setDefaultValue(default as T)
-
-                    if (tooltip != null)
-                        setTooltip(*tooltip)
-
-
-                }.build()
-
-            override fun export(data: AnyJson) {
-                if (value != default)
-                    super.export(data)
-            }
-
-            override fun accept(value: T) {
-                this.value = mutate(value)
-            }
+        override fun export(model: Model<*>, out: AnyJson, flags: Set<Any>) {
+            if (get(model) != default)
+                super.export(model, out, flags)
         }
     }
 
@@ -352,6 +398,20 @@ object Config {
 
             else -> this.result()
         }
+
+    interface Extension : net.essentuan.esl.model.Extension<Storage> {
+        fun register(property: KProperty<*>): Property?
+
+        override fun invoke(param: KParameter): Parameter? =
+            unsupported("Storages do not support constructors!")
+
+        override fun invoke(property: KProperty<*>): Property? {
+            return if (property is KMutableProperty<*> || property.isDelegated)
+                register(property)
+            else
+                null
+        }
+    }
 }
 
 fun Json.Companion.read(path: Path): Json? {

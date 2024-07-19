@@ -5,13 +5,12 @@ import com.busted_moments.client.framework.config.Storage
 import com.google.common.primitives.Primitives
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.model.Extension
-import net.essentuan.esl.model.Property
-import net.essentuan.esl.optional.Optional
-import net.essentuan.esl.optional.extensions.opt
+import net.essentuan.esl.model.field.Property
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instanceof
 import net.essentuan.esl.reflections.extensions.javaClass
 import net.essentuan.esl.reflections.extensions.tags
+import net.essentuan.esl.time.duration.Duration
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 
@@ -35,43 +34,43 @@ annotation class Value(
         annotation: Value
     ) : Config.Entry<T>(kotlin, annotation.value)
 
-    companion object : Extension<Storage> {
+    companion object : Config.Extension {
         @Suppress("UNCHECKED_CAST")
-        override fun register(field: KProperty<Any?>): Optional<Property> {
-            return if (field is KMutableProperty<Any?>)
-                field.tags[Value::class]?.run {
-                    val type = Primitives.wrap(field.returnType.javaClass)
+        override fun register(field: KProperty<Any?>): Property? {
+            return field.tags[Value::class]?.run {
+                val type = Primitives.wrap(field.returnType.javaClass)
 
-                    when {
-                        type instanceof Boolean::class ->
-                            BooleanValue(field as KProperty<Boolean?>, this).opt()
+                when {
+                    type instanceof java.lang.Boolean::class ->
+                        BooleanValue(field as KProperty<Boolean?>, this)
 
-                        type instanceof Color::class ->
-                            ColorValue(field as KProperty<Color?>, this).opt()
+                    type instanceof Color::class ->
+                        ColorValue(field as KProperty<Color?>, this)
 
-                        type instanceof Enum::class ->
-                            EnumValue(field as KProperty<Enum<*>?>, this).opt()
+                    type instanceof Enum::class ->
+                        EnumValue(field as KProperty<Enum<*>?>, this)
 
-                        type instanceof String::class ->
-                            StringValue(field as KProperty<String?>, this).opt()
+                    type instanceof String::class ->
+                        StringValue(field as KProperty<String?>, this)
 
-                        type instanceof Int::class ->
-                            NumberValue.Int(field as KProperty<Int?>, this).opt()
+                    type instanceof Integer::class ->
+                        NumberValue.Int(field as KProperty<Int?>, this)
 
-                        type instanceof Long::class ->
-                            NumberValue.Long(field as KProperty<Long?>, this).opt()
+                    type instanceof java.lang.Long::class ->
+                        NumberValue.Long(field as KProperty<Long?>, this)
 
-                        type instanceof Float::class ->
-                            NumberValue.Float(field as KProperty<Float?>, this).opt()
+                    type instanceof java.lang.Float::class ->
+                        NumberValue.Float(field as KProperty<Float?>, this)
 
-                        type instanceof Double::class ->
-                            NumberValue.Double(field as KProperty<Double?>, this).opt()
+                    type instanceof java.lang.Double::class ->
+                        NumberValue.Double(field as KProperty<Double?>, this)
 
-                        else -> Optional.empty()
-                    }
-                } ?: Optional.empty()
-            else
-                Optional.empty()
+                    type instanceof Duration::class ->
+                        DurationValue(field as KProperty<Duration?>, this)
+
+                    else -> null
+                }
+            }
         }
     }
 }
