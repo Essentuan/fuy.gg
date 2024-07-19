@@ -1,15 +1,15 @@
 @file:OptIn(ExperimentalTypeInference::class)
 
-package com.busted_moments.client.framework.render.elements.transformations
+package com.busted_moments.client.framework.render.elements.helpers
 
 import com.busted_moments.client.framework.render.Element
 import com.busted_moments.client.framework.render.Renderer
 import com.busted_moments.client.framework.render.helpers.Context
-import com.busted_moments.client.framework.render.helpers.Floats
 import com.mojang.blaze3d.vertex.PoseStack
+import net.essentuan.esl.tuples.numbers.FloatPair
+import org.joml.Quaternionf
 import org.joml.Vector2f
 import org.joml.Vector3f
-import javax.swing.text.html.HTML.Tag.P
 import kotlin.experimental.ExperimentalTypeInference
 
 abstract class TransformElement<CTX:  Context> : Element<CTX>() {
@@ -24,8 +24,11 @@ abstract class TransformElement<CTX:  Context> : Element<CTX>() {
         pose.translate(x, y, 0f)
     }
 
+    fun translate(pos: FloatPair) =
+        translate(pos.first, pos.second)
+
     @OverloadResolutionByLambdaReturnType
-    inline fun translate(block: (CTX) -> Floats) {
+    inline fun translate(block: (CTX) -> FloatPair) {
         block(context).also { translate(it.first, it.second) }
     }
 
@@ -48,8 +51,8 @@ abstract class TransformElement<CTX:  Context> : Element<CTX>() {
         block(context).also { scale(it) }
     }
 
-    @JvmName("scaleFloats")
-    inline fun scale(block: (CTX) -> Floats) {
+    @JvmName("scaleFloatPair")
+    inline fun scale(block: (CTX) -> FloatPair) {
         block(context).also { scale(it.first, it.second) }
     }
 
@@ -63,12 +66,35 @@ abstract class TransformElement<CTX:  Context> : Element<CTX>() {
         block(context).also { scale(it.x, it.y) }
     }
 
-    fun rotate(rad: Float) {
-        pose.last().pose().rotateZ(rad)
+    fun rotate(x: Float, y: Float, rad: Float) {
+        pose.rotateAround(
+            Quaternionf(0f, 0f, rad, 0f),
+            x,
+            y,
+            0f
+        )
     }
 
-    inline fun rotate(block: (CTX) -> Float) =
-        rotate(block(context))
+    fun rotate(pos: FloatPair, rad: Float) {
+        pose.rotateAround(
+            Quaternionf(0f, 0f, rad, 0f),
+            pos.first,
+            pos.second,
+            0f
+        )
+    }
+
+    fun rotateX(rad: Float) {
+        pose.last().pose().rotateX(rad)
+    }
+
+    fun rotateY(rad: Float) {
+        pose.last().pose().rotateY(rad)
+    }
+
+    fun rotateZ(rad: Float) {
+        pose.last().pose().rotateZ(rad)
+    }
 
     override fun compute(ctx: CTX): Boolean = true
 

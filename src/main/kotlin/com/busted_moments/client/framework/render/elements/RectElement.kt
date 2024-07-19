@@ -1,12 +1,13 @@
 package com.busted_moments.client.framework.render.elements
 
 import com.busted_moments.client.framework.render.Element
+import com.busted_moments.client.framework.render.MutableSizable
 import com.busted_moments.client.framework.render.Sizable
 import com.busted_moments.client.framework.render.helpers.Context
-import com.busted_moments.client.framework.render.helpers.Floats
+import net.essentuan.esl.tuples.numbers.FloatPair
 
-abstract class RectElement<CTX : Context> : Element<CTX>(), Sizable {
-    var size: Floats = Floats.ZERO
+abstract class RectElement<CTX : Context> : Element<CTX>(), MutableSizable {
+    var size: FloatPair = FloatPair.ZERO
 
     override var width: Float
         get() = size.first

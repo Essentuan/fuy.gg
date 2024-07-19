@@ -4,18 +4,13 @@ package com.busted_moments.client.framework.render.elements
 
 import com.busted_moments.client.framework.artemis.artemis
 import com.busted_moments.client.framework.render.Renderer
-import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.client.framework.render.helpers.Context
 import com.busted_moments.client.framework.render.helpers.Padding
 import com.busted_moments.client.framework.render.text
-import com.mojang.blaze3d.vertex.Tesselator
-import com.wynntils.core.text.StyledText
-import com.wynntils.utils.render.RenderUtils
 import com.wynntils.utils.render.buffered.BufferedRenderUtils
 import com.wynntils.utils.render.type.HorizontalAlignment
 import com.wynntils.utils.render.type.VerticalAlignment
 import net.essentuan.esl.color.Color
-import net.minecraft.client.renderer.MultiBufferSource
 import kotlin.experimental.ExperimentalTypeInference
 
 abstract class TextBoxElement<CTX : Context> : TextElement<CTX>() {
@@ -24,6 +19,11 @@ abstract class TextBoxElement<CTX : Context> : TextElement<CTX>() {
 
     override val additionalWidth: Float
         get() = padding.left + padding.right
+
+    fun resize() {
+        width = split.width + padding.left + padding.right
+        height = split.height + padding.top + padding.bottom
+    }
 
     override fun draw(ctx: CTX): Boolean {
         val boxWidth = split.width + padding.left + padding.right
@@ -87,7 +87,6 @@ abstract class TextBoxElement<CTX : Context> : TextElement<CTX>() {
 
         ctx.text(
             split,
-            ctx.buffer,
             textX,
             textY,
             textWidth,

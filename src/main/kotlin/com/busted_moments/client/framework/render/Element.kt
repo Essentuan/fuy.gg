@@ -3,16 +3,16 @@
 package com.busted_moments.client.framework.render
 
 import com.busted_moments.client.framework.render.helpers.Context
-import com.busted_moments.client.framework.render.helpers.Floats
 import com.mojang.blaze3d.platform.InputConstants
+import net.essentuan.esl.tuples.numbers.FloatPair
 import kotlin.experimental.ExperimentalTypeInference
 
 typealias Keys = InputConstants
 
-abstract class Element<CTX : Context> : Renderer<CTX>, Positional {
+abstract class Element<CTX : Context> : Renderer<CTX>, MutablePositional {
     override var first: Boolean = true
         protected set
-    var pos: Floats = Floats.ZERO
+    var pos: FloatPair = FloatPair.ZERO
 
     private var children = mutableListOf<Element<out CTX>>()
 
@@ -59,7 +59,7 @@ abstract class Element<CTX : Context> : Renderer<CTX>, Positional {
     }
 
     override fun iterator(): Iterator<Element<out CTX>> =
-        children.iterator()
+        children.toList().iterator()
 
     abstract class Dynamic<CTX : Context> : Element<CTX>() {
         override fun compute(ctx: CTX): Boolean = true

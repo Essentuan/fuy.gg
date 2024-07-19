@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexFormat
+import com.wynntils.utils.render.buffered.CustomRenderType
 import net.essentuan.esl.color.Color
 import net.minecraft.client.renderer.GameRenderer
 import org.joml.Matrix4f
@@ -23,9 +24,7 @@ abstract class GradientElement<CTX : Context> : RectElement<CTX>() {
     override fun draw(ctx: CTX): Boolean {
         RenderSystem.enableBlend()
         RenderSystem.setShader(GameRenderer::getPositionColorShader)
-        val tesselator = Tesselator.getInstance()
-        val builder = tesselator.builder
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
+        val builder = ctx.buffer.getBuffer(CustomRenderType.POSITION_COLOR_QUAD)
 
         val matrix: Matrix4f = ctx.pose.last().pose()
 
@@ -41,11 +40,11 @@ abstract class GradientElement<CTX : Context> : RectElement<CTX>() {
         val greenB: Float = to.green / 255.0f
         val blueB: Float = to.blue / 255.0f
 
-        builder.vertex(matrix, x, y, blitOffset).color(redA, greenA, blueA, alphaA).endVertex()
-        builder.vertex(matrix, x, y2, blitOffset).color(redB, greenB, blueB, alphaB).endVertex()
-        builder.vertex(matrix, x2, y2, blitOffset).color(redB, greenB, blueB, alphaB).endVertex()
-        builder.vertex(matrix, x2, y, blitOffset).color(redA, greenA, blueA, alphaA).endVertex()
-        tesselator.end()
+        builder.addVertex(matrix, x, y, blitOffset).setColor(redA, greenA, blueA, alphaA)
+        builder.addVertex(matrix, x, y2, blitOffset).setColor(redB, greenB, blueB, alphaB)
+        builder.addVertex(matrix, x2, y2, blitOffset).setColor(redB, greenB, blueB, alphaB)
+        builder.addVertex(matrix, x2, y, blitOffset).setColor(redA, greenA, blueA, alphaA)
+
         RenderSystem.disableBlend()
 
         return true

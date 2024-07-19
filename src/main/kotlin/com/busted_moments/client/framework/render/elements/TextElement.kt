@@ -2,31 +2,24 @@
 
 package com.busted_moments.client.framework.render.elements
 
-import com.busted_moments.client.framework.artemis.artemis
 import com.busted_moments.client.framework.artemis.esl
-import com.busted_moments.client.framework.render.Element
-import com.busted_moments.client.framework.render.Renderer
-import com.busted_moments.client.framework.render.Sizable
-import com.busted_moments.client.framework.render.Split
-import com.busted_moments.client.framework.render.TextRenderer
+import com.busted_moments.client.framework.render.*
 import com.busted_moments.client.framework.render.helpers.Context
-import com.busted_moments.client.framework.render.helpers.Floats
-import com.busted_moments.client.framework.render.text
 import com.wynntils.core.text.StyledText
 import com.wynntils.utils.colors.CommonColors
-import com.wynntils.utils.render.FontRenderer
 import com.wynntils.utils.render.type.HorizontalAlignment
 import com.wynntils.utils.render.type.TextShadow
 import com.wynntils.utils.render.type.VerticalAlignment
+import net.essentuan.esl.tuples.numbers.FloatPair
 import kotlin.experimental.ExperimentalTypeInference
 
-abstract class TextElement<CTX : Context> : Element<CTX>(), Sizable {
-    lateinit var split: Split
+abstract class TextElement<CTX : Context> : Element<CTX>(), MutableSizable {
+    open lateinit var split: Split
 
     /**
      * The text to be rendered
      *
-     * NOTE: This may be empty when using [split]!
+     * Note: This may be empty when setting [TextElement.split]!
      */
     var text: StyledText = StyledText.EMPTY
         set(value) {
@@ -41,7 +34,7 @@ abstract class TextElement<CTX : Context> : Element<CTX>(), Sizable {
     var style = TextShadow.OUTLINE
     var color = CommonColors.WHITE.esl
 
-    var size = Floats(10000f, 10000f)
+    var size = FloatPair(10000f, 10000f)
     var maxWidth: Float = 0f
 
     var horizontalAlignment = HorizontalAlignment.LEFT
@@ -61,7 +54,6 @@ abstract class TextElement<CTX : Context> : Element<CTX>(), Sizable {
     override fun draw(ctx: CTX): Boolean {
         ctx.text(
             split,
-            ctx.buffer,
             x,
             y,
             width,
