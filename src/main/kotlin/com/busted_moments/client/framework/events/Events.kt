@@ -1,10 +1,12 @@
 package com.busted_moments.client.framework.events
 
 import com.wynntils.core.WynntilsMod
-import net.minecraftforge.eventbus.api.Event
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.neoforged.bus.api.Event
+import net.neoforged.bus.api.ICancellableEvent
+import net.neoforged.bus.api.SubscribeEvent
 
 typealias Subscribe = SubscribeEvent
+typealias Cancellable = ICancellableEvent
 
 @JvmInline
 value class Events(private val obj: Any) {
