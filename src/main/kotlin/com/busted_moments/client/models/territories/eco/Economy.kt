@@ -1,0 +1,168 @@
+package com.busted_moments.client.models.territories.eco
+
+import com.busted_moments.buster.api.GuildType
+import com.busted_moments.buster.api.Territory
+import com.busted_moments.client.buster.GuildList
+import com.busted_moments.client.buster.TerritoryList
+import com.busted_moments.client.framework.artemis.buster
+import com.busted_moments.client.framework.text.Text
+import com.busted_moments.client.framework.text.Text.matches
+import com.busted_moments.client.framework.text.get
+import com.busted_moments.client.framework.util.Items.tooltip
+import com.busted_moments.client.Patterns.PRODUCTION_PATTERN
+import com.busted_moments.client.Patterns.STORAGE_PATTERN
+import com.busted_moments.client.Patterns.TREASURY_PATTERN
+import com.busted_moments.client.Patterns.UPGRADE_PATTERN
+import com.wynntils.core.components.Models
+import com.wynntils.models.territories.type.GuildResource
+import com.wynntils.models.territories.type.TerritoryUpgrade
+import net.essentuan.esl.collections.enumMapOf
+import net.minecraft.world.item.ItemStack
+import java.util.EnumMap
+
+typealias Upgrade = TerritoryUpgrade
+typealias UpgradeLevel = TerritoryUpgrade.Level
+
+class Economy(
+    private val territories: MutableMap<String, TerritoryData> = mutableMapOf()
+) : Map<String, TerritoryData> by territories {
+    var guild: GuildType = GuildList.NONE
+        private set
+    var hq: TerritoryData? = null
+        private set
+
+    lateinit var total: Map<Territory.Resource, TerritoryData.Storages>
+        private set
+
+    var externals: Int = 0
+
+    constructor(items: Sequence<ItemStack>) : this() {
+        guild = GuildList.firstOrNull { it.name == Models.Guild.guildName } ?: GuildList.NONE
+
+        for (item in items) {
+            val territory = parse(item) ?: continue
+            territories[territory.name] = territory
+
+            if (territory.hq)
+                hq = territory
+        }
+
+        Route.visit(this, true)
+        Route.visit(this, false)
+
+        for (territory in values) {
+            if (!territory.hq && territory.distance <= 3)
+                externals++
+        }
+
+        val total = enumMapOf<Territory.Resource, TerritoryData.Storages>()
+
+        for (resource in Territory.Resource.entries)
+            total[resource] = TerritoryData.Storages(-1)
+
+        for (territory in values) {
+            territory.ready()
+
+            for ((resource, storage) in territory.resources) {
+                total[resource]!!.also {
+                    if (!territory.ignored) {
+                        it.capacity += storage.capacity
+                        it.production += storage.production
+                        it.stored += storage.stored
+                    }
+
+                    it.cost += storage.cost
+                }
+            }
+        }
+
+        this.total = total
+    }
+
+    private fun parse(stack: ItemStack): TerritoryData? {
+        val name = nameOf(stack)
+        val territory = TerritoryList[name] ?: return null
+
+        val resources = enumMapOf<Territory.Resource, TerritoryData.Storages>()
+
+        for ((resource, storage) in territory.resources)
+            resources[resource] = TerritoryData.Storages(storage.base)
+
+        val upgrades = enumMapOf<Upgrade, Pair<Int, UpgradeLevel>>()
+
+        var treasury = 0.0
+
+        for (line in stack.tooltip) {
+            line.matches {
+                UPGRADE_PATTERN { matcher, _ ->
+                    val type = Upgrade.fromName(matcher["upgrade"]) ?: return@UPGRADE_PATTERN
+                    val level = matcher["level"]!!.toInt()
+                    val upgrade = type.levels[matcher["level"]!!.toInt()]
+
+                    upgrades[type] = level to upgrade
+
+                    resources[type.costResource.buster]!!.cost += upgrade.cost
+
+                    return@matches
+                }
+
+                STORAGE_PATTERN { matcher, _ ->
+                    resources[
+                        GuildResource.fromSymbol(matcher["type"] ?: "").buster
+                    ]!!.let {
+                        it.stored = matcher["stored"]!!.toInt()
+                        it.capacity = matcher["capacity"]!!.toInt()
+                    }
+
+                    return@matches
+                }
+
+                PRODUCTION_PATTERN { matcher, _ ->
+                    resources[GuildResource.fromName(matcher["resource"]).buster]!!.production =
+                        matcher["amount"]!!.toInt()
+
+                    return@matches
+                }
+
+                TREASURY_PATTERN { matcher, _ ->
+                    treasury = matcher["treasury"]!!.toDouble()
+                    return@matches
+                }
+            }
+        }
+
+        return TerritoryData(
+            stack,
+            this,
+            territory,
+            stack.displayName.string.contains("(HQ)"),
+            resources,
+            upgrades,
+            treasury
+        )
+    }
+
+    companion object {
+        fun nameOf(stack: ItemStack): String {
+            val base: String = Text.strip(stack.displayName.string).replace("Á", "")
+
+            return base.substring(2, base.length - 1)
+                .replace(" (HQ)", "")
+                .replace("[!] ", "")
+        }
+
+        fun isTerritory(stack: ItemStack): Boolean {
+            return stack.tooltip.any {
+                val text: String = it.stringWithoutFormatting.replace("Á", "")
+
+                when {
+                    UPGRADE_PATTERN.matcher(text).matches() -> true
+                    STORAGE_PATTERN.matcher(text).matches() -> true
+                    PRODUCTION_PATTERN.matcher(text).matches() -> true
+                    TREASURY_PATTERN.matcher(text).matches() -> true
+                    else -> false
+                }
+            }
+        }
+    }
+}
