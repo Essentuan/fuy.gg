@@ -35,7 +35,6 @@ val dateparser_version: String by project
 //Artemis
 val artemis_version: String by project
 val mixinextras_version: String by project
-val forge_eventbus_version: String by project
 
 //Objenesis
 val objenesis_version: String by project
@@ -45,14 +44,18 @@ val acf_fabric_version: String by project
 val acf_version: String by project
 val devauth_version: String by project
 
+//Buster
+val buster_version: String by project
+val ktor_version: String by project
+
 plugins {
     id("fabric-loom") version "1.6.9"
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.0.0"
 
     id("maven-publish")
 }
 
-version = mod_version
+version = "$mod_version+MC-${minecraft_version}"
 group = maven_group
 
 loom {
@@ -63,8 +66,6 @@ repositories {
     maven("https://maven.parchmentmc.org") {
         name = "ParchmentMC"
     }
-
-    maven("https://maven.minecraftforge.net/")
 
     maven("https://jitpack.io")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
@@ -109,7 +110,7 @@ fun wynntils(): ConfigurableFileCollection {
         }
 
         val run = projectDir.toPath()
-            .resolve("runs")
+            .resolve("run")
             .resolve("mods")
             .resolve("wynntils.jar")
 
@@ -164,11 +165,32 @@ dependencies {
 
     shadow(files("libs/acf/ACF-${acf_version}.jar"))
 
+    //Buster
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-websockets:$ktor_version")
+
+    include("io.ktor:ktor-client-cio-jvm:$ktor_version")
+    include("io.ktor:ktor-client-core-jvm:$ktor_version")
+    include("io.ktor:ktor-websockets-jvm:$ktor_version")
+    include("io.ktor:ktor-client-websockets-jvm:$ktor_version")
+    include("io.ktor:ktor-websocket-serialization-jvm:$ktor_version")
+    include("io.ktor:ktor-events-jvm:$ktor_version")
+    include("io.ktor:ktor-http-cio-jvm:$ktor_version")
+    include("io.ktor:ktor-http-jvm:$ktor_version")
+    include("io.ktor:ktor-io-jvm:$ktor_version")
+    include("io.ktor:ktor-network-jvm:$ktor_version")
+    include("io.ktor:ktor-network-tls-jvm:$ktor_version")
+    include("io.ktor:ktor-serialization-jvm:$ktor_version")
+    include("io.ktor:ktor-utils-jvm:$ktor_version")
+
+    shadow("com.busted_moments:buster:$buster_version")
+
     //DevAuth
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${devauth_version}")
 }
 
-val targetJavaVersion = 17
+val targetJavaVersion = 21
 java {
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {

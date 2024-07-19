@@ -7,16 +7,35 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "ClassLoaderFactoryMixin",
+    "ChatHandlerMixin",
+    "ConfigManagerMixin",
     "EventBusMixin",
-    "EventListenerHelperMixin",
+    "EventBusWrapperMixin",
+    "GuildAttackTimerModelMixin",
+    "PersistedManagerMixin",
+    "PersistedValueMixin",
+    "TerritoryModelMixin",
+    "WarScoreboardPartMixin",
+    "WorldWaypointDistanceFeatureMixin",
     "WynntilsModMixin",
     "accessors.PartStyleAccessor",
     "accessors.StyledTextPartAccessor",
+    "accessors.TerritoryModelAccessor",
+    "extensions.AttackTimerExtension",
     "extensions.CustomColorExtension",
-    "extensions.TextureExtension"
+    "extensions.MarkerInfoExtension",
+    "extensions.TerritoryInfoExtension",
+    "extensions.TextureExtension",
+    "invoker.FeatureManagerInvoker",
+    "invoker.FunctionManagerInvoker",
+    "invoker.OverlayManagerInvoker",
+    "invoker.TerritoryPoiInvoker"
   ],
   "client": [
-    "MinecraftMixin"
+    "ChatScreenMixin",
+    "GuildMapScreenMixin",
+    "MinecraftMixin",
+    "accessors.MinecraftAccessor",
+    "extensions.ChatComponentExtension"
   ]
 }
