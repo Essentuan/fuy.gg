@@ -1,5 +1,8 @@
 package com.busted_moments.client.framework.text
 
+import net.essentuan.esl.color.Color
+import net.minecraft.ChatFormatting
+
 const val COLOR_CHAR = '§'
 const val BLACK = "${COLOR_CHAR}0"
 const val DARK_BLUE = "${COLOR_CHAR}1"
@@ -23,3 +26,6 @@ const val STRIKETHROUGH = "${COLOR_CHAR}m"
 const val UNDERLINE = "${COLOR_CHAR}n"
 const val ITALIC = "${COLOR_CHAR}o"
 const val RESET = "${COLOR_CHAR}r"
+
+val ChatFormatting.esl: Color
+    get() = Color(color!!, alpha = false)

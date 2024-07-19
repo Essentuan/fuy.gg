@@ -1,18 +1,33 @@
 package com.busted_moments.client.framework.text
 
+import com.busted_moments.client.framework.artemis.Ticks
+import com.busted_moments.client.framework.render.Split
+import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.mixin.accessors.PartStyleAccessor
 import com.busted_moments.mixin.accessors.StyledTextPartAccessor
+import com.wynntils.core.events.EventBusWrapper
+import com.wynntils.core.events.EventThread
 import com.wynntils.core.text.PartStyle
 import com.wynntils.core.text.StyledText
 import com.wynntils.core.text.StyledTextPart
 import com.wynntils.utils.colors.CustomColor
+import com.wynntils.utils.mc.McUtils
+import com.wynntils.utils.mc.McUtils.mc
+import com.wynntils.utils.render.FontRenderer
 import net.essentuan.esl.color.Color
+import net.essentuan.esl.other.thread
 import net.minecraft.ChatFormatting
+import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.network.chat.TextColor
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+import kotlin.reflect.KProperty
+
 
 typealias StyleType = PartStyle.StyleType
 typealias TextParts = List<TextPart>
@@ -36,17 +51,41 @@ object Text {
     operator fun invoke(string: String): StyledText =
         StyledText.fromString(string)
 
+    operator fun invoke(string: String, color: CustomColor): StyledText =
+        StyledText.fromParts(
+            listOf(
+                StyledTextPart(
+                    string,
+                    Style.EMPTY.withColor(color.asInt()),
+                    null,
+                    null
+                )
+            )
+        )
+
     operator fun invoke(component: Component): StyledText =
         StyledText.fromComponent(component)
 
     inline operator fun invoke(block: Builder.() -> Unit): StyledText =
         Builder(mutableListOf()).apply(block).build()
 
+    fun strip(string: String): String =
+        Text(string).getString(PartStyle.StyleType.NONE)
+
     fun literal(string: String): StyledText =
         StyledText.fromUnformattedString(string)
 
     fun component(string: String): Component =
         Text(string).component
+
+    fun component(string: String, style: Style): MutableComponent =
+        Component.literal(string).withStyle(style)
+
+    fun component(string: String, color: Int): MutableComponent =
+        Component.literal(string).withColor(color)
+
+    fun component(part: TextPart): MutableComponent =
+        component(part.string, part.toStyle())
 
     fun component(block: Builder.() -> Unit): Component =
         Text(block).component
@@ -67,18 +106,66 @@ object Text {
         return builder.parts.toList()
     }
 
+    inline fun StyledText.matches(block: Matching.() -> Unit) =
+        Matching(this).apply(block)
+
     fun TextParts.copy(): TextParts =
         this.mapTo(ArrayList(this.size)) { it.copy() }
 
-    class Builder(
-        val parts: MutableList<TextPart>
+    private fun Split.send() {
+        for (line in this) {
+            if (line.isEmpty())
+                continue
+
+            val out = Component.empty()
+
+            for (part in line)
+                out.append(component(part.text))
+
+            McUtils.sendMessageToClient(out)
+        }
+    }
+
+    fun StyledText.send() {
+        if (thread().name == "Render thread")
+            TextRenderer.split(this).send()
+        else
+            Ticks.schedule {
+                TextRenderer.split(this).send()
+            }
+    }
+
+    @JvmInline
+    value class Matching(
+        val text: StyledText
     ) {
-        private inline fun append(builder: Builder) {
-            parts += builder.parts
+        inline operator fun Pattern.invoke(style: StyleType = StyleType.NONE, block: (Matcher, StyledText) -> Unit) {
+            val matcher = text.getMatcher(this, style)
+            if (matcher.matches())
+                block(matcher, text)
         }
 
+        inline fun any(
+            vararg patterns: Pattern,
+            style: StyleType = StyleType.NONE,
+            block: (Matcher, StyledText) -> Unit
+        ) {
+            for (pattern in patterns) {
+                val matcher = text.getMatcher(pattern, style)
+                if (matcher.matches()) {
+                    block(matcher, text)
+                    return
+                }
+            }
+        }
+    }
+
+    @JvmInline
+    value class Builder(
+        val parts: MutableList<TextPart>
+    ) {
         operator fun Builder.unaryPlus() =
-            append(this)
+            this@Builder.parts.addAll(this.parts)
 
         operator fun TextParts.unaryPlus() {
             parts += this
@@ -98,9 +185,12 @@ object Text {
         }
 
         operator fun String.unaryPlus() {
-            parts += TextPart(this, 0)
+            parts += TextPart(this)
         }
 
+        /**
+         * Appends a \n to the last part if present
+         */
         inline fun line(block: Builder.() -> Unit) {
             val before: Int = parts.size
 
@@ -110,12 +200,51 @@ object Text {
                 newLine()
         }
 
-        /**
-         * Appends a \n to the last part if present
-         *
-         */
+        inline fun center(
+            prefix: TextPart,
+            maxWidth: Int = ChatComponent.getWidth(mc().options.chatWidth().get()),
+            crossinline block: Builder.() -> Unit
+        ) = center(
+            Text { +prefix },
+            maxWidth,
+            block
+        )
+
+        inline fun center(
+            prefix: TextParts,
+            maxWidth: Int = ChatComponent.getWidth(mc().options.chatWidth().get()),
+            crossinline block: Builder.() -> Unit
+        ) = center(
+            Text { +prefix },
+            maxWidth,
+            block
+        )
+
+        inline fun center(
+            prefix: StyledText,
+            maxWidth: Int = ChatComponent.getWidth(mc().options.chatWidth().get()),
+            crossinline block: Builder.() -> Unit
+        ) = center(
+            TextRenderer.split(prefix).width,
+            maxWidth,
+            block
+        )
+
+        inline fun center(
+            offset: Float = 0f,
+            maxWidth: Int = ChatComponent.getWidth(mc().options.chatWidth().get()),
+            crossinline block: Builder.() -> Unit
+        ) {
+            val builder = Text(block)
+            val width = TextRenderer.split(builder).width
+            val spaceWidth = TextRenderer.width(' '.code, Style.EMPTY)
+
+            +" ".repeat(((((maxWidth.toFloat() / 2F) - (width / 2F)) / spaceWidth) - offset).toInt().coerceAtLeast(0))
+            +builder
+        }
+
         fun newLine() {
-            (parts.lastOrNull() ?: return).string += '\n'
+            +'\n'.toString().reset
         }
 
         fun build(): StyledText {
@@ -162,7 +291,7 @@ object Text {
                     val styledPart = out.last()
                     out[out.lastIndex] = StyledTextPart(
                         styledPart.text + part.string,
-                        styledPart.style.style,
+                        styledPart.partStyle.style,
                         null,
                         null
                     )
@@ -229,10 +358,10 @@ object Text {
             get() = white.apply { isInherited = false }
 
         fun String.onClick(action: ClickEvent.Action, value: String) =
-            TextPart(this, 0).onClick(action, value)
+            TextPart(this).onClick(action, value)
 
         fun <T : Any> String.onHover(action: HoverEvent.Action<T>, value: T): TextPart =
-            TextPart(this, 0).onHover(action, value)
+            TextPart(this).onHover(action, value)
 
         val TextPart.black: TextPart
             get() = apply { this.color = ChatFormatting.BLACK.color!! }
@@ -268,7 +397,7 @@ object Text {
             get() = apply { this.color = ChatFormatting.WHITE.color!! }
 
         fun TextPart.color(color: Color) =
-                apply { this.color = color.asInt() }
+            apply { this.color = color.asInt() }
 
         val TextPart.obfuscate: TextPart
             get() = apply { this.isObfuscated = true }
@@ -299,10 +428,6 @@ val StyledTextPart.text: String
     get() = (this as StyledTextPartAccessor).text
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-val StyledTextPart.style: PartStyle
-    get() = (this as StyledTextPartAccessor).style
-
-@Suppress("CAST_NEVER_SUCCEEDS")
 val PartStyle.color: CustomColor
     get() = (this as PartStyleAccessor).color
 
@@ -313,3 +438,10 @@ val PartStyle.clickEvent: ClickEvent
 @Suppress("CAST_NEVER_SUCCEEDS")
 val PartStyle.hoverEvent: HoverEvent
     get() = (this as PartStyleAccessor).hoverEvent
+
+operator fun Matcher.get(group: String): String? = group(group)
+
+operator fun Matcher.get(group: Int): String? = group(group)
+
+operator fun Matcher.getValue(ref: Any?, property: KProperty<*>): String? =
+    this[property.name]

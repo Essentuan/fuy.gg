@@ -2,16 +2,14 @@ package com.busted_moments.client.framework.text
 
 import com.wynntils.core.text.PartStyle
 import com.wynntils.core.text.StyledTextPart
+import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.scanner.Constant.ALPHA
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.ClickEvent
-import net.minecraft.network.chat.FormattedText
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.network.chat.TextColor
 import net.minecraft.util.FormattedCharSequence
 import net.minecraft.util.FormattedCharSink
-import java.util.Optional
-import javax.swing.text.html.HTMLDocument.HTMLReader.CharacterAction
 
 internal const val INHERIT_BIT: Long = 1L
 internal const val OBFUSCATED_BIT: Long = (1L shl 1)
@@ -19,9 +17,9 @@ internal const val BOLD_BIT: Long = (1L shl 2)
 internal const val STRIKETHROUGH_BIT: Long = (1L shl 3)
 internal const val UNDERLINE_BIT: Long = (1L shl 4)
 internal const val ITALIC_BIT: Long = (1L shl 5)
+internal const val COLOR_BIT: Long = (1L shl 6)
 
 internal const val MASK = 0xFFFFFFFF
-internal const val ALPHA = 255L shl (32 + 24)
 
 data class TextPart(
     var string: String,
@@ -29,18 +27,24 @@ data class TextPart(
     var clickEvent: ClickEvent? = null,
     var hoverEvent: HoverEvent? = null
 ) : FormattedCharSequence {
+    constructor(string: String) : this(string, 0L)
 
-    constructor(string: String, color: Int) : this(string, color.toLong() shl 32)
+    constructor(string: String, color: Int) : this(string, color.toLong() shl 32) {
+        hasColor = true
+    }
 
     constructor(string: String, color: ChatFormatting) : this(
         string,
         color.color?.or(255 shl 24) ?: throw IllegalArgumentException("${color.name} is not a color!")
-    )
+    ) {
+        hasColor = true
+    }
 
     constructor(string: String, style: PartStyle) : this(
         string,
         style.color.asInt()
     ) {
+        hasColor = true
         isInherited = false
         isItalic = style.isItalic
         isBold = style.isBold
@@ -52,16 +56,23 @@ data class TextPart(
         hoverEvent = style.hoverEvent
     }
 
-    constructor(part: StyledTextPart) : this(part.text, part.style)
+    constructor(part: StyledTextPart) : this(part.text, part.partStyle)
 
     var color: Int
         get() = (data shr 32).toInt()
         set(value) {
-            data = value.toLong().shl(32).or(ALPHA) or data.and(MASK)
+            data = value.toLong().shl(32) or data.and(MASK)
+            hasColor = true
         }
 
-    val hasColor: Boolean
-        get() = (data shr (32 + 24)).and(255) != 0L
+    var hasColor: Boolean
+        get() = (data and COLOR_BIT) != 0L
+        set(value) {
+            data = if (value)
+                data or COLOR_BIT
+            else
+                data and COLOR_BIT.inv()
+        }
 
     var isInherited: Boolean
         get() = (data and INHERIT_BIT) != 0L
@@ -146,7 +157,7 @@ data class TextPart(
             when {
                 Character.isHighSurrogate(char) -> {
                     if (cursor + 1 < string.length) {
-                       val low = string[cursor + 1]
+                        val low = string[cursor + 1]
 
                         if (Character.isLowSurrogate(low)) {
                             if (!sink.accept(cursor, style, Character.toCodePoint(char, low)))
@@ -156,6 +167,7 @@ data class TextPart(
                         }
                     }
                 }
+
                 !Character.isLowSurrogate(char) -> {
                     if (!sink.accept(cursor, style, char.code))
                         return false
