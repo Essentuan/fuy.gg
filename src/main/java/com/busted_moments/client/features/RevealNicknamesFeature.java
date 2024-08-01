@@ -30,14 +30,14 @@ public class RevealNicknamesFeature extends Feature {
    public void onChatReceived(ChatMessageReceivedEvent e) {
       if (!Models.WorldState.onWorld()) return;
 
-      e.setMessage(revealNicknames(e.getStyledText()).getComponent());
+      e.setMessage(revealNicknames(e.getStyledText()));
    }
 
    @SubscribeEvent
    public void onClientsideMessage(ClientsideMessageEvent e) {
       if (!Models.WorldState.onWorld()) return;
 
-      e.setMessage(revealNicknames(e.getStyledText()).getComponent());
+      e.setMessage(revealNicknames(e.getStyledText()));
    }
 
    private StyledText revealNicknames(StyledText text) {

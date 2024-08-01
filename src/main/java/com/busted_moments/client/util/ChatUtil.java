@@ -128,10 +128,10 @@ public class ChatUtil {
    }
 
    private static void send(StyledText text, Component component) {
-      var event = new ChatMessageReceivedEvent(component, text, MessageType.FOREGROUND, RecipientType.CLIENTSIDE);
+      var event = new ChatMessageReceivedEvent(text, MessageType.FOREGROUND, RecipientType.CLIENTSIDE);
       process(event);
 
-      if (!ChatTabUtils.isEnabled()) mc().gui.getChat().addMessage(event.getMessage());
+      if (!ChatTabUtils.isEnabled()) mc().gui.getChat().addMessage(event.getStyledText().getComponent());
    }
 
    public static void send(StyledText message) {

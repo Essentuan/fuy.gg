@@ -55,7 +55,7 @@ public class DeathMessageModel extends Model {
             return IterationDecision.CONTINUE;
          });
 
-      event.setMessage(text.getComponent());
+      event.setMessage(text);
 
       target = null;
    }

@@ -45,6 +45,6 @@ public class ClickToCongratulateFeature extends Feature {
               .onClick(
                       ClickEvent.Action.RUN_COMMAND,
                       "/msg %s %s".formatted(player, message)
-              ).toComponent());
+              ).build());
    }
 }
