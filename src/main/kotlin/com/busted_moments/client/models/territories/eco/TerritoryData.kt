@@ -5,6 +5,8 @@ import com.busted_moments.buster.api.Territory
 import com.busted_moments.buster.api.Territory.Rating
 import com.busted_moments.buster.api.Territory.Resource
 import com.busted_moments.buster.api.Territory.Storage
+import com.busted_moments.client.buster.FFAList
+import com.busted_moments.client.features.war.TerritoryHelperMenuFeature
 import com.busted_moments.client.models.territories.TerritoryModel
 import net.essentuan.esl.delegates.final
 import net.minecraft.world.item.ItemStack
@@ -38,30 +40,32 @@ data class TerritoryData(
         get() = absoluteRoute?.size ?: -1
 
     fun ready() {
-        ignored = route == null
+        ignored = route == null ||
+                (TerritoryHelperMenuFeature.ignoreFFA && name in FFAList) ||
+                name in TerritoryHelperMenuFeature.blacklist
 
         var total = 0f
         var multiplier = 1f
 
         if (hq) {
-            total+= economy.externals * 4
+            total += economy.externals * 4
             multiplier = 1.4f
         }
 
         if (upgrades[Upgrade.TOWER_AURA] == null)
-            total-= 5
+            total -= 5
         else
-            total+= upgrades[Upgrade.TOWER_AURA]!!.first * multiplier
+            total += upgrades[Upgrade.TOWER_AURA]!!.first * multiplier
 
         if (upgrades[Upgrade.TOWER_VOLLEY] == null)
-            total-= 3
+            total -= 3
         else
-            total+= upgrades[Upgrade.TOWER_VOLLEY]!!.first * multiplier
+            total += upgrades[Upgrade.TOWER_VOLLEY]!!.first * multiplier
 
-        total+= (upgrades[Upgrade.DAMAGE]?.first ?: 0) * multiplier
-        total+= (upgrades[Upgrade.ATTACK]?.first ?: 0) * multiplier
-        total+= (upgrades[Upgrade.HEALTH]?.first ?: 0) * multiplier
-        total+= (upgrades[Upgrade.DEFENCE]?.first ?: 0) * multiplier
+        total += (upgrades[Upgrade.DAMAGE]?.first ?: 0) * multiplier
+        total += (upgrades[Upgrade.ATTACK]?.first ?: 0) * multiplier
+        total += (upgrades[Upgrade.HEALTH]?.first ?: 0) * multiplier
+        total += (upgrades[Upgrade.DEFENCE]?.first ?: 0) * multiplier
 
         defense = when {
             total >= 41 -> Rating.VERY_HIGH

@@ -5,10 +5,9 @@ import com.busted_moments.client.framework.artemis.Ticks
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
 import com.busted_moments.client.framework.keybind.Inputs
+import com.busted_moments.client.framework.sounds.Sounds.play
 import com.busted_moments.client.framework.text.StyleType
 import com.busted_moments.client.framework.text.Text
-import com.busted_moments.client.framework.sounds.Sounds.play
-import com.busted_moments.client.framework.text.Text.send
 import com.busted_moments.client.inline
 import com.wynntils.mc.event.ContainerSetContentEvent
 import com.wynntils.mc.event.MenuEvent.MenuOpenedEvent
@@ -69,6 +68,13 @@ abstract class TerritoryScanner(
 
     fun enable() {
         scanning = true
+
+        ContainerSetContentEvent.Pre(
+            contents,
+            null,
+            container,
+            0
+        ).on()
     }
 
     private suspend fun wait() {

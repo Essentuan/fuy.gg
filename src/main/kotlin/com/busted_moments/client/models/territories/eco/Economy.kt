@@ -9,16 +9,15 @@ import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.util.Items.tooltip
-import com.busted_moments.client.Patterns.PRODUCTION_PATTERN
-import com.busted_moments.client.Patterns.STORAGE_PATTERN
-import com.busted_moments.client.Patterns.TREASURY_PATTERN
-import com.busted_moments.client.Patterns.UPGRADE_PATTERN
+import com.busted_moments.client.Patterns.PRODUCTION
+import com.busted_moments.client.Patterns.STORAGE
+import com.busted_moments.client.Patterns.TREASURY
+import com.busted_moments.client.Patterns.UPGRADE
 import com.wynntils.core.components.Models
 import com.wynntils.models.territories.type.GuildResource
 import com.wynntils.models.territories.type.TerritoryUpgrade
 import net.essentuan.esl.collections.enumMapOf
 import net.minecraft.world.item.ItemStack
-import java.util.EnumMap
 
 typealias Upgrade = TerritoryUpgrade
 typealias UpgradeLevel = TerritoryUpgrade.Level
@@ -94,8 +93,8 @@ class Economy(
 
         for (line in stack.tooltip) {
             line.matches {
-                UPGRADE_PATTERN { matcher, _ ->
-                    val type = Upgrade.fromName(matcher["upgrade"]) ?: return@UPGRADE_PATTERN
+                UPGRADE { matcher, _ ->
+                    val type = Upgrade.fromName(matcher["upgrade"]) ?: return@UPGRADE
                     val level = matcher["level"]!!.toInt()
                     val upgrade = type.levels[matcher["level"]!!.toInt()]
 
@@ -106,7 +105,7 @@ class Economy(
                     return@matches
                 }
 
-                STORAGE_PATTERN { matcher, _ ->
+                STORAGE { matcher, _ ->
                     resources[
                         GuildResource.fromSymbol(matcher["type"] ?: "").buster
                     ]!!.let {
@@ -117,14 +116,14 @@ class Economy(
                     return@matches
                 }
 
-                PRODUCTION_PATTERN { matcher, _ ->
+                PRODUCTION { matcher, _ ->
                     resources[GuildResource.fromName(matcher["resource"]).buster]!!.production =
                         matcher["amount"]!!.toInt()
 
                     return@matches
                 }
 
-                TREASURY_PATTERN { matcher, _ ->
+                TREASURY { matcher, _ ->
                     treasury = matcher["treasury"]!!.toDouble()
                     return@matches
                 }
@@ -156,10 +155,10 @@ class Economy(
                 val text: String = it.stringWithoutFormatting.replace("Á", "")
 
                 when {
-                    UPGRADE_PATTERN.matcher(text).matches() -> true
-                    STORAGE_PATTERN.matcher(text).matches() -> true
-                    PRODUCTION_PATTERN.matcher(text).matches() -> true
-                    TREASURY_PATTERN.matcher(text).matches() -> true
+                    UPGRADE.matcher(text).matches() -> true
+                    STORAGE.matcher(text).matches() -> true
+                    PRODUCTION.matcher(text).matches() -> true
+                    TREASURY.matcher(text).matches() -> true
                     else -> false
                 }
             }
