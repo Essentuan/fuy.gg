@@ -11,6 +11,7 @@ import com.busted_moments.client.framework.features.Feature
 import com.busted_moments.client.framework.marker.IconPoi
 import com.busted_moments.client.framework.marker.Marker
 import com.busted_moments.client.framework.render.Textures
+import com.busted_moments.client.models.content.ContentModel
 import com.busted_moments.client.models.territories.timers.TimerModel
 import com.busted_moments.client.models.territories.timers.TimerModel.isOwned
 import com.wynntils.core.components.Models
@@ -31,8 +32,8 @@ object DisplayBeaconOnTimersFeature : Feature(), Marker.Provider<IconPoi> {
     @Value("Hide in lootruns")
     private var hideInLootrun = true
 
-    @Value("Hide in raids")
-    private var hideInRaids = true
+    @Value("Hide during content")
+    private var hideDuringContent = true
 
     @Value("Max Distance")
     private var maxDistance: Int = 1000
@@ -47,7 +48,7 @@ object DisplayBeaconOnTimersFeature : Feature(), Marker.Provider<IconPoi> {
 
     @Subscribe
     private fun TickEvent.on() {
-        if ((hideInLootrun && Models.Lootrun.state != LootrunningState.NOT_RUNNING) || (hideInRaids && Models.Raid.currentRaid != null))
+        if ((hideInLootrun && Models.Lootrun.state != LootrunningState.NOT_RUNNING) || (hideDuringContent && ContentModel.active != null))
             timers = emptyList()
         else {
             timers = TimerModel

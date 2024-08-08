@@ -4,6 +4,7 @@ import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Floating
 import com.busted_moments.client.framework.config.annotations.Tooltip
+import com.busted_moments.client.framework.config.entries.array.Array
 import com.busted_moments.client.framework.config.entries.value.Value
 import net.essentuan.esl.time.TimeUnit
 import net.essentuan.esl.time.duration.Duration

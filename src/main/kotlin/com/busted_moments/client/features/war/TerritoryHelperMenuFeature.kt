@@ -1,10 +1,13 @@
 package com.busted_moments.client.features.war
 
-import com.busted_moments.client.Patterns.GUILD_MANAGE_MENU
-import com.busted_moments.client.Patterns.SELECT_TERRITORIES_MENU
-import com.busted_moments.client.Patterns.TERRITORY_MENU_PATTERN
+import com.busted_moments.client.Patterns.GUILD_MANAGE_MENU_TITLE
+import com.busted_moments.client.Patterns.SELECT_TERRITORIES_MENU_TITLE
+import com.busted_moments.client.Patterns.TERRITORY_MENU_TITLE
 import com.busted_moments.client.framework.Containers
 import com.busted_moments.client.framework.config.annotations.Category
+import com.busted_moments.client.framework.config.annotations.Floating
+import com.busted_moments.client.framework.config.annotations.Tooltip
+import com.busted_moments.client.framework.config.entries.array.Array
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.features.Feature
@@ -22,7 +25,6 @@ import com.wynntils.mc.event.ContainerClickEvent
 import com.wynntils.mc.event.ContainerSetContentEvent
 import com.wynntils.mc.event.MenuEvent.MenuOpenedEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
-import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.scheduling.api.schedule
 import net.essentuan.esl.time.duration.ms
 import net.minecraft.world.item.Items
@@ -41,12 +43,29 @@ object TerritoryHelperMenuFeature : Feature() {
     @Value("Show usage percents")
     var showUsagePercents: Boolean = false
 
+    @Value("Ignore resources from FFA")
+    var ignoreFFA: Boolean = true
+        private set
+
+    @Floating
+    @Array("Blacklist")
+    @Tooltip(["Resources from territories on the blacklist will be ignored."])
+    private var _blacklist: List<String> = emptyList()
+        set(value) {
+            field = value
+
+            blacklist = value.toSet()
+        }
+
+    var blacklist: Set<String> = emptySet()
+        private set
+
     private var noReset = false
 
     @Subscribe
     private fun MenuOpenedEvent.Pre.on() {
         Text(title).matches {
-            TERRITORY_MENU_PATTERN { _, _ ->
+            TERRITORY_MENU_TITLE { _, _ ->
                 isCanceled = true
                 ManageTerritoriesScreen(containerId).open()
 
@@ -60,14 +79,14 @@ object TerritoryHelperMenuFeature : Feature() {
                 return@matches
             }
 
-            SELECT_TERRITORIES_MENU { _, _ ->
+            SELECT_TERRITORIES_MENU_TITLE { _, _ ->
                 isCanceled = true
                 SelectTerritoriesScreen(containerId).open()
 
                 return@matches
             }
 
-            GUILD_MANAGE_MENU { _, _ ->
+            GUILD_MANAGE_MENU_TITLE { _, _ ->
                 if (redirect && doRedirect) {
                     isCanceled = true
                     noReset = true
@@ -81,7 +100,7 @@ object TerritoryHelperMenuFeature : Feature() {
     @Subscribe
     private fun ContainerSetContentEvent.Pre.on() {
         Text(Containers.opened?.title ?: return).matches {
-            GUILD_MANAGE_MENU { _, _ ->
+            GUILD_MANAGE_MENU_TITLE { _, _ ->
                 if (redirect && doRedirect)
                     Containers.click(14, 0)
 

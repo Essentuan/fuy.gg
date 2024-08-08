@@ -4,18 +4,12 @@ import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.entries.HiddenEntry
 import com.busted_moments.client.framework.config.entries.value.ColorValue
-import com.busted_moments.client.framework.text.Text
 import com.wynntils.core.consumers.features.AbstractConfigurable
 import com.wynntils.core.persisted.PersistedOwner
 import com.wynntils.core.persisted.type.PersistedMetadata
-import com.wynntils.utils.colors.CustomColor
-import net.essentuan.esl.color.Color
 import net.essentuan.esl.model.Model
-import net.essentuan.esl.model.field.Parameter.Companion.default
-import net.essentuan.esl.reflections.extensions.get
-import net.essentuan.esl.reflections.extensions.instanceof
-import kotlin.reflect.jvm.javaField
 import java.lang.reflect.Type
+import kotlin.reflect.jvm.javaField
 
 typealias Store<T> = com.wynntils.core.persisted.config.Config<T>
 
