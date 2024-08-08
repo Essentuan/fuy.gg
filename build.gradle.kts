@@ -151,7 +151,7 @@ dependencies {
     shadow("org.reflections:reflections:$reflections_version")
     shadow("org.javassist:javassist:3.29.2-GA") // Required for reflections
     shadow("com.github.sisyphsu:dateparser:$dateparser_version")
-    shadow("net.essentuan:esl:$esl_version")
+    shadow("com.github.essentuan:esl:v$esl_version")
 
     //Wynntils
     modCompileOnly(wynntils())
@@ -184,7 +184,7 @@ dependencies {
     include("io.ktor:ktor-serialization-jvm:$ktor_version")
     include("io.ktor:ktor-utils-jvm:$ktor_version")
 
-    shadow("com.busted_moments:buster:$buster_version")
+    shadow("com.github.essentuan:buster:v$buster_version")
 
     //DevAuth
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${devauth_version}")
