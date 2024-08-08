@@ -1,11 +1,9 @@
 package com.busted_moments.client.buster
 
 import com.busted_moments.buster.protocol.Packet
-import com.busted_moments.client.Client
+import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.instance
-import net.essentuan.esl.reflections.extensions.instanceof
 import net.essentuan.esl.reflections.extensions.javaClass
-import net.essentuan.esl.reflections.extensions.notinstanceof
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.extensionReceiverParameter
@@ -43,7 +41,7 @@ class PacketListener(
             if (func.parameters.size !in 2..3 || Socket::class.java != func.extensionReceiverParameter?.type?.javaClass)
                 return null
 
-            val type = func.parameters.firstOrNull { it.type.javaClass instanceof Packet::class }?.type?.javaClass ?: return null
+            val type = func.parameters.firstOrNull { it.type.javaClass extends Packet::class }?.type?.javaClass ?: return null
             return if (func.parameters.size == 2)
                 PacketListener(
                     func,

@@ -10,6 +10,7 @@ import com.busted_moments.client.framework.config.entries.value.Value
 import com.google.common.primitives.Primitives
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.model.field.Property
+import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instanceof
 import net.essentuan.esl.reflections.extensions.javaClass
@@ -37,10 +38,10 @@ annotation class Slider(
                 val type = Primitives.wrap(field.returnType.javaClass)
 
                 when {
-                    type instanceof Integer::class ->
+                    type extends Integer::class ->
                         IntSlider(field as KProperty<Int?>, this)
 
-                    type instanceof java.lang.Long::class ->
+                    type extends java.lang.Long::class ->
                         LongSlider(field as KProperty<Long?>, this)
 
                     else -> null

@@ -6,6 +6,7 @@ import com.google.common.primitives.Primitives
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.model.Extension
 import net.essentuan.esl.model.field.Property
+import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instanceof
 import net.essentuan.esl.reflections.extensions.javaClass
@@ -41,31 +42,31 @@ annotation class Value(
                 val type = Primitives.wrap(field.returnType.javaClass)
 
                 when {
-                    type instanceof java.lang.Boolean::class ->
+                    type extends java.lang.Boolean::class ->
                         BooleanValue(field as KProperty<Boolean?>, this)
 
-                    type instanceof Color::class ->
+                    type extends Color::class ->
                         ColorValue(field as KProperty<Color?>, this)
 
-                    type instanceof Enum::class ->
+                    type extends Enum::class ->
                         EnumValue(field as KProperty<Enum<*>?>, this)
 
-                    type instanceof String::class ->
+                    type extends String::class ->
                         StringValue(field as KProperty<String?>, this)
 
-                    type instanceof Integer::class ->
+                    type extends Integer::class ->
                         NumberValue.Int(field as KProperty<Int?>, this)
 
-                    type instanceof java.lang.Long::class ->
+                    type extends java.lang.Long::class ->
                         NumberValue.Long(field as KProperty<Long?>, this)
 
-                    type instanceof java.lang.Float::class ->
+                    type extends java.lang.Float::class ->
                         NumberValue.Float(field as KProperty<Float?>, this)
 
-                    type instanceof java.lang.Double::class ->
+                    type extends java.lang.Double::class ->
                         NumberValue.Double(field as KProperty<Double?>, this)
 
-                    type instanceof Duration::class ->
+                    type extends Duration::class ->
                         DurationValue(field as KProperty<Duration?>, this)
 
                     else -> null

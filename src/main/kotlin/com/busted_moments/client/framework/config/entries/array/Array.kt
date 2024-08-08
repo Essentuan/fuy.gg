@@ -11,6 +11,7 @@ import com.google.common.primitives.Primitives
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.model.field.Property
 import net.essentuan.esl.reflections.extensions.classOf
+import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instanceof
 import net.essentuan.esl.reflections.extensions.javaClass
@@ -43,25 +44,25 @@ annotation class Array(
         @Suppress("UNCHECKED_CAST")
         override fun register(field: KProperty<Any?>): Property? {
             return field.tags[Array::class]?.run {
-                if (!(field.returnType.javaClass instanceof List::class))
+                if (!(field.returnType.javaClass extends List::class))
                     return null
 
                 val type = field.returnType.javaType.typeArgs().getOrNull(0)?.classOf() ?: return null
 
                 when {
-                    type instanceof String::class ->
+                    type extends String::class ->
                         StringList(field as KProperty<MutableList<String?>?>, this)
 
-                    type instanceof Integer::class ->
+                    type extends Integer::class ->
                         IntList(field as KProperty<MutableList<Int?>?>, this)
 
-                    type instanceof java.lang.Long::class ->
+                    type extends java.lang.Long::class ->
                         LongList(field as KProperty<MutableList<Long?>?>, this)
 
-                    type instanceof java.lang.Float::class ->
+                    type extends java.lang.Float::class ->
                         FloatList(field as KProperty<MutableList<Float?>?>, this)
 
-                    type instanceof java.lang.Double::class ->
+                    type extends java.lang.Double::class ->
                         DoubleList(field as KProperty<MutableList<Double?>?>, this)
 
                     else -> null

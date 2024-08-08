@@ -40,6 +40,7 @@ import net.essentuan.esl.result
 import net.essentuan.esl.reflections.Reflections
 import net.essentuan.esl.reflections.Types.Companion.objects
 import net.essentuan.esl.reflections.extensions.annotatedWith
+import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instance
 import net.essentuan.esl.reflections.extensions.instanceof
@@ -108,7 +109,7 @@ object Config {
                             val next = stack.pop()
 
                             @Suppress("UNCHECKED_CAST")
-                            if (next instanceof Storage::class)
+                            if (next extends Storage::class)
                                 yield(next.kotlin as KClass<out Storage>)
 
 
