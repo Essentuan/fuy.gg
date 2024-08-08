@@ -36,6 +36,8 @@ import net.minecraft.client.DeltaTracker
 import net.minecraft.client.renderer.MultiBufferSource
 import kotlin.reflect.KClass
 
+typealias Anchor = OverlayPosition.AnchorSection
+
 abstract class AbstractOverlay private constructor(
     val name: String,
     position: OverlayPosition,
