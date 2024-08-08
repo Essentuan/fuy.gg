@@ -55,23 +55,6 @@ import kotlin.math.ceil
 
 private const val WARS_PER_PAGE = 3
 
-@Subcommand("test")
-private fun CommandContext<*>.test(
-    @StringType(StringArgumentType.StringType.GREEDY_PHRASE) @Argument("string") string: String
-) {
-    Text {
-        transpose(Fonts.Pill) {
-            +Fonts.Pill.OPEN.color(Color(255, 238, 143))
-            +"FUYGG"
-            +Fonts.Pill.CLOSE
-        }
-
-        +" ⋙ ".reset.white
-
-        +string.green
-    }.send()
-}
-
 @Alias("cf")
 @Subcommand("config")
 private fun CommandContext<*>.config() {
