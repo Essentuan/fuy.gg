@@ -4,16 +4,13 @@ import com.busted_moments.client.framework.render.helpers.Context
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.TextPart
 import com.busted_moments.client.framework.text.text
-import com.mojang.blaze3d.vertex.Tesselator
 import com.wynntils.core.text.StyledText
 import com.wynntils.utils.colors.CommonColors
 import com.wynntils.utils.render.FontRenderer
 import com.wynntils.utils.render.type.HorizontalAlignment
 import com.wynntils.utils.render.type.TextShadow
 import com.wynntils.utils.render.type.VerticalAlignment
-import net.essentuan.esl.color.Color
 import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.network.chat.Style
 import java.util.Collections
 import kotlin.math.max

@@ -1,19 +1,20 @@
 package com.busted_moments.client.framework.text
 
+import com.busted_moments.client.framework.FontGlyph
+import com.busted_moments.client.framework.FontProvider
+import com.busted_moments.client.framework.FontTransposer
+import com.busted_moments.client.framework.Fonts
 import com.busted_moments.client.framework.artemis.Ticks
 import com.busted_moments.client.framework.render.Split
 import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.mixin.accessors.PartStyleAccessor
 import com.busted_moments.mixin.accessors.StyledTextPartAccessor
-import com.wynntils.core.events.EventBusWrapper
-import com.wynntils.core.events.EventThread
 import com.wynntils.core.text.PartStyle
 import com.wynntils.core.text.StyledText
 import com.wynntils.core.text.StyledTextPart
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils
 import com.wynntils.utils.mc.McUtils.mc
-import com.wynntils.utils.render.FontRenderer
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.other.thread
 import net.minecraft.ChatFormatting
@@ -23,9 +24,10 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.TextColor
+import net.minecraft.resources.ResourceLocation
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.math.max
 import kotlin.reflect.KProperty
 
 
@@ -33,15 +35,13 @@ typealias StyleType = PartStyle.StyleType
 typealias TextParts = List<TextPart>
 
 val FUY_PREFIX: TextParts = Text.parts {
-    +"[".darkGreen
-    +"f".red
-    +"u".gold
-    +"y".yellow
-    +".".green
-    +"g".aqua
-    +"g".blue
-    +"]".darkGreen
-    +" ⋙ ".white
+    transpose(Fonts.Pill) {
+        +Fonts.Pill.OPEN.color(Color(255, 238, 143))
+        +"FUYGG"
+        +Fonts.Pill.CLOSE
+    }
+
+    +" ⋙ ".reset.white
 }
 
 object Text {
@@ -68,6 +68,13 @@ object Text {
 
     inline operator fun invoke(block: Builder.() -> Unit): StyledText =
         Builder(mutableListOf()).apply(block).build()
+
+    /**
+     * Removes all custom formatting from messages.
+     */
+    fun normalized(text: StyledText): StyledText {
+        return Text(text.replaceAll("[^\\x00-\\x7F§]|[\\n]", "").string.replace("  ", " ")).trim()
+    }
 
     fun strip(string: String): String =
         Text(string).getString(PartStyle.StyleType.NONE)
@@ -158,6 +165,18 @@ object Text {
                 }
             }
         }
+
+        inline fun replaceAll(pattern: String, replacement: String, block: Matching.() -> Unit) {
+            Matching(text.replaceAll(pattern, replacement)).apply(block)
+        }
+
+        inline fun trim(block: Matching.() -> Unit) {
+            Matching(text.trim()).apply(block)
+        }
+
+        inline fun mutate(fixer: (StyledText) -> StyledText, block: Matching.() -> Unit) {
+            Matching(fixer(text)).apply(block)
+        }
     }
 
     @JvmInline
@@ -186,6 +205,10 @@ object Text {
 
         operator fun String.unaryPlus() {
             parts += TextPart(this)
+        }
+
+        operator fun FontGlyph.unaryPlus() {
+            parts += TextPart(char.toString()).font(font.location)
         }
 
         /**
@@ -247,6 +270,18 @@ object Text {
             +'\n'.toString().reset
         }
 
+        inline fun transpose(font: FontTransposer, block: Builder.() -> Unit) {
+            val start: Int = max(parts.size, 0)
+
+            block()
+
+            val sublist = parts.subList(start, parts.size)
+            if (sublist.isEmpty())
+                return
+
+            font.transpose(sublist)
+        }
+
         fun build(): StyledText {
             val out: MutableList<StyledTextPart> = ArrayList(parts.size)
 
@@ -281,12 +316,16 @@ object Text {
 
                     if (part.hoverEvent == null)
                         part.hoverEvent = previous.hoverEvent
+
+                    if (part.font == null)
+                        part.font = previous.font
                 }
 
                 if (
                     part.data == previous?.data &&
                     part.clickEvent == previous.clickEvent &&
-                    part.hoverEvent == previous.hoverEvent
+                    part.hoverEvent == previous.hoverEvent &&
+                    part.font == previous.font
                 ) {
                     val styledPart = out.last()
                     out[out.lastIndex] = StyledTextPart(
@@ -363,6 +402,68 @@ object Text {
         fun <T : Any> String.onHover(action: HoverEvent.Action<T>, value: T): TextPart =
             TextPart(this).onHover(action, value)
 
+        fun String.font(font: ResourceLocation): TextPart =
+            TextPart(this).font(font)
+
+        fun String.font(font: FontProvider): TextPart =
+            TextPart(this).font(font)
+
+        val FontGlyph.black: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.BLACK).also { it.font = font.location }
+        val FontGlyph.darkBlue: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.DARK_BLUE).also { it.font = font.location }
+        val FontGlyph.darkGreen: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.DARK_GREEN).also { it.font = font.location }
+        val FontGlyph.darkAqua: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.DARK_AQUA).also { it.font = font.location }
+        val FontGlyph.darkRed: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.DARK_RED).also { it.font = font.location }
+        val FontGlyph.darkPurple: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.DARK_PURPLE).also { it.font = font.location }
+        val FontGlyph.gold: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.GOLD).also { it.font = font.location }
+        val FontGlyph.gray: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.GRAY).also { it.font = font.location }
+        val FontGlyph.darkGray: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.DARK_GRAY).also { it.font = font.location }
+        val FontGlyph.blue: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.BLUE).also { it.font = font.location }
+        val FontGlyph.green: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.GREEN).also { it.font = font.location }
+        val FontGlyph.aqua: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.AQUA).also { it.font = font.location }
+        val FontGlyph.red: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.RED).also { it.font = font.location }
+        val FontGlyph.lightPurple: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.LIGHT_PURPLE).also { it.font = font.location }
+        val FontGlyph.yellow: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.YELLOW).also { it.font = font.location }
+        val FontGlyph.white: TextPart
+            get() = TextPart(char.toString(), ChatFormatting.WHITE).also { it.font = font.location }
+
+        fun FontGlyph.color(color: Color): TextPart =
+            TextPart(char.toString(), color.asInt()).also { it.font = font.location }
+
+        val FontGlyph.obfuscate: TextPart
+            get() = TextPart(char.toString(), OBFUSCATED_BIT).also { it.font = font.location }
+        val FontGlyph.bold: TextPart
+            get() = TextPart(char.toString(), BOLD_BIT).also { it.font = font.location }
+        val FontGlyph.strikethrough: TextPart
+            get() = TextPart(char.toString(), STRIKETHROUGH_BIT).also { it.font = font.location }
+        val FontGlyph.underline: TextPart
+            get() = TextPart(char.toString(), UNDERLINE_BIT).also { it.font = font.location }
+        val FontGlyph.italicize: TextPart
+            get() = TextPart(char.toString(), ITALIC_BIT).also { it.font = font.location }
+
+        val FontGlyph.reset: TextPart
+            get() = white.apply { isInherited = false; font = this@reset.font.location }
+
+        fun FontGlyph.onClick(action: ClickEvent.Action, value: String) =
+            TextPart(char.toString()).onClick(action, value).also { it.font = font.location }
+
+        fun <T : Any> FontGlyph.onHover(action: HoverEvent.Action<T>, value: T): TextPart =
+            TextPart(char.toString()).onHover(action, value).also { it.font = font.location }
+
         val TextPart.black: TextPart
             get() = apply { this.color = ChatFormatting.BLACK.color!! }
         val TextPart.darkBlue: TextPart
@@ -420,6 +521,12 @@ object Text {
 
         fun <T : Any> TextPart.onHover(action: HoverEvent.Action<T>, value: T): TextPart =
             also { hoverEvent = HoverEvent(action, value) }
+
+        fun TextPart.font(font: ResourceLocation): TextPart =
+            also { it.font = font }
+
+        fun TextPart.font(font: FontProvider): TextPart =
+            also { it.font = font.location }
     }
 }
 

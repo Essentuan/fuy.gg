@@ -2,12 +2,12 @@ package com.busted_moments.client.framework.text
 
 import com.wynntils.core.text.PartStyle
 import com.wynntils.core.text.StyledTextPart
-import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.scanner.Constant.ALPHA
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.minecraft.network.chat.TextColor
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.FormattedCharSequence
 import net.minecraft.util.FormattedCharSink
 
@@ -25,12 +25,16 @@ data class TextPart(
     var string: String,
     var data: Long,
     var clickEvent: ClickEvent? = null,
-    var hoverEvent: HoverEvent? = null
+    var hoverEvent: HoverEvent? = null,
+    var font: ResourceLocation? = null,
 ) : FormattedCharSequence {
-    constructor(string: String) : this(string, 0L)
+    constructor(string: String) : this(string, 0L) {
+        isInherited = true
+    }
 
     constructor(string: String, color: Int) : this(string, color.toLong() shl 32) {
         hasColor = true
+        isInherited = true
     }
 
     constructor(string: String, color: ChatFormatting) : this(
@@ -38,6 +42,7 @@ data class TextPart(
         color.color?.or(255 shl 24) ?: throw IllegalArgumentException("${color.name} is not a color!")
     ) {
         hasColor = true
+        isInherited = true
     }
 
     constructor(string: String, style: PartStyle) : this(
@@ -54,6 +59,7 @@ data class TextPart(
 
         clickEvent = style.clickEvent
         hoverEvent = style.hoverEvent
+        font = style.font
     }
 
     constructor(part: StyledTextPart) : this(part.text, part.partStyle)
@@ -139,12 +145,8 @@ data class TextPart(
             clickEvent,
             hoverEvent,
             null,
-            null
+            font
         )
-    }
-
-    init {
-        isInherited = true
     }
 
     override fun accept(sink: FormattedCharSink): Boolean {
