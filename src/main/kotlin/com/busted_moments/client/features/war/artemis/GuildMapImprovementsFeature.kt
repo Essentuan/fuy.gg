@@ -10,7 +10,6 @@ import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.features.Feature
-import com.busted_moments.client.framework.render.Renderer
 import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.client.framework.render.Texture
 import com.busted_moments.client.framework.render.Textures
@@ -31,6 +30,7 @@ import com.wynntils.utils.render.buffered.BufferedRenderUtils
 import me.shedaniel.clothconfig2.impl.EasingMethod
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.time.duration.minutes
+import net.essentuan.esl.time.duration.ms
 import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.time.extensions.timeSince
 import net.essentuan.esl.tuples.numbers.FloatPair
@@ -355,6 +355,8 @@ class RenderDetails(
 
         if (GuildMapImprovementsFeature.showTimers) {
             TimerModel[poi.territoryProfile.name]
+                .asSequence()
+                .filter { it.remaining > 10.ms }
                 .minByOrNull { it.remaining }
                 ?.let {
                     TextRenderer.split(Text(it.timerString, CommonColors.WHITE)).also {
