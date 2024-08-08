@@ -13,6 +13,7 @@ import com.busted_moments.client.buster.BusterService.execute
 import com.busted_moments.client.buster.WorldList.world
 import com.busted_moments.client.commands.args.GuildArgument
 import com.busted_moments.client.commands.args.war.WarFilter
+import com.busted_moments.client.framework.Fonts
 import com.busted_moments.client.framework.artemis.Ticks
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.render.TextRenderer
@@ -21,17 +22,22 @@ import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.invoke
 import com.busted_moments.client.framework.text.Text.send
 import com.busted_moments.client.framework.util.Numbers.toCommaString
+import com.busted_moments.client.inline
 import com.busted_moments.client.models.territories.war.WarModel
 import com.essentuan.acf.core.annotations.Alias
 import com.essentuan.acf.core.annotations.Argument
 import com.essentuan.acf.core.annotations.Command
 import com.essentuan.acf.core.annotations.Subcommand
+import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.collections.synchronized
+import net.essentuan.esl.color.Color
 import net.essentuan.esl.format.truncate
 import net.essentuan.esl.future.api.Future
 import net.essentuan.esl.iteration.extensions.iterate
+import net.essentuan.esl.orElse
 import net.essentuan.esl.string.extensions.isUUID
 import net.essentuan.esl.time.TimeUnit
 import net.essentuan.esl.time.duration.FormatFlag
@@ -39,9 +45,8 @@ import net.essentuan.esl.time.duration.days
 import net.essentuan.esl.time.duration.hours
 import net.essentuan.esl.time.duration.minutes
 import net.essentuan.esl.time.extensions.timeSince
-import net.minecraft.ChatFormatting
+import net.essentuan.esl.unsafe
 import net.minecraft.client.gui.components.ChatComponent
-import net.minecraft.client.gui.screens.recipebook.RecipeBookPage.ITEMS_PER_PAGE
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.HoverEvent
 import java.util.UUID
@@ -49,6 +54,23 @@ import kotlin.math.ceil
 
 
 private const val WARS_PER_PAGE = 3
+
+@Subcommand("test")
+private fun CommandContext<*>.test(
+    @StringType(StringArgumentType.StringType.GREEDY_PHRASE) @Argument("string") string: String
+) {
+    Text {
+        transpose(Fonts.Pill) {
+            +Fonts.Pill.OPEN.color(Color(255, 238, 143))
+            +"FUYGG"
+            +Fonts.Pill.CLOSE
+        }
+
+        +" ⋙ ".reset.white
+
+        +string.green
+    }.send()
+}
 
 @Alias("cf")
 @Subcommand("config")
@@ -260,8 +282,11 @@ private fun CommandContext<*>.playerguild(
         +"Finding player $string!".green
     }.send()
 
-    Future {
-        val member = MemberRequest(string).execute()
+    inline {
+        val member = unsafe {
+            MemberRequest(string).execute()
+        }.orElse(null)
+
         if (member == null)
             FUY_PREFIX {
                 +"$string is not a valid player!".red
@@ -508,7 +533,7 @@ private fun Guild.Member.toText(
 
                 +"Previously in".gray
 
-                for (i in 1..<size) {
+                for (i in (lastIndex - 1) downTo 0) {
                     newLine()
                     val entry = this@toText[i]
 
@@ -523,7 +548,7 @@ private fun Guild.Member.toText(
 
                 +"Also known as".gray
 
-                for (i in (profile.size - 2) downTo 0) {
+                for (i in (profile.size - 1) downTo 0) {
                     newLine()
                     val entry = this@toText.profile[i]
 

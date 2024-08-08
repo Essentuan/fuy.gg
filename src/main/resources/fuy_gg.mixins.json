@@ -33,6 +33,8 @@
   ],
   "client": [
     "ChatScreenMixin",
+    "ClientLevelMixin",
+    "ClientPacketListenerMixin",
     "GuildMapScreenMixin",
     "MinecraftMixin",
     "accessors.MinecraftAccessor",
