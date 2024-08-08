@@ -4,6 +4,8 @@ import com.busted_moments.buster.api.Territory
 import com.busted_moments.client.framework.Objenesis
 import com.busted_moments.mixin.accessors.TerritoryModelAccessor
 import com.wynntils.core.components.Managers
+import com.wynntils.core.text.StyledText
+import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.models.territories.TerritoryInfo
 import com.wynntils.models.territories.TerritoryModel
 import com.wynntils.models.territories.profile.TerritoryProfile
@@ -85,6 +87,10 @@ fun Territory.toTerritoryInfo(): TerritoryInfo =
     Objenesis<TerritoryInfo>().also {
         (it as TerritoryCopier).copyOf(this)
     }
+
+var ChatMessageReceivedEvent.message: StyledText
+    get() = styledText!!
+    set(value) = setMessage(value)
 
 internal fun interface TerritoryCopier {
     fun copyOf(territory: Territory)
