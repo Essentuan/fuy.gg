@@ -120,3 +120,4 @@ run/
 # vscode settings
 .vscode/
 .profileconfig.json
+.fleet/run.json

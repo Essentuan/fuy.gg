@@ -1,21 +1,43 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.busted_moments.client.mixin",
+  "package": "com.busted_moments.mixin",
   "compatibilityLevel": "JAVA_17",
-  "client": [
-    "ChatComponentMixin",
-    "ClientLevelMixin",
-    "ClientPacketListenerMixin",
-    "MinecraftMixin",
-    "MouseHandlerAccessor",
-    "ScreenMixin",
-    "GuildAttackTimerModelMixin"
-  ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
-    "BossHealthOverlayAccessor"
+    "ChatHandlerMixin",
+    "ConfigManagerMixin",
+    "EventBusMixin",
+    "EventBusWrapperMixin",
+    "GuildAttackTimerModelMixin",
+    "PersistedManagerMixin",
+    "PersistedValueMixin",
+    "TerritoryModelMixin",
+    "WarScoreboardPartMixin",
+    "WorldWaypointDistanceFeatureMixin",
+    "WynntilsModMixin",
+    "accessors.PartStyleAccessor",
+    "accessors.StyledTextPartAccessor",
+    "accessors.TerritoryModelAccessor",
+    "extensions.AttackTimerExtension",
+    "extensions.CustomColorExtension",
+    "extensions.MarkerInfoExtension",
+    "extensions.TerritoryInfoExtension",
+    "extensions.TextureExtension",
+    "invoker.FeatureManagerInvoker",
+    "invoker.FunctionManagerInvoker",
+    "invoker.OverlayManagerInvoker",
+    "invoker.TerritoryPoiInvoker"
+  ],
+  "client": [
+    "ChatScreenMixin",
+    "ClientLevelMixin",
+    "ClientPacketListenerMixin",
+    "GuildMapScreenMixin",
+    "MinecraftMixin",
+    "accessors.MinecraftAccessor",
+    "extensions.ChatComponentExtension"
   ]
 }

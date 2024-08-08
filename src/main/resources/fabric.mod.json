@@ -12,14 +12,17 @@
   "license": "LGPL-3.0",
   "environment": "client",
   "entrypoints": {
-    "client": [
-      "com.busted_moments.client.Client"
-    ],
     "modmenu": [
-      "com.busted_moments.core.config.ConfigScreen"
+      {
+        "adapter": "kotlin",
+        "value": "com.busted_moments.client.framework.config.ConfigScreen"
+      }
     ],
     "fuy_gg": [
-      "com.busted_moments.client.Client"
+      {
+        "adapter": "kotlin",
+        "value": "com.busted_moments.client.Client"
+      }
     ]
   },
   "mixins": [
