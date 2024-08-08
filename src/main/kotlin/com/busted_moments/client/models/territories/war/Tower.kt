@@ -1,5 +1,6 @@
 package com.busted_moments.client.models.territories.war
 
+import com.busted_moments.client.Patterns
 import com.busted_moments.client.framework.events.post
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
@@ -10,12 +11,8 @@ import com.busted_moments.client.models.territories.war.events.WarEvent
 import com.wynntils.core.text.StyledText
 import net.essentuan.esl.json.Json
 import java.util.Date
-import java.util.regex.Pattern
 import kotlin.math.abs
 import kotlin.math.floor
-
-private val TOWER_REGEX: Pattern =
-    Pattern.compile("\\[(?<guild>.+)\\] (?<territory>.+) Tower - . (?<health>.+) \\((?<defense>.+)%\\) - .{1,2} (?<damagemin>.+)-(?<damagemax>.+) \\((?<attackspeed>.+)x\\)")
 
 data class Tower(
     private val updates: MutableList<Update> = mutableListOf()
@@ -75,7 +72,7 @@ data class Tower(
         companion object {
             operator fun invoke(text: StyledText): Stats? {
                 text.matches {
-                    TOWER_REGEX { matcher, _ ->
+                    Patterns.TOWER_STATS { matcher, _ ->
                         return Stats(
                             matcher["health"]!!.toLong(),
                             matcher["defense"]!!.toFloat(),

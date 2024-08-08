@@ -1,6 +1,7 @@
 package com.busted_moments.client.models.territories.war
 
 import com.busted_moments.buster.api.Territory
+import com.busted_moments.client.Patterns
 import com.busted_moments.client.buster.events.TerritoryEvent
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.account
@@ -8,6 +9,7 @@ import com.busted_moments.client.framework.config.annotations.File
 import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
+import com.busted_moments.client.framework.text.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.get
@@ -27,16 +29,6 @@ import net.minecraft.world.BossEvent
 import net.neoforged.bus.api.EventPriority
 import java.util.Date
 import java.util.UUID
-import java.util.regex.Pattern
-
-private val TERRITORY_CAPTURED_PATTERN: Pattern =
-    Pattern.compile("^\\[WAR] \\[(?<guild>.+)] captured the territory (?<territory>.+)\\.")
-
-private val TERRITORY_CONTROL_PATTERN: Pattern =
-    Pattern.compile("^\\[INFO] \\[(?<guild>.+)] has taken control of (?<territory>.+)!")
-
-private val CAPTURE_PATTERN =
-    Pattern.compile("^\\[WAR\\] You have taken control of (?<territory>.+) from \\[(?<guild>.+)\\]!.*")
 
 @File("{uuid}")
 object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Results> {
@@ -105,31 +97,34 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
     @Subscribe
     private fun ChatMessageReceivedEvent.on() {
         originalStyledText.matches {
-            any(
-                TERRITORY_CONTROL_PATTERN,
-                TERRITORY_CAPTURED_PATTERN
-            ) { matcher, _ ->
-                TerritoryEvent.Captured(
-                    matcher["territory"]!!,
-                    matcher["guild"]!!
-                ).post()
+            mutate(Text::normalized) {
+                any(
+                    Patterns.TERRITORY_CONTROL,
+                    Patterns.TERRITORY_CAPTURED,
+                    style = StyleType.DEFAULT
+                ) { matcher, _ ->
+                    TerritoryEvent.Captured(
+                        matcher["territory"]!!,
+                        matcher["guild"]!!
+                    ).post()
 
-                return
-            }
-
-            CAPTURE_PATTERN { matcher, _ ->
-                val territory by matcher
-
-                if (current == null || territory != current!!.territory.name || !current!!.hasStarted || current!!.hasEnded)
                     return
+                }
 
-                val last = current!!.tower.stats
-                if (last.health != 0L)
-                    current!!.update(last.copy(health = 0))
+                Patterns.WAR_SUCCESS(StyleType.DEFAULT) { matcher, _ ->
+                    val territory by matcher
 
-                WarEvent.End(current!!, WarEvent.End.Cause.KILLED).post()
+                    if (current == null || territory != current!!.territory.name || !current!!.hasStarted || current!!.hasEnded)
+                        return
 
-                return
+                    val last = current!!.tower.stats
+                    if (last.health != 0L)
+                        current!!.update(last.copy(health = 0))
+
+                    WarEvent.End(current!!, WarEvent.End.Cause.KILLED).post()
+
+                    return
+                }
             }
         }
     }

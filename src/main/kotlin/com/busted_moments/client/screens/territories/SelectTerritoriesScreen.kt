@@ -5,8 +5,6 @@ import com.busted_moments.client.framework.render.helpers.Percentage.Companion.p
 import com.busted_moments.client.framework.render.screen.Title
 import com.busted_moments.client.framework.render.screen.elements.click
 import com.busted_moments.client.framework.render.screen.elements.item
-import com.busted_moments.client.framework.text.Text
-import com.busted_moments.client.framework.text.Text.send
 import com.busted_moments.client.models.territories.eco.TerritoryData
 import com.busted_moments.client.models.territories.eco.TerritoryScanner
 import net.essentuan.esl.time.duration.Duration
@@ -70,9 +68,9 @@ class SelectTerritoriesScreen(
         private var lastClick: Date = Date()
 
         fun select(territory: TerritoryData) {
-            enable()
-
             selected.add(territory.name)
+
+            enable()
         }
 
         override fun peek(items: Map<Int, List<Slot>>) {

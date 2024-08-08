@@ -296,13 +296,12 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
 
     final override fun render(ctx: Context): Boolean {
         dynamic {
-            if (false)
-                renderBackground(
-                    ctx.graphics,
-                    ctx.mouseX.toInt(),
-                    ctx.mouseY.toInt(),
-                    ctx.deltaTracker.realtimeDeltaTicks
-                )
+            renderBackground(
+                ctx.graphics,
+                ctx.mouseX.toInt(),
+                ctx.mouseY.toInt(),
+                ctx.deltaTracker.realtimeDeltaTicks
+            )
         }
 
         texture background@{
