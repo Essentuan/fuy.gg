@@ -356,7 +356,7 @@ private fun CommandContext<*>.warDetails(
     @Argument("Filter") filter: WarFilter
 ) {
     val total = WarModel.filter { filter.test(it) }
-    val wars = total.asSequence().drop(page * WARS_PER_PAGE).take(WARS_PER_PAGE).toList()
+    val wars = total.asReversed().asSequence().drop(page * WARS_PER_PAGE).take(WARS_PER_PAGE).toList()
 
     FUY_PREFIX {
         newLine()
@@ -369,7 +369,7 @@ private fun CommandContext<*>.warDetails(
                 }
             }
         } else {
-            for (war in wars.asReversed()) {
+            for (war in wars) {
                 val damaged = war.initial != war.final
 
                 center {
