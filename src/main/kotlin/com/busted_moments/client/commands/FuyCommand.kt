@@ -13,7 +13,6 @@ import com.busted_moments.client.buster.BusterService.execute
 import com.busted_moments.client.buster.WorldList.world
 import com.busted_moments.client.commands.args.GuildArgument
 import com.busted_moments.client.commands.args.war.WarFilter
-import com.busted_moments.client.framework.Fonts
 import com.busted_moments.client.framework.artemis.Ticks
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.render.TextRenderer
@@ -21,6 +20,7 @@ import com.busted_moments.client.framework.text.FUY_PREFIX
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.invoke
 import com.busted_moments.client.framework.text.Text.send
+import com.busted_moments.client.framework.util.Numbers.escapeCommas
 import com.busted_moments.client.framework.util.Numbers.toCommaString
 import com.busted_moments.client.inline
 import com.busted_moments.client.models.territories.war.WarModel
@@ -28,12 +28,9 @@ import com.essentuan.acf.core.annotations.Alias
 import com.essentuan.acf.core.annotations.Argument
 import com.essentuan.acf.core.annotations.Command
 import com.essentuan.acf.core.annotations.Subcommand
-import com.essentuan.acf.core.command.arguments.builtin.primitaves.String.StringType
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.collections.synchronized
-import net.essentuan.esl.color.Color
 import net.essentuan.esl.format.truncate
 import net.essentuan.esl.future.api.Future
 import net.essentuan.esl.iteration.extensions.iterate
@@ -315,7 +312,7 @@ private fun CommandContext<*>.wars(
 
         val wars = WarModel.asSequence().filter { filter.test(it) }.count()
 
-        +wars.toCommaString().aqua
+        +wars.toCommaString().escapeCommas().aqua
 
         +" war".gray
 

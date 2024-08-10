@@ -13,7 +13,11 @@ import com.wynntils.models.territories.type.GuildResource
 import com.wynntils.models.territories.type.GuildResourceValues
 import com.wynntils.services.map.pois.TerritoryPoi
 import com.wynntils.utils.colors.CustomColor
+import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.color.Color
+import net.minecraft.client.Minecraft
+import net.minecraft.core.RegistryAccess
+import net.minecraft.core.registries.BuiltInRegistries
 
 val CustomColor.esl: Color
     get() = this as Color
@@ -95,6 +99,9 @@ var ChatMessageReceivedEvent.message: StyledText
 internal fun interface TerritoryCopier {
     fun copyOf(territory: Territory)
 }
+
+val Minecraft.registry: RegistryAccess
+    get() = mc().level?.registryAccess() ?: RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)
 
 object Ticks {
     fun schedule(ticks: Int = 0, block: Runnable) =

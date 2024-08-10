@@ -43,4 +43,7 @@ object Patterns {
     val RAID_FAIL: Pattern = Pattern.compile("^Raid Failed!")
     val HOVER_FOR_MORE: Pattern = Pattern.compile("^Hover for more")
     val TIME_ELAPSED: Pattern = Pattern.compile("^Time Elapsed:.+")
+
+    //Lootruns
+    val REWARD_PULLS: Pattern = Pattern.compile("You have (?<pulls>\\d*) rewards to pull");
 }

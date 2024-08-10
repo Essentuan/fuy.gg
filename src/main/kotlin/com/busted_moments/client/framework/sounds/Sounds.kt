@@ -19,6 +19,7 @@ import org.joml.Vector3f
 
 object Sounds : Collection<SoundEvent> {
     val WAR_HORN = register("wynntils:war.horn")
+    val MYTHIC_FOUND = register("wynntils:misc.mythic-found")
 
     override val size: Int
         get() = BuiltInRegistries.SOUND_EVENT.size()
