@@ -37,7 +37,7 @@ private fun CommandContext<*>.default() {
 @Subcommand("average")
 private fun CommandContext<*>.average() {
     FUY_PREFIX {
-        +"You average".lightPurple
+        +"You average ".lightPurple
 
         +(LootrunDryStreakFeature.pulls
             .asSequence()
