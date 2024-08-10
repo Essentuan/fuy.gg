@@ -114,6 +114,8 @@ fun wynntils(): ConfigurableFileCollection {
             .resolve("mods")
             .resolve("wynntils.jar")
 
+        run.parent.createDirectories()
+
         out.copyTo(
             run,
             overwrite = true
