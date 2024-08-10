@@ -32,6 +32,7 @@
   "depends": {
     "wynntils": ">=${artemis_version}",
     "cloth-config": ">=${cloth_config_version}",
+    "fabric-language-kotlin": ">=${language_support_version}",
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"

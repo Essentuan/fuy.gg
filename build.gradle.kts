@@ -226,7 +226,8 @@ tasks {
                     "minecraft_version" to minecraft_version,
                     "loader_version" to loader_version,
                     "artemis_version" to artemis_version,
-                    "cloth_config_version" to cloth_config_version
+                    "cloth_config_version" to cloth_config_version,
+                    "language_support_version" to "$language_support_version+kotlin.$kotlin_version"
                 )
             )
         }
