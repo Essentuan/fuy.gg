@@ -20,11 +20,11 @@ class ColorValue(
 
     @Suppress("UNCHECKED_CAST")
     override fun Color.open(builder: ConfigEntryBuilder): AbstractFieldBuilder<Color, *, *> {
-        return builder.startColorField(title, asInt()).setAlphaMode(useAlpha) as AbstractFieldBuilder<Color, *, *>
+        return builder.startColorField(title, if (useAlpha) asInt() else asOpaque()).setAlphaMode(useAlpha) as AbstractFieldBuilder<Color, *, *>
     }
 
     override fun default(value: Any?): Any? =
-        (value as? Color)?.asInt()
+        if (useAlpha) (value as? Color)?.asInt() else (value as? Color)?.asOpaque()
 
     override fun mutate(value: Any?): Color? {
         return when(value) {
