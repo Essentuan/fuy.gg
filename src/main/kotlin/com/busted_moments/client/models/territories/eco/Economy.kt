@@ -2,6 +2,10 @@ package com.busted_moments.client.models.territories.eco
 
 import com.busted_moments.buster.api.GuildType
 import com.busted_moments.buster.api.Territory
+import com.busted_moments.client.Patterns.PRODUCTION
+import com.busted_moments.client.Patterns.STORAGE
+import com.busted_moments.client.Patterns.TREASURY
+import com.busted_moments.client.Patterns.UPGRADE
 import com.busted_moments.client.buster.GuildList
 import com.busted_moments.client.buster.TerritoryList
 import com.busted_moments.client.framework.artemis.buster
@@ -9,10 +13,6 @@ import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.util.Items.tooltip
-import com.busted_moments.client.Patterns.PRODUCTION
-import com.busted_moments.client.Patterns.STORAGE
-import com.busted_moments.client.Patterns.TREASURY
-import com.busted_moments.client.Patterns.UPGRADE
 import com.wynntils.core.components.Models
 import com.wynntils.models.territories.type.GuildResource
 import com.wynntils.models.territories.type.TerritoryUpgrade
@@ -92,7 +92,7 @@ class Economy(
         var treasury = 0.0
 
         for (line in stack.tooltip) {
-            line.matches {
+            line.normalized.matches {
                 UPGRADE { matcher, _ ->
                     val type = Upgrade.fromName(matcher["upgrade"]) ?: return@UPGRADE
                     val level = matcher["level"]!!.toInt()
@@ -134,7 +134,7 @@ class Economy(
             stack,
             this,
             territory,
-            stack.displayName.string.contains("(HQ)"),
+            stack.hoverName.string.contains("(HQ)"),
             resources,
             upgrades,
             treasury
@@ -143,16 +143,17 @@ class Economy(
 
     companion object {
         fun nameOf(stack: ItemStack): String {
-            val base: String = Text.strip(stack.displayName.string).replace("Á", "")
+            val base: String = Text(stack.hoverName).normalized.stringWithoutFormatting
 
-            return base.substring(2, base.length - 1)
+            return base
                 .replace(" (HQ)", "")
                 .replace("[!] ", "")
+                .trim()
         }
 
         fun isTerritory(stack: ItemStack): Boolean {
             return stack.tooltip.any {
-                val text: String = it.stringWithoutFormatting.replace("Á", "")
+                val text: String = it.normalized.stringWithoutFormatting
 
                 when {
                     UPGRADE.matcher(text).matches() -> true

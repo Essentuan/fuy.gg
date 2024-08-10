@@ -245,13 +245,13 @@ abstract class TerritoryScanner(
     protected fun hasNextPage(): Boolean {
         val next = contents[NEXT_PAGE]
 
-        return !next.isEmpty && Text(next.displayName).contains("Next Page", StyleType.NONE)
+        return !next.isEmpty && Text(next.hoverName).contains("Next Page", StyleType.NONE)
     }
 
     protected fun hasPreviousPage(): Boolean {
         val previous = contents[PREVIOUS_PAGE]
 
-        return !previous.isEmpty && Text(previous.displayName).contains("Previous Page", StyleType.NONE)
+        return !previous.isEmpty && Text(previous.hoverName).contains("Previous Page", StyleType.NONE)
     }
 
     override fun close() {
