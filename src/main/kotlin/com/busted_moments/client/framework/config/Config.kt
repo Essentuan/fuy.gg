@@ -12,20 +12,16 @@ import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
 import com.busted_moments.client.framework.features.Feature
 import com.busted_moments.client.framework.text.Text
-import com.wynntils.core.WynntilsMod
-import com.wynntils.core.components.Managers
 import com.wynntils.mc.event.ConnectionEvent
 import com.wynntils.utils.mc.McUtils.mc
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder
 import me.shedaniel.clothconfig2.impl.builders.AbstractFieldBuilder
+import net.essentuan.esl.Result
+import net.essentuan.esl.ifPresent
 import net.essentuan.esl.json.Json
 import net.essentuan.esl.json.type.AnyJson
-import net.essentuan.esl.Result
-import net.essentuan.esl.get
-import net.essentuan.esl.ifPresent
-import net.essentuan.esl.map
 import net.essentuan.esl.model.Model
 import net.essentuan.esl.model.Model.Companion.export
 import net.essentuan.esl.model.Model.Companion.load
@@ -34,19 +30,17 @@ import net.essentuan.esl.model.field.Property
 import net.essentuan.esl.model.impl.PropertyImpl
 import net.essentuan.esl.ofNullable
 import net.essentuan.esl.orElse
-import net.essentuan.esl.orNull
 import net.essentuan.esl.other.unsupported
-import net.essentuan.esl.result
 import net.essentuan.esl.reflections.Reflections
 import net.essentuan.esl.reflections.Types.Companion.objects
 import net.essentuan.esl.reflections.extensions.annotatedWith
 import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instance
-import net.essentuan.esl.reflections.extensions.instanceof
 import net.essentuan.esl.reflections.extensions.isDelegated
 import net.essentuan.esl.reflections.extensions.simpleString
 import net.essentuan.esl.reflections.extensions.tags
+import net.essentuan.esl.result
 import net.essentuan.esl.scheduling.tasks
 import net.essentuan.esl.string.reader.consume
 import net.minecraft.client.gui.screens.Screen
@@ -195,6 +189,8 @@ object Config {
             if (!initalized)
                 storage.ready()
         }
+
+        LegacyConfig.read()
     }
 
     fun write() {
