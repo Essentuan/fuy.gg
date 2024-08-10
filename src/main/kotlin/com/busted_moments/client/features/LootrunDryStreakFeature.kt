@@ -26,6 +26,7 @@ import com.busted_moments.client.framework.util.Numbers.escapeCommas
 import com.busted_moments.client.framework.util.Numbers.toCommaString
 import com.mojang.brigadier.StringReader
 import com.wynntils.core.components.Models
+import com.wynntils.core.text.StyledText
 import com.wynntils.mc.event.PlayerInteractEvent
 import com.wynntils.mc.event.TickEvent
 import com.wynntils.models.containers.event.MythicFoundEvent
@@ -37,6 +38,7 @@ import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.utils.mc.McUtils.mc
 import com.wynntils.utils.mc.McUtils.player
 import net.essentuan.esl.json.Json
+import net.essentuan.esl.model.annotations.Ignored
 import net.essentuan.esl.other.Base64
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.Tag
@@ -51,6 +53,7 @@ import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.monster.Slime
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
 import net.neoforged.bus.api.EventPriority
 import net.neoforged.bus.api.ICancellableEvent
@@ -124,7 +127,7 @@ object LootrunDryStreakFeature : Feature() {
 
                     if (entity.item.isMythic) {
                         val pull = RewardPull(dry, entity.item)
-                        History.items.add(pull)
+                        items.add(pull)
 
                         dry = 0
 
@@ -265,5 +268,29 @@ object LootrunDryStreakFeature : Feature() {
 
 data class RewardPull(
     val pulls: Int,
-    val item: ItemStack
-) : Json.Model
+    val name: StyledText,
+    val lore: List<StyledText>
+) : Json.Model {
+    constructor(pulls: Int, item: ItemStack) : this(
+        pulls,
+        Text(item.hoverName),
+        item.get(DataComponents.LORE)?.lines?.map { Text(it) } ?: emptyList()
+    )
+
+    @Ignored
+    val item: ItemStack by lazy {
+        val stack = ItemStack(Items.STONE)
+
+        stack.set(
+            DataComponents.CUSTOM_NAME,
+            name.component
+        )
+
+        stack.set(
+            DataComponents.LORE,
+            ItemLore(lore.map { it.component })
+        )
+
+        stack
+    }
+}
