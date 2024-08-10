@@ -154,7 +154,7 @@ abstract class Feature : Storage {
             enabled.section = null
         }
 
-        if (this::class.tags[Default::class]?.value == State.DISABLED || !this.enabled)
+        if (!this.enabled)
             return
 
         events.register()
