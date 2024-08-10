@@ -24,11 +24,11 @@ public abstract class ChatHandlerMixin {
                    value = "INVOKE",
                    target = "Lcom/wynntils/core/WynntilsMod;info(Ljava/lang/String;)V", shift = At.Shift.BEFORE)
    )
-   private void postChatLine(Component message, StyledText styledText, MessageType messageType, CallbackInfoReturnable<Component> cir) {
+   private void postChatLine(StyledText styledText, MessageType messageType, CallbackInfoReturnable<StyledText> cir) {
       if (!EventsKt.post(
               new LogChatMessageEvent(
                       -1,
-                      message,
+                      styledText.getComponent(),
                       styledText,
                       LogChatMessageEvent.Source.WYNNTILS
               )
