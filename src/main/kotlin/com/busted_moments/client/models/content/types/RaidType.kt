@@ -125,6 +125,11 @@ enum class RaidType(
                 "Canyon Labyrinth",
                 Vec3(11015.5, 48.0, 3384.5),
                 15.0
+            ),
+            Stages.entersSphere(
+                "Canyon Guides",
+                Vec3(11345.0, 34.0, 3178.5),
+                15.0
             )
         ),
         Stages.multi(
