@@ -67,14 +67,17 @@ abstract class TerritoryScanner(
     }
 
     fun enable() {
-        scanning = true
+        if (!scanning) {
 
-        ContainerSetContentEvent.Pre(
-            contents,
-            null,
-            container,
-            0
-        ).on()
+            scanning = true
+
+            ContainerSetContentEvent.Pre(
+                contents,
+                null,
+                container,
+                0
+            ).on()
+        }
     }
 
     private suspend fun wait() {
