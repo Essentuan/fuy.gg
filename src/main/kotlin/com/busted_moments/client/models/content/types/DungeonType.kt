@@ -427,32 +427,6 @@ enum class DungeonType(
             Vec2(4726f, 2070f)
         ),
         Stages.generic(
-            "Clearing the Drain",
-            Triggers.immediate()
-        ),
-        Stages.enters(
-            "Holding Tank",
-            Vec2(3056f, 2413f),
-            Vec2(3049f, 2363f)
-        ),
-        Stages.enters(
-            "Crumbling Ruin",
-            Vec2(3105f, 2283f),
-            Vec2(2997f, 2165f)
-        ),
-        Stages.enters(
-            "Witherhead",
-            Vec2(3103f, 2000f),
-            Vec2(3000f, 1985f)
-        )
-    ),
-    CORRUPTED_DECREPIT_SEWERS(
-        "Corrupted Decrepit Sewers",
-        Triggers.enters(
-            Vec3(3051.0, 114.0, 2509.0),
-            Vec3(3057.0, 124.0, 2502.0)
-        ),
-        Stages.generic(
             "Icy Inversions",
             Triggers.immediate()
         ),
@@ -475,6 +449,32 @@ enum class DungeonType(
             "The Eye",
             Vec2(4856f, 1780f),
             Vec2(5007f, 1911f)
+        )
+    ),
+    CORRUPTED_DECREPIT_SEWERS(
+        "Corrupted Decrepit Sewers",
+        Triggers.enters(
+            Vec3(3057.0, 114.0, 2509.0),
+            Vec3(3051.0, 121.0, 2503.0)
+        ),
+        Stages.generic(
+            "Clearing the Drain",
+            Triggers.immediate()
+        ),
+        Stages.enters(
+            "Holding Tank",
+            Vec2(3056f, 2413f),
+            Vec2(3049f, 2363f)
+        ),
+        Stages.enters(
+            "Crumbling Ruin",
+            Vec2(3105f, 2283f),
+            Vec2(2997f, 2165f)
+        ),
+        Stages.enters(
+            "Witherhead",
+            Vec2(3103f, 2000f),
+            Vec2(3000f, 1985f)
         )
     ),
     CORRUPTED_INFESTED_PIT(
