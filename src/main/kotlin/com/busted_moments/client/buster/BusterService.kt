@@ -93,6 +93,10 @@ object BusterService : Storage {
                 socket?.launch { socket?.close() }
         }
 
+    @Floating
+    @Value("Verbose")
+    private var verbose: Boolean = false
+
     private var waiting: Boolean = false
     private var socket: Socket? = null
 
@@ -123,11 +127,16 @@ object BusterService : Storage {
                 if (seconds != 0.0)
                     delay(seconds.coerceAtMost(20.0).seconds)
 
-                FUY_PREFIX {
-                    +"Logging into Buster.".yellow
-                }.send()
+                if (verbose)
+                    FUY_PREFIX {
+                        +"Connecting to Buster.".yellow
+                    }.send()
 
                 client.webSocket(BUSTER_URL) {
+                    FUY_PREFIX {
+                        +"Logging into Buster.".yellow
+                    }.send()
+
                     socket = Socket(this)
 
                     lock {
@@ -141,9 +150,9 @@ object BusterService : Storage {
                 }
 
                 BusterEvent.Close(socket ?: return@launch).post()
-            } catch(ex: Exception) {
-                error("Error while connecting to buster!")
-                Client.error("Error while connecting to buster!", ex)
+            } catch (ex: Exception) {
+                error("Error while connecting to Buster!", true)
+                Client.error("Error while connecting to Buster!", ex)
             }
         }
     }
@@ -182,7 +191,7 @@ object BusterService : Storage {
 
         try {
             return wrap(response)
-        } catch(ex: Exception) {
+        } catch (ex: Exception) {
             throw ex
         }
     }
@@ -197,10 +206,11 @@ object BusterService : Storage {
         isCanceled = true
     }
 
-    private fun error(message: String = "You have been disconnected from Buster!") {
-        FUY_PREFIX {
-            +message.red
-        }.send()
+    private fun error(message: String = "You have been disconnected from Buster!", debug: Boolean = false) {
+        if (!debug || verbose)
+            FUY_PREFIX {
+                +message.red
+            }.send()
 
         this@BusterService.socket = null
         waiting = false
@@ -233,7 +243,7 @@ object BusterService : Storage {
     }
 
     suspend fun await(): Socket {
-        return socket ?: suspendCoroutine { lock { continuations.offer(it) } }
+        return socket ?: suspendCoroutine { offer(it) }
     }
 }
 
