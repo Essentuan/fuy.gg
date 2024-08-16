@@ -1,7 +1,6 @@
 package com.busted_moments.client.screens.territories
 
 import com.busted_moments.buster.api.Territory
-import com.busted_moments.client.Client
 import com.busted_moments.client.features.war.TerritoryHelperMenuFeature
 import com.busted_moments.client.features.war.artemis.PROD_SIZE
 import com.busted_moments.client.framework.Containers
@@ -447,8 +446,10 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                                 if (contents !is PlainTextContents.LiteralContents)
                                     return@flatMap listOf(it)
 
+                                val text = Text.strip(contents.text)
+
                                 when {
-                                    contents.text.getOrNull(0) == '\u2726' -> {
+                                    text.getOrNull(0) == '\u2726' -> {
                                         added = true
 
                                         listOf(
@@ -462,7 +463,7 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                                         )
                                     }
 
-                                    !added && (contents.text.startsWith("Upgrades:") || contents.text.startsWith("No upgrades active")) -> {
+                                    !added && (text.startsWith("Upgrades:") || text.startsWith("No upgrades active")) -> {
                                         added = true
 
                                         listOf(
