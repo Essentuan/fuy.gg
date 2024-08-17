@@ -128,7 +128,7 @@ enum class RaidType(
             ),
             Stages.entersSphere(
                 "Canyon Guides",
-                Vec3(11345.0, 34.0, 3178.5),
+                Vec3(11514.0, 54.0, 3118.0),
                 15.0
             )
         ),
