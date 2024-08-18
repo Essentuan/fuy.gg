@@ -3,7 +3,7 @@ package com.busted_moments.client.features.war
 import com.busted_moments.buster.types.guilds.AttackTimer
 import com.busted_moments.client.buster.TerritoryList
 import com.busted_moments.client.buster.center
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
@@ -109,7 +109,7 @@ object DisplayBeaconOnTimersFeature : Feature(), Marker.Provider<IconPoi> {
                         ),
                         icon,
                         beaconColor = color,
-                        hasLabel = true
+                        label = it.territory,
                     )
                 }
                 .take(limit)
