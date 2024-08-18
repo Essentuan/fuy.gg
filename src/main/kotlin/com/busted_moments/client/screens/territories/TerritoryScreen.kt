@@ -2,11 +2,11 @@ package com.busted_moments.client.screens.territories
 
 import com.busted_moments.buster.api.Territory
 import com.busted_moments.client.features.war.TerritoryHelperMenuFeature
-import com.busted_moments.client.features.war.artemis.PROD_SIZE
+import com.busted_moments.client.features.war.wynntils.PROD_SIZE
 import com.busted_moments.client.framework.Containers
 import com.busted_moments.client.framework.FabricLoader
-import com.busted_moments.client.framework.artemis.artemis
-import com.busted_moments.client.framework.artemis.defenseColor
+import com.busted_moments.client.framework.wynntils.wynntils
+import com.busted_moments.client.framework.wynntils.defenseColor
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.keybind.Inputs
 import com.busted_moments.client.framework.render.Renderer.Companion.contains
@@ -64,13 +64,13 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 private const val BACKGROUND_SCALE = 1.15f
-private const val BACKGROUND_TOP_MARGINS = 16f
+private const val BACKGROUND_TOP_MARGINS = 14.5f
 private const val BACKGROUND_RIGHT_MARGINS = 26f
-private const val BACKGROUND_BOTTOM_MARGINS = 26f
-private const val BACKGROUND_LEFT_MARGINS = 9.5f
+private const val BACKGROUND_BOTTOM_MARGINS = 22f
+private const val BACKGROUND_LEFT_MARGINS = 8f
 
 private const val ITEM_SCALE = 1.45F
-private const val ITEM_WIDTH = (16 * ITEM_SCALE) + 4.9f
+private const val ITEM_WIDTH = (16 * ITEM_SCALE) + 5.3f
 private const val ITEM_HEIGHT = (16 * ITEM_SCALE) + 4.9f
 private const val MAX_COLS = 9
 
@@ -190,12 +190,12 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
             newLine()
 
             for (resource in Territory.Resource.entries) {
-                val color = resource.artemis.color.esl
+                val color = resource.wynntils.color.esl
                 val storage = eco.total[resource] ?: TerritoryData.Storages(-1)
-                val tributes = Models.Guild.getReceivedTributesForResource(resource.artemis)
+                val tributes = Models.Guild.getReceivedTributesForResource(resource.wynntils)
 
-                val prefix = if (resource.artemis.symbol.isNotEmpty()) "${resource.artemis.symbol} " else ""
-                +"$prefix+${(storage.production + tributes).toCommaString()} ${resource.artemis.getName()} per hour".color(
+                val prefix = if (resource.wynntils.symbol.isNotEmpty()) "${resource.wynntils.symbol} " else ""
+                +"$prefix+${(storage.production + tributes).toCommaString()} ${resource.wynntils.getName()} per hour".color(
                     color
                 )
                 newLine()
@@ -218,17 +218,17 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                 newLine()
 
                 val storage = eco.total[resource] ?: TerritoryData.Storages(-1)
-                val cost = storage.cost + Models.Guild.getSentTributesForResource(resource.artemis)
-                val prod = storage.production + Models.Guild.getReceivedTributesForResource(resource.artemis)
+                val cost = storage.cost + Models.Guild.getSentTributesForResource(resource.wynntils)
+                val prod = storage.production + Models.Guild.getReceivedTributesForResource(resource.wynntils)
                 val overall = prod - cost
 
-                val prefix = if (resource.artemis.symbol.isNotEmpty()) "${resource.artemis.symbol} " else ""
+                val prefix = if (resource.wynntils.symbol.isNotEmpty()) "${resource.wynntils.symbol} " else ""
 
                 +"- ".green
                 +prefix.gray
                 +cost.toCommaString().gray
                 +" "
-                +resource.artemis.getName().gray
+                +resource.wynntils.getName().gray
                 +" (${if (overall < 0) "-" else "+"}${overall.absoluteValue.truncate()})".let {
                     if (overall < 0)
                         it.red
@@ -375,8 +375,8 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                 texture = Textures.SCROLL_BUTTON.texture
                 sliderOriginX =
                     ((this@background.x + this@background.width) - (BACKGROUND_RIGHT_MARGINS * BACKGROUND_SCALE) / 2f) - texture.width / 2f - 1f
-                sliderOriginY = y - (texture.height / 2f)
-                sliderHeight = height
+                sliderOriginY = y - (texture.height / 2f) + 9f
+                sliderHeight = height - 18f
 
                 intensity = 30.0
 
@@ -504,7 +504,7 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
 
             textinput(TerritorySearch.input, TerritorySearch) {
                 width = 200f
-                height = 15f
+                height = 12f
 
                 maxWidth = width - 23f
 
@@ -512,11 +512,11 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
 
                 x =
                     this@background.x + this@background.width / 2f - this.width / 2f - (BACKGROUND_LEFT_MARGINS * BACKGROUND_SCALE)
-                y = this@background.y - (20.pct of this.height)
+                y = this@background.y + 2.5f
 
                 texture {
                     texture = Textures.INFO.texture
-                    size *= 0.40
+                    size *= 0.35
 
                     x = this@textinput.x + this@textinput.maxWidth + 7f
                     y = this@textinput.y + this@textinput.height / 2f - this.height / 2f
@@ -611,7 +611,7 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                             it.group == group
                         }
                         .map {
-                            it.color.darken(1.35f).with(alpha = 0.5f).artemis
+                            it.color.darken(1.35f).with(alpha = 0.5f).wynntils
                         }
                         .toList(),
                     0f,
