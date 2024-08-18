@@ -2,7 +2,7 @@
 
 package com.busted_moments.client.framework.render.elements
 
-import com.busted_moments.client.framework.artemis.artemis
+import com.busted_moments.client.framework.wynntils.wynntils
 import com.busted_moments.client.framework.render.Renderer
 import com.busted_moments.client.framework.render.helpers.Context
 import com.busted_moments.client.framework.render.helpers.Padding
@@ -77,7 +77,7 @@ abstract class TextBoxElement<CTX : Context> : TextElement<CTX>() {
         BufferedRenderUtils.drawRect(
             ctx.pose,
             ctx.buffer,
-            background.artemis,
+            background.wynntils,
             boxX,
             boxY,
             0f,

@@ -1,7 +1,7 @@
 package com.busted_moments.client.framework.render
 
-import com.busted_moments.client.framework.artemis.artemis
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.wynntils
+import com.busted_moments.client.framework.wynntils.esl
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.BufferUploader
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
@@ -10,7 +10,6 @@ import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.wynntils.utils.colors.CustomColor
-import com.wynntils.utils.render.RenderUtils
 import com.wynntils.utils.render.buffered.CustomRenderType
 import net.essentuan.esl.color.Color
 import net.minecraft.client.renderer.GameRenderer
@@ -44,7 +43,7 @@ interface Texture : Sizable {
             height,
             ux,
             uy,
-            color.artemis
+            color.wynntils
         )
     }
 
@@ -73,7 +72,7 @@ interface Texture : Sizable {
             height,
             ux,
             uy,
-            color.artemis
+            color.wynntils
         )
 
         BufferUploader.drawWithShader(builder.build()!!)

@@ -3,11 +3,9 @@ package com.busted_moments.client.buster
 import com.busted_moments.buster.api.Guild
 import com.busted_moments.buster.api.GuildType
 import com.busted_moments.buster.protocol.clientbound.ClientboundGuildListPacket
-import com.busted_moments.buster.protocol.clientbound.ClientboundWorldListPacket
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.wynntils.core.components.Models
 import com.wynntils.utils.colors.CommonColors
-import com.wynntils.utils.colors.CustomColor
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.iteration.Iterators
 import java.util.UUID

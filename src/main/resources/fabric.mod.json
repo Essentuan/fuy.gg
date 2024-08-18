@@ -30,7 +30,7 @@
   ],
   "accessWidener" : "fuy_gg.accesswidener",
   "depends": {
-    "wynntils": ">=${artemis_version}",
+    "wynntils": ">=${wynntils_version}",
     "cloth-config": ">=${cloth_config_version}",
     "fabric-language-kotlin": ">=${language_support_version}",
     "fabricloader": ">=${loader_version}",

@@ -1,13 +1,12 @@
 package com.busted_moments.mixin;
 
-import com.busted_moments.client.framework.artemis.config.LinkedConfig;
+import com.busted_moments.client.framework.wynntils.config.LinkedConfig;
 import com.wynntils.core.persisted.PersistedManager;
 import com.wynntils.core.persisted.PersistedValue;
 import com.wynntils.core.persisted.type.PersistedMetadata;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = PersistedManager.class, remap = false)

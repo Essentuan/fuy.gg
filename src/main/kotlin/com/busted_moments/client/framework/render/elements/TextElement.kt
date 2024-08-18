@@ -2,7 +2,7 @@
 
 package com.busted_moments.client.framework.render.elements
 
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.render.*
 import com.busted_moments.client.framework.render.helpers.Context
 import com.wynntils.core.text.StyledText

@@ -1,6 +1,6 @@
 package com.busted_moments.mixin;
 
-import com.busted_moments.client.framework.artemis.config.LinkedConfig;
+import com.busted_moments.client.framework.wynntils.config.LinkedConfig;
 import com.wynntils.core.persisted.PersistedValue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

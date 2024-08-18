@@ -1,16 +1,14 @@
 package com.busted_moments.mixin.extensions;
 
 import com.busted_moments.buster.api.Territory;
-import com.busted_moments.client.buster.TerritoryList;
-import com.busted_moments.client.framework.artemis.ArtemisKt;
-import com.busted_moments.client.framework.artemis.TerritoryCopier;
+import com.busted_moments.client.framework.wynntils.WynntilsKt;
+import com.busted_moments.client.framework.wynntils.TerritoryCopier;
 import com.busted_moments.client.models.territories.eco.EcoConstants;
 import com.wynntils.models.territories.TerritoryInfo;
 import com.wynntils.models.territories.type.GuildResource;
 import com.wynntils.models.territories.type.GuildResourceValues;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.type.CappedValue;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -18,10 +16,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 @Mixin(value = TerritoryInfo.class, remap = false)
 public abstract class TerritoryInfoExtension implements TerritoryCopier {
@@ -71,7 +67,7 @@ public abstract class TerritoryInfoExtension implements TerritoryCopier {
       generators = new HashMap<>();
 
       for (var entry : territory.getResources().entrySet()) {
-         var resource = ArtemisKt.getArtemis(entry.getKey());
+         var resource = WynntilsKt.getWynntils(entry.getKey());
          var storage = entry.getValue();
 
          if (storage.getStored() != 0)
@@ -90,8 +86,8 @@ public abstract class TerritoryInfoExtension implements TerritoryCopier {
 
       tradingRoutes = new ArrayList<>(territory.getConnections());
 
-      defences = ArtemisKt.getArtemis(territory.getDefense());
-      treasury = ArtemisKt.getArtemis(territory.getTreasury());
+      defences = WynntilsKt.getWynntils(territory.getDefense());
+      treasury = WynntilsKt.getWynntils(territory.getTreasury());
 
       headquarters = territory.getHq();
 

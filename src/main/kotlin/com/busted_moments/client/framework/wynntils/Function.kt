@@ -1,4 +1,4 @@
-package com.busted_moments.client.framework.artemis
+package com.busted_moments.client.framework.wynntils
 
 import com.busted_moments.mixin.invoker.FunctionManagerInvoker
 import com.google.common.primitives.Primitives
@@ -18,11 +18,11 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.jvm.javaType
 
-private typealias ArtemisFunction<T> = com.wynntils.core.consumers.functions.Function<T>
+private typealias WynntilsFunction<T> = com.wynntils.core.consumers.functions.Function<T>
 
 private val DEFAULT_ARG = Any()
 
-abstract class Function<T>(private vararg val aliases: String) : ArtemisFunction<T>() {
+abstract class Function<T>(private vararg val aliases: String) : WynntilsFunction<T>() {
     private val func: KFunction<T>
     private val optional: Boolean?
     private val description: String
@@ -118,7 +118,7 @@ abstract class Function<T>(private vararg val aliases: String) : ArtemisFunction
     companion object {
         fun register() {
             Reflections.types
-                .subtypesOf(ArtemisFunction::class)
+                .subtypesOf(WynntilsFunction::class)
                 .map { it.instance }
                 .filterNotNull()
                 .forEach {

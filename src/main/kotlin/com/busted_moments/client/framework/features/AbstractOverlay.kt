@@ -1,6 +1,6 @@
 package com.busted_moments.client.framework.features
 
-import com.busted_moments.client.framework.artemis.config.link
+import com.busted_moments.client.framework.wynntils.config.link
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.Category
@@ -11,7 +11,6 @@ import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.render.Element
 import com.busted_moments.client.framework.render.MutableSizable
 import com.busted_moments.client.framework.render.Renderer
-import com.busted_moments.client.framework.render.elements.TextBoxElement
 import com.busted_moments.client.framework.render.elements.TextElement
 import com.busted_moments.client.framework.render.helpers.IContext
 import com.busted_moments.client.framework.render.helpers.Percentage

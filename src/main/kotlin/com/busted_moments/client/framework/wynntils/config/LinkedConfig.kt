@@ -1,4 +1,4 @@
-package com.busted_moments.client.framework.artemis.config
+package com.busted_moments.client.framework.wynntils.config
 
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.config.Storage

@@ -3,8 +3,8 @@ package com.busted_moments.client.features
 import com.busted_moments.client.Patterns
 import com.busted_moments.client.events.EntityEvent
 import com.busted_moments.client.features.LootrunDryStreakFeature.History.items
-import com.busted_moments.client.framework.artemis.Ticks
-import com.busted_moments.client.framework.artemis.registry
+import com.busted_moments.client.framework.wynntils.Ticks
+import com.busted_moments.client.framework.wynntils.registry
 import com.busted_moments.client.framework.config.LegacyConfig
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.File

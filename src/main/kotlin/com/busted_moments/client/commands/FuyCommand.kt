@@ -13,7 +13,7 @@ import com.busted_moments.client.buster.BusterService.execute
 import com.busted_moments.client.buster.WorldList.world
 import com.busted_moments.client.commands.args.GuildArgument
 import com.busted_moments.client.commands.args.war.WarFilter
-import com.busted_moments.client.framework.artemis.Ticks
+import com.busted_moments.client.framework.wynntils.Ticks
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.client.framework.text.FUY_PREFIX

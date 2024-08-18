@@ -1,8 +1,8 @@
 package com.busted_moments.mixin;
 
-import com.busted_moments.client.features.war.artemis.GuildMapImprovementsFeature;
-import com.busted_moments.client.features.war.artemis.Link;
-import com.busted_moments.client.features.war.artemis.RenderDetails;
+import com.busted_moments.client.features.war.wynntils.GuildMapImprovementsFeature;
+import com.busted_moments.client.features.war.wynntils.Link;
+import com.busted_moments.client.features.war.wynntils.RenderDetails;
 import com.busted_moments.client.framework.render.helpers.Context;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;

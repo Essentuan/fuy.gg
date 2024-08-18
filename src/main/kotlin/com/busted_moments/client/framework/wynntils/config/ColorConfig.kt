@@ -1,7 +1,7 @@
-package com.busted_moments.client.framework.artemis.config
+package com.busted_moments.client.framework.wynntils.config
 
-import com.busted_moments.client.framework.artemis.artemis
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.wynntils
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.config.Storage
 import com.wynntils.core.persisted.PersistedOwner
@@ -20,11 +20,11 @@ class ColorConfig(
     CustomColor::class.java,
     when(val value = entry.default) {
         is Int -> CustomColor.fromInt(value).esl
-        is Color -> value.artemis.esl
+        is Color -> value.wynntils.esl
         else -> throw IllegalArgumentException("Cannot cast ${value?.javaClass?.simpleString() ?: "null"} to ${CustomColor::class.simpleString()}!")
     }
 ) {
     override fun get(): Color {
-        return super.get().artemis.esl
+        return super.get().wynntils.esl
     }
 }

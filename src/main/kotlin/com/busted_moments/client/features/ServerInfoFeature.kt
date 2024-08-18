@@ -2,7 +2,7 @@ package com.busted_moments.client.features
 
 import com.busted_moments.buster.api.World
 import com.busted_moments.client.buster.WorldList
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.features.AbstractOverlay
@@ -20,7 +20,6 @@ import com.wynntils.core.consumers.overlays.OverlayPosition
 import com.wynntils.features.overlays.ServerUptimeInfoOverlayFeature
 import com.wynntils.mc.event.TickEvent
 import com.wynntils.overlays.ServerUptimeInfoOverlay
-import com.wynntils.utils.colors.CommonColors
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils.mc
 import com.wynntils.utils.render.type.HorizontalAlignment
@@ -28,9 +27,7 @@ import com.wynntils.utils.render.type.TextShadow
 import com.wynntils.utils.render.type.VerticalAlignment
 import net.essentuan.esl.time.TimeUnit
 import net.essentuan.esl.time.duration.FormatFlag
-import net.essentuan.esl.time.duration.hours
 import net.essentuan.esl.time.duration.minutes
-import net.essentuan.esl.time.duration.seconds
 
 @Replaces(ServerUptimeInfoOverlayFeature::class)
 @Overlays(ServerInfoOverlayFeature.Overlay::class)

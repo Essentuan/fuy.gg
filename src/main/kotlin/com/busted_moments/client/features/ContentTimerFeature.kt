@@ -1,8 +1,8 @@
 package com.busted_moments.client.features
 
 import com.busted_moments.client.Patterns
-import com.busted_moments.client.framework.artemis.Ticks
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.Ticks
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe

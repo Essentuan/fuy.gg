@@ -3,7 +3,7 @@ package com.busted_moments.mixin;
 import com.busted_moments.buster.api.Territory;
 import com.busted_moments.buster.types.guilds.TerritoryProfile;
 import com.busted_moments.client.buster.TerritoryList;
-import com.busted_moments.client.framework.artemis.ArtemisKt;
+import com.busted_moments.client.framework.wynntils.WynntilsKt;
 import com.busted_moments.client.framework.events.EventsKt;
 import com.busted_moments.client.models.territories.eco.EcoConstants;
 import com.wynntils.mc.event.AdvancementUpdateEvent;
@@ -74,7 +74,7 @@ public abstract class TerritoryModelMixin {
                }
 
                resources.put(
-                       ArtemisKt.getBuster(resource),
+                       WynntilsKt.getBuster(resource),
                        new TerritoryProfile.Resources(
                                info.getGeneration(resource),
                                stored.current(),
@@ -90,7 +90,7 @@ public abstract class TerritoryModelMixin {
                             info.getGuildName(),
                             resources,
                             new HashSet<>(info.getTradingRoutes()),
-                            ArtemisKt.getBuster(info.getDefences()),
+                            WynntilsKt.getBuster(info.getDefences()),
                             info.isHeadquarters()
                     )
             );

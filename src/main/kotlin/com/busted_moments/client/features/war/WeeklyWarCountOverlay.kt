@@ -1,6 +1,6 @@
 package com.busted_moments.client.features.war
 
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe

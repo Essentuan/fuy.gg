@@ -5,13 +5,13 @@ import com.busted_moments.buster.protocol.clientbound.ClientboundMapPacket
 import com.busted_moments.buster.protocol.serverbound.ServerboundTerritoryProfileUpdatePacket
 import com.busted_moments.buster.types.guilds.TerritoryProfile
 import com.busted_moments.client.buster.events.TerritoryEvent
-import com.busted_moments.client.features.war.artemis.GuildMapImprovementsFeature
-import com.busted_moments.client.framework.artemis.allTerritoryPois
-import com.busted_moments.client.framework.artemis.territoryPoiMap
-import com.busted_moments.client.framework.artemis.territoryProfileMap
-import com.busted_moments.client.framework.artemis.toTerritoryInfo
+import com.busted_moments.client.features.war.wynntils.GuildMapImprovementsFeature
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
+import com.busted_moments.client.framework.wynntils.allTerritoryPois
+import com.busted_moments.client.framework.wynntils.territoryPoiMap
+import com.busted_moments.client.framework.wynntils.territoryProfileMap
+import com.busted_moments.client.framework.wynntils.toTerritoryInfo
 import com.busted_moments.client.inline
 import com.busted_moments.mixin.invoker.TerritoryPoiInvoker
 import com.wynntils.core.components.Models
@@ -28,9 +28,9 @@ import net.neoforged.bus.api.EventPriority
 import java.util.Date
 import java.util.UUID
 
-typealias ArtemisProfile = com.wynntils.models.territories.profile.TerritoryProfile
-typealias ArtemisLocation = com.wynntils.models.territories.profile.TerritoryProfile.TerritoryLocation
-typealias ArtemisGuild = com.wynntils.models.territories.profile.TerritoryProfile.GuildInfo
+typealias WynntilsProfile = com.wynntils.models.territories.profile.TerritoryProfile
+typealias WynntilsLocation = com.wynntils.models.territories.profile.TerritoryProfile.TerritoryLocation
+typealias WynntilsGuild = com.wynntils.models.territories.profile.TerritoryProfile.GuildInfo
 
 object TerritoryList : Territory.List {
     private var territories: Territory.List? = null
@@ -64,23 +64,23 @@ object TerritoryList : Territory.List {
         if (!GuildMapImprovementsFeature.enabled)
             return
 
-        val profiles = mutableMapOf<String, ArtemisProfile>()
+        val profiles = mutableMapOf<String, WynntilsProfile>()
 
         Models.Territory.territoryPoiMap.clear()
 
         val pois = mutableSetOf<TerritoryPoi>()
 
         for (it in this@TerritoryList) {
-            ArtemisProfile(
+            WynntilsProfile(
                 it.name,
                 it.name,
-                ArtemisLocation(
+                WynntilsLocation(
                     it.location.start.x,
                     it.location.start.z,
                     it.location.end.x,
                     it.location.end.z
                 ),
-                ArtemisGuild(
+                WynntilsGuild(
                     it.owner.name,
                     it.owner.tag
                 ),

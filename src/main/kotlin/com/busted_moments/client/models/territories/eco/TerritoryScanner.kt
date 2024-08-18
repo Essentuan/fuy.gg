@@ -1,7 +1,7 @@
 package com.busted_moments.client.models.territories.eco
 
 import com.busted_moments.client.framework.Containers
-import com.busted_moments.client.framework.artemis.Ticks
+import com.busted_moments.client.framework.wynntils.Ticks
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
 import com.busted_moments.client.framework.keybind.Inputs

@@ -2,7 +2,6 @@ package com.busted_moments.client.framework.features
 
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.config.Storage
-import com.busted_moments.client.framework.config.annotations.File
 import com.busted_moments.client.framework.config.annotations.Override
 import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.config.annotations.Tooltip
@@ -18,13 +17,8 @@ import com.wynntils.core.consumers.features.Feature
 import com.wynntils.core.consumers.overlays.RenderState
 import com.wynntils.core.persisted.config.Category
 import com.wynntils.core.persisted.config.ConfigCategory
-import com.wynntils.features.embellishments.WarHornFeature
-import com.wynntils.mc.event.ConnectionEvent
 import com.wynntils.mc.event.ConnectionEvent.ConnectedEvent
 import com.wynntils.mc.event.RenderEvent
-import com.wynntils.models.worlds.event.WorldStateEvent
-import com.wynntils.models.worlds.type.WorldState
-import io.ktor.util.valuesOf
 import net.essentuan.esl.Rating
 import net.essentuan.esl.encoding.StringBasedEncoder
 import net.essentuan.esl.model.Model
@@ -44,7 +38,7 @@ import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Type
 import kotlin.reflect.KClass
 
-typealias ArtemisFeature = Feature
+typealias WynntilsFeature = Feature
 
 abstract class Feature : Storage {
     @Ignored
@@ -116,7 +110,7 @@ abstract class Feature : Storage {
                 replaced = mutableSetOf()
 
                 for (cls in it.value) {
-                    Managers.Feature.getFeatureInstance(cls.java as Class<ArtemisFeature>).run {
+                    Managers.Feature.getFeatureInstance(cls.java as Class<WynntilsFeature>).run {
                         setUserEnabled(false)
                         userEnabled.setValue(false)
                     }
@@ -163,7 +157,7 @@ abstract class Feature : Storage {
     }
 
     @ConfigCategory(Category.OVERLAYS)
-    private inner class Delegate : ArtemisFeature() {
+    private inner class Delegate : WynntilsFeature() {
         val description: String = this::class.tags[Description::class]?.value ?: "No Description"
 
         override fun onDisable() {
@@ -197,7 +191,7 @@ abstract class Feature : Storage {
 }
 
 /**
- * Sets the description on the Artemis feature
+ * Sets the description on the Wynntils feature
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -220,23 +214,23 @@ enum class State {
     DISABLED
 }
 
-private object FeatureEncoder : StringBasedEncoder<ArtemisFeature>() {
+private object FeatureEncoder : StringBasedEncoder<WynntilsFeature>() {
     override fun decode(
         obj: String,
         flags: Set<Any>,
         type: Class<*>,
         element: AnnotatedElement,
         vararg typeArgs: Type
-    ): ArtemisFeature? = unsafe {
+    ): WynntilsFeature? = unsafe {
         Managers.Feature.getFeatureInstance(
             Class.forName(
                 Base64.decode(obj)
-            ) as Class<ArtemisFeature>
+            ) as Class<WynntilsFeature>
         )
     }.orNull()
 
     override fun encode(
-        obj: ArtemisFeature,
+        obj: WynntilsFeature,
         flags: Set<Any>,
         type: Class<*>,
         element: AnnotatedElement,

@@ -1,7 +1,7 @@
 package com.busted_moments.client.features.war
 
 import com.busted_moments.client.features.war.WarCommon.toWarString
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
@@ -19,8 +19,6 @@ import com.busted_moments.client.models.territories.war.WarModel
 import com.busted_moments.client.models.territories.war.events.WarEvent
 import com.wynntils.core.consumers.overlays.OverlayPosition
 import com.wynntils.features.overlays.TowerStatsFeature
-import com.wynntils.mc.event.TickEvent
-import com.wynntils.models.territories.GuildAttackTimerModel
 import com.wynntils.overlays.TowerStatsOverlay
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.render.type.HorizontalAlignment

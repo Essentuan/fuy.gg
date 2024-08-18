@@ -1,6 +1,6 @@
 package com.busted_moments.client.framework.render.elements
 
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.render.Element
 import com.busted_moments.client.framework.render.Renderer
 import com.busted_moments.client.framework.render.Sizable

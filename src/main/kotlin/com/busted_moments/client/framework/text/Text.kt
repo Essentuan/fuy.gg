@@ -4,7 +4,7 @@ import com.busted_moments.client.framework.FontGlyph
 import com.busted_moments.client.framework.FontProvider
 import com.busted_moments.client.framework.FontTransposer
 import com.busted_moments.client.framework.Fonts
-import com.busted_moments.client.framework.artemis.Ticks
+import com.busted_moments.client.framework.wynntils.Ticks
 import com.busted_moments.client.framework.render.Split
 import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.mixin.accessors.PartStyleAccessor

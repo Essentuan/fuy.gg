@@ -2,9 +2,8 @@ package com.busted_moments.client.features.war
 
 import com.busted_moments.buster.api.Territory
 import com.busted_moments.buster.types.guilds.AttackTimer
-import com.busted_moments.client.features.ServerInfoOverlayFeature.Overlay
-import com.busted_moments.client.framework.artemis.defenseColor
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.defenseColor
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
@@ -20,7 +19,6 @@ import com.busted_moments.client.framework.render.elements.textbox
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.models.territories.TerritoryModel
 import com.busted_moments.client.models.territories.timers.TimerModel
-import com.wynntils.core.components.Models
 import com.wynntils.core.consumers.overlays.OverlayPosition
 import com.wynntils.features.overlays.TerritoryAttackTimerOverlayFeature
 import com.wynntils.handlers.scoreboard.event.ScoreboardSegmentAdditionEvent
@@ -38,7 +36,6 @@ import net.essentuan.esl.time.duration.ms
 import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.time.extensions.plus
 import java.util.Date
-import java.util.function.Function
 
 @Category("War")
 @Overlays(AttackTimerOverlayFeature.Overlay::class)

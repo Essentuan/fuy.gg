@@ -1,6 +1,6 @@
 package com.busted_moments.client.framework.render.screen.elements
 
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.keybind.Inputs
 import com.busted_moments.client.framework.render.*
 import com.busted_moments.client.framework.render.screen.McScreen

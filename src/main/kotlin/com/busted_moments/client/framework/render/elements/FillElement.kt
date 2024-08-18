@@ -2,8 +2,8 @@
 
 package com.busted_moments.client.framework.render.elements
 
-import com.busted_moments.client.framework.artemis.artemis
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.wynntils
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.render.Renderer
 import com.busted_moments.client.framework.render.helpers.Context
 import com.wynntils.utils.colors.CommonColors
@@ -21,7 +21,7 @@ abstract class FillElement<CTX : Context> : RectElement<CTX>() {
         BufferedRenderUtils.drawRect(
             ctx.pose,
             ctx.buffer,
-            color.artemis,
+            color.wynntils,
             x,
             y,
             z,

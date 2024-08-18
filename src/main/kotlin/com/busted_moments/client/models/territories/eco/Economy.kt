@@ -8,7 +8,7 @@ import com.busted_moments.client.Patterns.TREASURY
 import com.busted_moments.client.Patterns.UPGRADE
 import com.busted_moments.client.buster.GuildList
 import com.busted_moments.client.buster.TerritoryList
-import com.busted_moments.client.framework.artemis.buster
+import com.busted_moments.client.framework.wynntils.buster
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.get

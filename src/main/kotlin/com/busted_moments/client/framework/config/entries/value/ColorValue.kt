@@ -1,6 +1,6 @@
 package com.busted_moments.client.framework.config.entries.value
 
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.esl
 import com.wynntils.utils.colors.CustomColor
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder
 import me.shedaniel.clothconfig2.impl.builders.AbstractFieldBuilder

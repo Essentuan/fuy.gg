@@ -1,4 +1,4 @@
-package com.busted_moments.client.framework.artemis
+package com.busted_moments.client.framework.wynntils
 
 import com.busted_moments.buster.api.Territory
 import com.busted_moments.client.framework.Objenesis
@@ -22,7 +22,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 val CustomColor.esl: Color
     get() = this as Color
 
-val Color.artemis: CustomColor
+val Color.wynntils: CustomColor
     get() {
         if (this is CustomColor)
             return this
@@ -30,7 +30,7 @@ val Color.artemis: CustomColor
         return CustomColor(red, green, blue, alpha)
     }
 
-val Territory.Resource.artemis: GuildResource
+val Territory.Resource.wynntils: GuildResource
     get() = when(this) {
         Territory.Resource.EMERALDS -> GuildResource.EMERALDS
         Territory.Resource.ORE -> GuildResource.ORE
@@ -48,7 +48,7 @@ val GuildResource.buster: Territory.Resource
         GuildResource.CROPS -> Territory.Resource.CROP
     }
 
-val Territory.Rating.artemis: GuildResourceValues
+val Territory.Rating.wynntils: GuildResourceValues
     get() = when(this) {
         Territory.Rating.VERY_LOW -> GuildResourceValues.VERY_LOW
         Territory.Rating.LOW -> GuildResourceValues.LOW
@@ -58,10 +58,10 @@ val Territory.Rating.artemis: GuildResourceValues
     }
 
 val Territory.Rating.defenseColor: Color
-    get() = Color(artemis.defenceColor.color!!, alpha = false)
+    get() = Color(wynntils.defenceColor.color!!, alpha = false)
 
 val Territory.Rating.treasuryColor: Color
-    get() = Color(artemis.treasuryColor.color!!, alpha = false)
+    get() = Color(wynntils.treasuryColor.color!!, alpha = false)
 
 val GuildResourceValues.buster: Territory.Rating
     get() = when(this) {

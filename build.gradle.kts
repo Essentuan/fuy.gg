@@ -33,7 +33,7 @@ val reflections_version: String by project
 val dateparser_version: String by project
 
 //Artemis
-val artemis_version: String by project
+val wynntils_version: String by project
 val mixinextras_version: String by project
 
 //Objenesis
@@ -88,10 +88,10 @@ fun DependencyHandlerScope.shadow(dependencyNotation: Any) {
 
 fun wynntils(): ConfigurableFileCollection {
     val url = URI.create(
-        "https://github.com/Wynntils/Artemis/releases/download/v${artemis_version}/wynntils-${artemis_version}-fabric+MC-${minecraft_version}.jar"
+        "https://github.com/Wynntils/Artemis/releases/download/v$wynntils_version/wynntils-$wynntils_version-fabric+MC-$minecraft_version.jar"
     ).toURL()
 
-    val name = "wynntils-${artemis_version}"
+    val name = "wynntils-$wynntils_version"
 
     val out = projectDir.toPath()
         .resolve("libs")
@@ -227,7 +227,7 @@ tasks {
                     "version" to project.version,
                     "minecraft_version" to minecraft_version,
                     "loader_version" to loader_version,
-                    "artemis_version" to artemis_version,
+                    "wynntils_version" to wynntils_version,
                     "cloth_config_version" to cloth_config_version,
                     "language_support_version" to "$language_support_version+kotlin.$kotlin_version"
                 )

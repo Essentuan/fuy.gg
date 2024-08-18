@@ -1,14 +1,14 @@
 package com.busted_moments.client.screens.territories
 
 import com.busted_moments.buster.api.Territory
-import com.busted_moments.client.framework.artemis.artemis
-import com.busted_moments.client.framework.artemis.defenseColor
-import com.busted_moments.client.framework.artemis.esl
-import com.busted_moments.client.framework.artemis.treasuryColor
 import com.busted_moments.client.framework.keybind.Inputs
 import com.busted_moments.client.framework.keybind.Key
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.esl
+import com.busted_moments.client.framework.wynntils.defenseColor
+import com.busted_moments.client.framework.wynntils.esl
+import com.busted_moments.client.framework.wynntils.treasuryColor
+import com.busted_moments.client.framework.wynntils.wynntils
 import com.busted_moments.client.models.territories.eco.TerritoryData
 import com.busted_moments.client.models.territories.eco.Upgrade
 import com.wynntils.core.text.StyledText
@@ -36,7 +36,7 @@ object QuickAccess : List<QuickAccess.Option> by listOf(
     Option.Cycling(
         "Produces",
         options = Territory.Resource.entries.toTypedArray(),
-        painter = { it.artemis.color.esl },
+        painter = { it.wynntils.color.esl },
         extractor = { it.print() },
         predicate = predicate@{
             when (it) {

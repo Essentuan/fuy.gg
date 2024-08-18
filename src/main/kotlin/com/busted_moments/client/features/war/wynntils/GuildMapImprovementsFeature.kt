@@ -1,11 +1,11 @@
-package com.busted_moments.client.features.war.artemis
+package com.busted_moments.client.features.war.wynntils
 
 import com.busted_moments.buster.api.Territory
 import com.busted_moments.client.buster.TerritoryList
 import com.busted_moments.client.buster.color
 import com.busted_moments.client.features.war.timerString
-import com.busted_moments.client.framework.artemis.artemis
-import com.busted_moments.client.framework.artemis.esl
+import com.busted_moments.client.framework.wynntils.wynntils
+import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.value.Value
@@ -100,7 +100,7 @@ class RenderDetails(
             }
 
             GuildMapImprovementsFeature.cooldown && territory.acquired.timeSince() < 10.minutes -> {
-                label = territory.owner.color.artemis
+                label = territory.owner.color.wynntils
 
                 val held = territory.acquired.timeSince()
 
@@ -124,12 +124,12 @@ class RenderDetails(
                             hue = h,
                             saturation = s,
                             luminance = l + (EasingMethod.EasingMethodImpl.SINE.apply((held.toSeconds() * 2) % 2) * delta).toFloat()
-                        ).artemis
+                        ).wynntils
                     )
                 }
             }
 
-            else -> listOf(territory.owner.color.artemis).also {
+            else -> listOf(territory.owner.color.wynntils).also {
                 label = it[0]
                 background = it
                 outline = it

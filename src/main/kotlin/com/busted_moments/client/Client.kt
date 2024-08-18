@@ -6,11 +6,10 @@ import com.busted_moments.client.framework.FabricLoader
 import com.busted_moments.client.framework.Scan
 import com.busted_moments.client.framework.config.Config
 import com.busted_moments.client.framework.events.events
-import com.busted_moments.client.framework.artemis.Function
 import com.busted_moments.client.framework.keybind.Keybind
 import com.busted_moments.client.framework.marker.Marker
+import com.busted_moments.client.framework.wynntils.Function
 import com.busted_moments.client.framework.sounds.Sounds
-import com.wynntils.models.marker.type.MarkerProvider
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import net.essentuan.esl.future.api.CompletionException

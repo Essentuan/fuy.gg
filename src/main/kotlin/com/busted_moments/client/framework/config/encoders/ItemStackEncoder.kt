@@ -1,6 +1,6 @@
 package com.busted_moments.client.framework.config.encoders
 
-import com.busted_moments.client.framework.artemis.registry
+import com.busted_moments.client.framework.wynntils.registry
 import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.encoding.StringBasedEncoder
 import net.essentuan.esl.other.Base64

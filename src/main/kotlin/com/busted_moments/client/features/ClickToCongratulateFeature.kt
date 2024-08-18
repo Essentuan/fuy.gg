@@ -6,10 +6,9 @@ import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.features.Feature
-import com.busted_moments.client.framework.text.Text.component
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.getValue
-import com.busted_moments.client.framework.artemis.message
+import com.busted_moments.client.framework.wynntils.message
 import com.busted_moments.client.framework.text.Text
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import net.minecraft.network.chat.ClickEvent

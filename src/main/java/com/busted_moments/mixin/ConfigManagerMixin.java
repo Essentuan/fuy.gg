@@ -1,9 +1,8 @@
 package com.busted_moments.mixin;
 
-import com.busted_moments.client.framework.artemis.config.LinkedConfig;
+import com.busted_moments.client.framework.wynntils.config.LinkedConfig;
 import com.busted_moments.client.framework.config.Config;
 import com.wynntils.core.persisted.config.ConfigManager;
-import net.essentuan.esl.iteration.Iterators;
 import net.essentuan.esl.iteration.extensions.IteratorExtensionsKt;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Mixin(value = ConfigManager.class, remap = false)
 public abstract class ConfigManagerMixin {
