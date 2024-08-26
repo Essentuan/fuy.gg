@@ -4,7 +4,6 @@ import com.busted_moments.buster.Buster
 import com.busted_moments.buster.api.Account
 import com.busted_moments.buster.exceptions.PacketFormatException
 import com.busted_moments.buster.protocol.Packet
-import com.busted_moments.buster.protocol.clientbound.ClientboundLoginPacket
 import com.busted_moments.client.Client
 import com.busted_moments.client.buster.events.BusterEvent
 import com.busted_moments.client.framework.events.post
@@ -14,23 +13,17 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.ClientWebSocketSession
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.serialization.suitableCharset
 import io.ktor.websocket.CloseReason
-import io.ktor.websocket.DefaultWebSocketSession
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import net.essentuan.esl.Result
-import net.essentuan.esl.coroutines.await
 import net.essentuan.esl.get
 import net.essentuan.esl.json.Json
 import net.essentuan.esl.model.Model.Companion.export
-import org.apache.commons.lang3.ObjectUtils.wait
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 
@@ -61,11 +54,13 @@ class Socket(
         try {
             for (frame in incoming)
                 if (frame is Frame.Text)
-                    process(frame)
+                    launch {
+                        process(frame)
+                    }
         } catch (_: ClosedReceiveChannelException) {
             Client.info("Closed")
             //onClose
-        } catch(ex: CancellationException) {
+        } catch (ex: CancellationException) {
             Client.info("Cancelled")
             //onClose
         } catch (ex: Throwable) {
@@ -86,13 +81,11 @@ class Socket(
 
         val packet = result.get()
 
-        launch {
-            try {
-                if (!BusterEvent.Packet(this@Socket, packet).post())
-                    BusterService.listeners[packet.javaClass]?.invoke(this@Socket, packet)
-            } catch(ex: Exception) {
-                Client.error("Error handing $packet!", ex)
-            }
+        try {
+            if (!BusterEvent.Packet(this@Socket, packet).post())
+                BusterService.listeners[packet.javaClass]?.invoke(this@Socket, packet)
+        } catch (ex: Exception) {
+            Client.error("Error handing $packet!", ex)
         }
     }
 
