@@ -1,11 +1,10 @@
 package com.busted_moments.client.features.war.wynntils
 
 import com.busted_moments.buster.api.Territory
+import com.busted_moments.client.buster.GuildList
 import com.busted_moments.client.buster.TerritoryList
 import com.busted_moments.client.buster.color
 import com.busted_moments.client.features.war.timerString
-import com.busted_moments.client.framework.wynntils.wynntils
-import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.value.Value
@@ -18,6 +17,8 @@ import com.busted_moments.client.framework.render.line
 import com.busted_moments.client.framework.render.text
 import com.busted_moments.client.framework.render.texture
 import com.busted_moments.client.framework.text.Text
+import com.busted_moments.client.framework.wynntils.esl
+import com.busted_moments.client.framework.wynntils.wynntils
 import com.busted_moments.client.models.territories.timers.TimerModel
 import com.mojang.blaze3d.vertex.PoseStack
 import com.wynntils.core.components.Models
@@ -99,7 +100,7 @@ class RenderDetails(
                 background = poi.territoryInfo.resourceColors
             }
 
-            GuildMapImprovementsFeature.cooldown && territory.acquired.timeSince() < 10.minutes -> {
+            territory.owner.uuid != GuildList.NONE.uuid && GuildMapImprovementsFeature.cooldown && territory.acquired.timeSince() < 10.minutes -> {
                 label = territory.owner.color.wynntils
 
                 val held = territory.acquired.timeSince()
