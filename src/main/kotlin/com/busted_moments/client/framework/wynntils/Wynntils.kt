@@ -65,7 +65,7 @@ val Territory.Rating.treasuryColor: Color
 
 val GuildResourceValues.buster: Territory.Rating
     get() = when(this) {
-        GuildResourceValues.VERY_LOW -> Territory.Rating.VERY_LOW
+        GuildResourceValues.NONE, GuildResourceValues.VERY_LOW -> Territory.Rating.VERY_LOW
         GuildResourceValues.LOW -> Territory.Rating.LOW
         GuildResourceValues.MEDIUM -> Territory.Rating.MEDIUM
         GuildResourceValues.HIGH -> Territory.Rating.HIGH
