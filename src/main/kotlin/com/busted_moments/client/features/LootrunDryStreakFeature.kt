@@ -1,10 +1,9 @@
 package com.busted_moments.client.features
 
+import com.busted_moments.client.Client
 import com.busted_moments.client.Patterns
 import com.busted_moments.client.events.EntityEvent
 import com.busted_moments.client.features.LootrunDryStreakFeature.History.items
-import com.busted_moments.client.framework.wynntils.Ticks
-import com.busted_moments.client.framework.wynntils.registry
 import com.busted_moments.client.framework.config.LegacyConfig
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.File
@@ -24,6 +23,8 @@ import com.busted_moments.client.framework.text.TextPart
 import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.util.Numbers.escapeCommas
 import com.busted_moments.client.framework.util.Numbers.toCommaString
+import com.busted_moments.client.framework.wynntils.Ticks
+import com.busted_moments.client.framework.wynntils.registry
 import com.mojang.brigadier.StringReader
 import com.wynntils.core.components.Models
 import com.wynntils.core.text.StyledText
@@ -48,8 +49,8 @@ import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.monster.Slime
 import net.minecraft.world.item.ItemStack
@@ -100,17 +101,28 @@ object LootrunDryStreakFeature : Feature() {
     }
 
     @Subscribe
+    private fun EntityEvent.SetData.on() {
+        when (entity) {
+            is Display.TextDisplay -> {
+                Text(entity.text ?: return)
+                    .split("\n")
+                    .forEach {
+                        it.matches {
+                            Patterns.REWARD_PULLS { matcher, _ ->
+                                chest = Vector2d(entity.x, entity.z)
+                                count = matcher["pulls"]!!.toInt()
+
+                                return
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+    @Subscribe
     private fun EntityEvent.Spawn.on() {
         when (entity) {
-            is ArmorStand -> {
-                Text(entity.displayName ?: return).matches {
-                    Patterns.REWARD_PULLS { matcher, _ ->
-                        chest = Vector2d(entity.x, entity.z)
-                        count = matcher["pulls"]!!.toInt()
-                    }
-                }
-            }
-
             is ItemEntity -> {
                 if (entity.uuid !in processed && chest != null && distance(entity) < MAX_DISTANCE) {
                     if (waitingForPull) {
@@ -206,7 +218,8 @@ object LootrunDryStreakFeature : Feature() {
 
             item.set(
                 DataComponents.CUSTOM_NAME,
-                Component.Serializer.fromJson(StringReader(display["Name"]!!.toString()).readString(), mc().registry) ?: continue
+                Component.Serializer.fromJson(StringReader(display["Name"]!!.toString()).readString(), mc().registry)
+                    ?: continue
             )
 
             items += RewardPull(
@@ -235,23 +248,17 @@ object LootrunDryStreakFeature : Feature() {
     }
 
     private val ItemStack.isMythic: Boolean
-        get() {
-            return when (val item = Models.Item.getWynnItem(this).getOrNull()) {
+        get() =
+            when (val item = Models.Item.getWynnItem(this).getOrNull()) {
                 is GearItem -> item.gearTier == GearTier.MYTHIC
                 is InsulatorItem -> true
                 is SimulatorItem -> true
                 else -> false
             }
-        }
 
     private val Char.isVowel: Boolean
         get() = when (this) {
-            'a' -> true
-            'e' -> true
-            'i' -> true
-            'o' -> true
-            'u' -> true
-            'y' -> true
+            'a', 'e', 'i', 'o', 'u', 'y' -> true
             else -> false
         }
 
