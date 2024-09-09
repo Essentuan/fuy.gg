@@ -165,7 +165,12 @@ dependencies {
     modImplementation(files("libs/acf/acf-fabric-${acf_fabric_version}.jar"))
     include(group = "", name = "acf-fabric-${acf_fabric_version}")
 
-    shadow(files("libs/acf/ACF-${acf_version}.jar"))
+    implementation(files("libs/acf/ACF-${acf_version}.jar"))
+    include(
+        group = "essentuan",
+        version = acf_version,
+        name = "ACF-${acf_version}"
+    )
 
     //Buster
     implementation("io.ktor:ktor-client-core:$ktor_version")
