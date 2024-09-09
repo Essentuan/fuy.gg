@@ -125,6 +125,10 @@ object TimerModel : Set<AttackTimer> {
                 Patterns.TIMER_START(StyleType.DEFAULT) { matcher, _ ->
                     val territory by matcher
                     val remaining = Duration(matcher["timer"]!!) ?: return
+
+                    if (remaining <= 30.seconds)
+                        return
+
                     var trusted = true
 
                     val defense = defenses[territory!!] ?: run {
