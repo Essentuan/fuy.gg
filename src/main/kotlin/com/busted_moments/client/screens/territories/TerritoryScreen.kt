@@ -368,9 +368,9 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
 
             scrollable {
                 x = this@background.x + (BACKGROUND_LEFT_MARGINS * BACKGROUND_SCALE)
-                y = this@background.y + (BACKGROUND_TOP_MARGINS * BACKGROUND_SCALE)
+                y = this@background.y + (BACKGROUND_TOP_MARGINS * BACKGROUND_SCALE) + 1
                 width = this@background.width - (BACKGROUND_RIGHT_MARGINS * BACKGROUND_SCALE)
-                height = this@background.height - (BACKGROUND_BOTTOM_MARGINS * BACKGROUND_SCALE)
+                height = this@background.height - (BACKGROUND_BOTTOM_MARGINS * BACKGROUND_SCALE) - 1
 
                 texture = Textures.SCROLL_BUTTON.texture
                 sliderOriginX =
@@ -386,7 +386,7 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                     val maxRows = this.height / ITEM_HEIGHT
                     val rows = ceil((eco ?: return 0f).size / MAX_COLS.toFloat())
 
-                    return (((rows - maxRows).coerceAtLeast(2f) * ITEM_HEIGHT) * progress.toFloat()) - 0.5f
+                    return (((rows - maxRows).coerceAtLeast(2f) * ITEM_HEIGHT) * progress.toFloat()) + 0.5f
                 }
 
                 dynamic {
