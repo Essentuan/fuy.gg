@@ -135,10 +135,10 @@ object Text {
 
     fun StyledText.send() {
         if (thread().name == "Render thread")
-            TextRenderer.split(this).send()
+            McUtils.sendMessageToClient(component)
         else
             Ticks.schedule {
-                TextRenderer.split(this).send()
+                McUtils.sendMessageToClient(component)
             }
     }
 
