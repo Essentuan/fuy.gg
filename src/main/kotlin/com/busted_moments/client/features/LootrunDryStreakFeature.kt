@@ -4,6 +4,7 @@ import com.busted_moments.client.Client
 import com.busted_moments.client.Patterns
 import com.busted_moments.client.events.EntityEvent
 import com.busted_moments.client.features.LootrunDryStreakFeature.History.items
+import com.busted_moments.client.framework.Entities.isInside
 import com.busted_moments.client.framework.config.LegacyConfig
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.File
@@ -36,6 +37,7 @@ import com.wynntils.models.items.items.game.GearItem
 import com.wynntils.models.items.items.game.InsulatorItem
 import com.wynntils.models.items.items.game.SimulatorItem
 import com.wynntils.models.worlds.event.WorldStateEvent
+import com.wynntils.overlays.minimap.MinimapOverlay
 import com.wynntils.utils.mc.McUtils.mc
 import com.wynntils.utils.mc.McUtils.player
 import net.essentuan.esl.json.Json
@@ -56,6 +58,7 @@ import net.minecraft.world.entity.monster.Slime
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
+import net.minecraft.world.phys.Vec3
 import net.neoforged.bus.api.EventPriority
 import net.neoforged.bus.api.ICancellableEvent
 import org.joml.Vector2d
@@ -89,10 +92,15 @@ object LootrunDryStreakFeature : Feature() {
     private var waitingForPull: Boolean = false
     private var started: Boolean = false
 
+    private var onMap: Boolean = true
+
     private val processed = mutableSetOf<UUID>()
 
     @Subscribe
     private fun PlayerInteractEvent.InteractAt.on() {
+        if (!onMap)
+            return
+
         if (target !is Slime || distance(target) > 0.5)
             return
 
@@ -102,6 +110,9 @@ object LootrunDryStreakFeature : Feature() {
 
     @Subscribe
     private fun EntityEvent.SetData.on() {
+        if (!onMap)
+            return
+
         when (entity) {
             is Display.TextDisplay -> {
                 Text(entity.text ?: return)
@@ -122,6 +133,9 @@ object LootrunDryStreakFeature : Feature() {
 
     @Subscribe
     private fun EntityEvent.Spawn.on() {
+        if (!onMap)
+            return
+
         when (entity) {
             is ItemEntity -> {
                 if (entity.uuid !in processed && chest != null && distance(entity) < MAX_DISTANCE) {
@@ -182,6 +196,8 @@ object LootrunDryStreakFeature : Feature() {
 
     @Subscribe
     private fun TickEvent.on() {
+        onMap = player().isInside(Vec3(-2883.0, -1000.0, -7608.0), Vec3(2930.0, 1000.0, 994.0))
+
         if (chest != null && Models.WorldState.onWorld() && started && distance(player()) >= 15)
             reset()
     }
