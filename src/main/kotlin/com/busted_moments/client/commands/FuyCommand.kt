@@ -8,6 +8,7 @@ import com.busted_moments.buster.api.Profile
 import com.busted_moments.buster.api.World
 import com.busted_moments.buster.protocol.requests.GuildRequest
 import com.busted_moments.buster.protocol.requests.MemberRequest
+import com.busted_moments.buster.protocol.requests.PingRequest
 import com.busted_moments.client.Client
 import com.busted_moments.client.buster.BusterService.execute
 import com.busted_moments.client.buster.WorldList.world
@@ -46,7 +47,7 @@ import net.essentuan.esl.unsafe
 import net.minecraft.client.gui.components.ChatComponent
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.HoverEvent
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 
@@ -300,6 +301,23 @@ private fun CommandContext<*>.playerguild(
                     +".".gray
                 }
             }.send()
+    }
+}
+
+@Subcommand("ping")
+private fun CommandContext<*>.ping() {
+    inline {
+        val start = Date()
+
+        PingRequest().execute()
+
+        FUY_PREFIX {
+            +"Your ".gray
+            +"ping".aqua
+            +" to Buster is ".gray
+            +start.timeSince().print(FormatFlag.COMPACT).aqua
+            +"!".gray
+        }.send()
     }
 }
 
