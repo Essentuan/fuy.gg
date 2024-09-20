@@ -38,9 +38,7 @@ object Fonts {
                     builder.append(c)
 
                     if (c != SEPARATOR_LEFT.char && c != SEPARATOR_RIGHT.char) {
-                        if (c == CLOSE.char)
-                            builder.append(SEPARATOR_LEFT.char)
-                        else {
+                        if (c != CLOSE.char) {
                             builder.append(SEPARATOR_LEFT.char)
                             builder.append(SEPARATOR_RIGHT.char)
                         }
