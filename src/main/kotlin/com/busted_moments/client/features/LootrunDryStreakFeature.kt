@@ -237,7 +237,7 @@ object LootrunDryStreakFeature : Feature() {
                 +"You've gone ".lightPurple
                 +dry.toCommaString().escapeCommas().gold
                 +" pulls without finding a ".lightPurple
-                +" Mythic".darkPurple
+                +"Mythic".darkPurple
                 +".".lightPurple
             }.send()
 
