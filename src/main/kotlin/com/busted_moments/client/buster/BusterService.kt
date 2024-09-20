@@ -40,7 +40,7 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-private const val BUSTER_URL = "wss://dev.thesimpleones.net/buster"
+private const val BUSTER_URL = "wss://thesimpleones.net/buster"
 
 private val client = HttpClient {
     install(WebSockets) {
