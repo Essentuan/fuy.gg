@@ -4,11 +4,14 @@ import java.util.regex.Pattern
 
 object Patterns {
     //Level Up
-    val LEVEL_UP: Pattern = Pattern.compile("^\\[!] Congratulations to (?<player>.+) for reaching (?<type>.+) level (?<level>.+)!")
-    val PROF_LEVEL_UP: Pattern = Pattern.compile("\\[!] Congratulations to (?<player>.+) for reaching level (?<level>.+) in (. )?(?<type>.+)!")
+    val LEVEL_UP: Pattern =
+        Pattern.compile("^\\[!] Congratulations to (?<player>.+) for reaching (?<type>.+) level (?<level>.+)!")
+    val PROF_LEVEL_UP: Pattern =
+        Pattern.compile("\\[!] Congratulations to (?<player>.+) for reaching level (?<level>.+) in (. )?(?<type>.+)!")
 
     //Territory Menu
-    val PRODUCTION: Pattern = Pattern.compile("(?:[ⒷⒸⓀⒿ] )?\\+(?<amount>[0-9]*) (?<resource>Emeralds|Ore|Wood|Fish|Crops) per Hour");
+    val PRODUCTION: Pattern =
+        Pattern.compile("(?:[ⒷⒸⓀⒿ] )?\\+(?<amount>[0-9]*) (?<resource>Emeralds|Ore|Wood|Fish|Crops) per Hour");
     val UPGRADE: Pattern = Pattern.compile("- (?<upgrade>.+) \\[Lv. (?<level>.+)]")
     val STORAGE: Pattern = Pattern.compile("((?<type>[ⒷⒸⓀⒿ]) )?(?<stored>[0-9]+)/(?<capacity>[0-9]+) stored")
     val TREASURY: Pattern = Pattern.compile(". Treasury Bonus: (?<treasury>.+)%")
@@ -32,7 +35,8 @@ object Patterns {
     val WAR_SUCCESS = Pattern.compile("^§cYou have taken control of (?<territory>.+) from \\[(?<guild>.+)]!.*")
 
     //Legendary Island
-    val LI_REWARD: Pattern = Pattern.compile(" *\\+(?<amount>[0-9]*) (?<type>((Bronze|Silver|Gold|Diamond) Token(s?))|Experience Points)")
+    val LI_REWARD: Pattern =
+        Pattern.compile(" *\\+(?<amount>[0-9]*) (?<type>((Bronze|Silver|Gold|Diamond) Token(s?))|Experience Points)")
 
     //Dungeons
     val DUNGEON_COMPLETION: Pattern = Pattern.compile("^Great job! You've completed the (.*) Dungeon!")
@@ -41,7 +45,7 @@ object Patterns {
     //Raids
     val RAID_COMPLETION: Pattern = Pattern.compile("^Raid Completed!")
     val RAID_FAIL: Pattern = Pattern.compile("^Raid Failed!")
-    val HOVER_FOR_MORE: Pattern = Pattern.compile("^Hover for more")
+    val RAID_STATISTICS_END: Pattern = Pattern.compile(".*Combat Experience.*")
     val TIME_ELAPSED: Pattern = Pattern.compile("^Time Elapsed:.+")
 
     //Lootruns

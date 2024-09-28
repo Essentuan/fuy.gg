@@ -48,6 +48,8 @@ private const val RAID_NOT_READING = 0
 private const val RAID_READING_COMPLETION = 1
 private const val RAID_READING_FAIL = 2
 
+private const val RAID_MAX_LINES = 7
+
 @Replaces(RaidProgressFeature::class)
 @Overlays(ContentTimerFeature.Overlay::class)
 object ContentTimerFeature : Feature() {
@@ -138,6 +140,7 @@ object ContentTimerFeature : Feature() {
             mutate(Text::normalized) {
                 Patterns.RAID_COMPLETION { _, _ ->
                     raidState = RAID_READING_COMPLETION
+                    raidRead = 0
 
                     isCanceled = true
 
@@ -146,13 +149,14 @@ object ContentTimerFeature : Feature() {
 
                 Patterns.RAID_FAIL { _, _ ->
                     raidState = RAID_READING_FAIL
+                    raidRead = 0
 
                     isCanceled = true
 
                     return@on
                 }
 
-                Patterns.HOVER_FOR_MORE { _, _ ->
+                Patterns.RAID_STATISTICS_END { _, _ ->
                     raidState = RAID_NOT_READING
 
                     raidLines += originalStyledText
@@ -204,6 +208,11 @@ object ContentTimerFeature : Feature() {
         }
 
         if (raidState != RAID_NOT_READING) {
+            if (++raidRead > RAID_MAX_LINES) {
+                raidState = RAID_NOT_READING
+                return
+            }
+
             isCanceled = true
 
             if (raidState == RAID_READING_COMPLETION)
@@ -213,6 +222,7 @@ object ContentTimerFeature : Feature() {
 
     //Raids
     private var raidState: Int = RAID_NOT_READING
+    private var raidRead: Int = 0
     private val raidLines = mutableListOf<StyledText>()
 
     private fun raid() {
@@ -732,4 +742,4 @@ object ContentTimerFeature : Feature() {
             return true
         }
     }
-}   
+}
