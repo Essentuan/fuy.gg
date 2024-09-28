@@ -8,6 +8,7 @@ import com.busted_moments.client.buster.events.TerritoryEvent
 import com.busted_moments.client.features.war.wynntils.GuildMapImprovementsFeature
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
+import com.busted_moments.client.framework.text.FUY_PREFIX
 import com.busted_moments.client.framework.wynntils.allTerritoryPois
 import com.busted_moments.client.framework.wynntils.territoryPoiMap
 import com.busted_moments.client.framework.wynntils.territoryProfileMap
@@ -20,6 +21,7 @@ import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
 import com.wynntils.services.map.pois.TerritoryPoi
 import net.essentuan.esl.iteration.Iterators
+import net.essentuan.esl.reflections.extensions.invoke
 import net.essentuan.esl.scheduling.api.schedule
 import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.tuples.numbers.FloatPair
@@ -61,7 +63,7 @@ object TerritoryList : Territory.List {
         territories?.iterator() ?: Iterators.empty()
 
     private fun update() {
-        if (!GuildMapImprovementsFeature.enabled)
+        if (!GuildMapImprovementsFeature.enabled || isEmpty())
             return
 
         val profiles = mutableMapOf<String, WynntilsProfile>()

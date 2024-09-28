@@ -1,5 +1,6 @@
 package com.busted_moments.mixin;
 
+import com.busted_moments.client.buster.TerritoryList;
 import com.busted_moments.client.features.war.wynntils.GuildMapImprovementsFeature;
 import com.busted_moments.client.features.war.wynntils.Link;
 import com.busted_moments.client.features.war.wynntils.RenderDetails;
@@ -32,57 +33,57 @@ import java.util.List;
 
 @Mixin(value = GuildMapScreen.class, remap = false)
 public abstract class GuildMapScreenMixin extends AbstractMapScreen implements Context {
-   @Shadow
-   private boolean resourceMode;
+    @Shadow
+    private boolean resourceMode;
 
-   @Shadow
-   private boolean territoryDefenseFilterEnabled;
-   @Shadow
-   private GuildResourceValues territoryDefenseFilterLevel;
-   @Shadow
-   private TerritoryDefenseFilterType territoryDefenseFilterType;
-   @Unique
-   private PoseStack poseStack;
+    @Shadow
+    private boolean territoryDefenseFilterEnabled;
+    @Shadow
+    private GuildResourceValues territoryDefenseFilterLevel;
+    @Shadow
+    private TerritoryDefenseFilterType territoryDefenseFilterType;
+    @Unique
+    private PoseStack poseStack;
 
-   @Unique
-   private DeltaTracker deltaTracker;
+    @Unique
+    private DeltaTracker deltaTracker;
 
-   @Unique
-   private MultiBufferSource.BufferSource bufferSource;
+    @Unique
+    private MultiBufferSource.BufferSource bufferSource;
 
-   @Inject(
-           method = "renderPois*",
-           at = @At("HEAD"),
-           cancellable = true
-   )
-   private void renderPois(
-           List<Poi> pois,
-           PoseStack poseStack,
-           BoundingBox textureBoundingBox,
-           float poiScale,
-           int mouseX,
-           int mouseY,
-           CallbackInfo ci
-   ) {
-      if (!GuildMapImprovementsFeature.INSTANCE.getEnabled())
-         return;
+    @Inject(
+        method = "renderPois*",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void renderPois(
+        List<Poi> pois,
+        PoseStack poseStack,
+        BoundingBox textureBoundingBox,
+        float poiScale,
+        int mouseX,
+        int mouseY,
+        CallbackInfo ci
+    ) {
+        if (!GuildMapImprovementsFeature.INSTANCE.getEnabled() || TerritoryList.INSTANCE.isEmpty())
+            return;
 
-      hovered = null;
-      this.poseStack = poseStack;
+        hovered = null;
+        this.poseStack = poseStack;
 
-      List<Poi> filteredPois = getRenderedPois(pois, textureBoundingBox, poiScale, mouseX, mouseY);
+        List<Poi> filteredPois = getRenderedPois(pois, textureBoundingBox, poiScale, mouseX, mouseY);
 
-      bufferSource = McUtils.mc().renderBuffers().bufferSource();
-      deltaTracker = McUtils.mc().getTimer();
+        bufferSource = McUtils.mc().renderBuffers().bufferSource();
+        deltaTracker = McUtils.mc().getTimer();
 
-      List<RenderDetails> territories = new ArrayList<>(filteredPois.size());
-      List<Link> links = new ArrayList<>(filteredPois.size());
+        List<RenderDetails> territories = new ArrayList<>(filteredPois.size());
+        List<Link> links = new ArrayList<>(filteredPois.size());
 
-      for (int i = filteredPois.size() - 1; i >= 0; i--) {
-         Poi poi = filteredPois.get(i);
+        for (int i = filteredPois.size() - 1; i >= 0; i--) {
+            Poi poi = filteredPois.get(i);
 
-         if (poi instanceof TerritoryPoi territory) {
-            var details = new RenderDetails(
+            if (poi instanceof TerritoryPoi territory) {
+                var details = new RenderDetails(
                     territory,
                     mapCenterX,
                     mapCenterZ,
@@ -90,22 +91,22 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
                     centerZ,
                     resourceMode,
                     zoomRenderScale
-            );
+                );
 
-            details.render(poseStack, bufferSource);
-            territories.add(details);
+                details.render(poseStack, bufferSource);
+                territories.add(details);
 
-            for (var connection : territory.getTerritoryInfo().getTradingRoutes()) {
-               var link = new Link(poi.getName(), connection, territory);
+                for (var connection : territory.getTerritoryInfo().getTradingRoutes()) {
+                    var link = new Link(poi.getName(), connection, territory);
 
-               if (link.getFrom().equals(poi.getName()))
-                  links.add(link);
-            }
-         } else {
-            float poiRenderX = MapRenderer.getRenderX(poi, mapCenterX, centerX, zoomRenderScale);
-            float poiRenderZ = MapRenderer.getRenderZ(poi, mapCenterZ, centerZ, zoomRenderScale);
+                    if (link.getFrom().equals(poi.getName()))
+                        links.add(link);
+                }
+            } else {
+                float poiRenderX = MapRenderer.getRenderX(poi, mapCenterX, centerX, zoomRenderScale);
+                float poiRenderZ = MapRenderer.getRenderZ(poi, mapCenterZ, centerZ, zoomRenderScale);
 
-            poi.renderAt(
+                poi.renderAt(
                     poseStack,
                     bufferSource,
                     poiRenderX,
@@ -115,79 +116,79 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
                     zoomRenderScale,
                     zoomLevel,
                     true
+                );
+            }
+        }
+
+        final int filterLevel;
+        final TerritoryDefenseFilterType filterType;
+
+        if (territoryDefenseFilterEnabled) {
+            filterLevel = territoryDefenseFilterLevel.getLevel();
+            filterType = territoryDefenseFilterType;
+        } else {
+            filterLevel = -1;
+            filterType = null;
+        }
+
+        for (var link : links) {
+            link.render(
+                this,
+                mapCenterX,
+                mapCenterZ,
+                centerX,
+                centerZ,
+                zoomRenderScale,
+                filterLevel,
+                filterType
             );
-         }
-      }
+        }
 
-      final int filterLevel;
-      final TerritoryDefenseFilterType filterType;
-
-      if (territoryDefenseFilterEnabled) {
-         filterLevel = territoryDefenseFilterLevel.getLevel();
-         filterType = territoryDefenseFilterType;
-      } else {
-         filterLevel = -1;
-         filterType = null;
-      }
-
-      for (var link : links) {
-         link.render(
-                 this,
-                 mapCenterX,
-                 mapCenterZ,
-                 centerX,
-                 centerZ,
-                 zoomRenderScale,
-                 filterLevel,
-                 filterType
-         );
-      }
-
-      for (var territory : territories)
-         territory.renderLabel(
-                 this,
-                 poseStack,
-                 bufferSource,
-                 hovered == territory.getPoi()
-         );
+        for (var territory : territories)
+            territory.renderLabel(
+                this,
+                poseStack,
+                bufferSource,
+                hovered == territory.getPoi()
+            );
 
 
-      bufferSource.endBatch();
+        bufferSource.endBatch();
 
-      ci.cancel();
-   }
+        ci.cancel();
+    }
 
-   @ModifyConstant(
-           method = "renderTerritoryTooltip",
-           constant = @Constant(stringValue = "Territory Defences: %s")
-   )
-   private static String defenses(String constant) {
-      if (GuildMapImprovementsFeature.INSTANCE.getEnabled())
-         return "⛨ " + constant;
-      else
-         return constant;
-   }
+    @ModifyConstant(
+        method = "renderTerritoryTooltip",
+        constant = @Constant(stringValue = "Territory Defences: %s")
+    )
+    private static String defenses(String constant) {
+        if (GuildMapImprovementsFeature.INSTANCE.getEnabled())
+            return "⛨ " + constant;
+        else
+            return constant;
+    }
 
-   @NotNull
-   @Override
-   public PoseStack getPose() {
-      return poseStack;
-   }
+    @NotNull
+    @Override
+    public PoseStack getPose() {
+        return poseStack;
+    }
 
-   @NotNull
-   @Override
-   public MultiBufferSource.BufferSource getBuffer() {
-      return bufferSource;
-   }
+    @NotNull
+    @Override
+    public MultiBufferSource.BufferSource getBuffer() {
+        return bufferSource;
+    }
 
-   @Override
-   public DeltaTracker getDeltaTracker() {
-      return deltaTracker;
-   }
+    @Override
+    public DeltaTracker getDeltaTracker() {
+        return deltaTracker;
+    }
 
-   @NotNull
-   @Override
-   public Window getWindow() {
-      return McUtils.mc().getWindow();
-   }
+    @NotNull
+    @Override
+    public Window getWindow() {
+        return McUtils.mc().getWindow();
+    }
 }
