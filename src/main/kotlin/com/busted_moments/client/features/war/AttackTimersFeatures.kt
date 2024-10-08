@@ -37,7 +37,6 @@ import com.wynntils.core.components.Models
 import com.wynntils.core.consumers.overlays.OverlayPosition
 import com.wynntils.features.overlays.TerritoryAttackTimerOverlayFeature
 import com.wynntils.handlers.scoreboard.event.ScoreboardSegmentAdditionEvent
-import com.wynntils.mc.event.RenderLevelEvent
 import com.wynntils.mc.event.RenderTileLevelLastEvent
 import com.wynntils.mc.event.TickEvent
 import com.wynntils.models.lootrun.type.LootrunningState
@@ -45,7 +44,6 @@ import com.wynntils.models.territories.GuildAttackScoreboardPart
 import com.wynntils.overlays.TerritoryAttackTimerOverlay
 import com.wynntils.utils.colors.CommonColors
 import com.wynntils.utils.colors.CustomColor
-import com.wynntils.utils.mc.McUtils.mc
 import com.wynntils.utils.mc.McUtils.player
 import com.wynntils.utils.mc.type.PoiLocation
 import com.wynntils.utils.render.type.HorizontalAlignment
@@ -59,8 +57,6 @@ import net.essentuan.esl.time.duration.ms
 import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.time.extensions.plus
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.core.BlockPos
-import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.phys.Vec3
 import java.util.Date
 
