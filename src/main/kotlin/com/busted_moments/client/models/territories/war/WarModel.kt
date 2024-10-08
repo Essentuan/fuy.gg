@@ -9,23 +9,29 @@ import com.busted_moments.client.framework.config.annotations.File
 import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
+import com.busted_moments.client.framework.text.FUY_PREFIX
 import com.busted_moments.client.framework.text.StyleType
 import com.busted_moments.client.framework.text.Text
+import com.busted_moments.client.framework.text.Text.invoke
 import com.busted_moments.client.framework.text.Text.matches
+import com.busted_moments.client.framework.text.Text.send
 import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.text.getValue
 import com.busted_moments.client.models.territories.TerritoryModel
 import com.busted_moments.client.models.territories.war.events.WarEvent
+import com.busted_moments.client.models.territories.war.events.WarTextEvent
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.mc.event.BossHealthUpdateEvent
 import com.wynntils.mc.event.TickEvent
 import com.wynntils.models.character.event.CharacterDeathEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
+import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.other.lock
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.world.BossEvent
+import net.minecraft.world.scores.DisplaySlot
 import net.neoforged.bus.api.EventPriority
 import java.util.Date
 import java.util.UUID
@@ -46,8 +52,8 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
             it.endedAt = Date()
 
             if (it.hasStarted)
-                synchronized(wars!!) {
-                    wars!! += War.Results(
+                synchronized(wars) {
+                    wars += War.Results(
                         war.startedAt,
                         war.endedAt,
                         war.territory.name,
@@ -81,7 +87,8 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
         current?.update(Tower.Stats(Text(name)) ?: return)
     }
 
-    internal fun start() {
+    @Subscribe
+    private fun WarTextEvent.Appear.on() {
         if (current == null)
             War(lastTerritory, Date())
                 .also {
@@ -90,7 +97,8 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
                 }
     }
 
-    internal fun remove() {
+    @Subscribe
+    private fun WarTextEvent.Vanish.on() {
         current = null
     }
 
@@ -147,11 +155,41 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
             WarEvent.End(current!!, WarEvent.End.Cause.CAPTURED).post()
     }
 
+    private var hadWarText: Boolean = false
+
+    private val isWarTextVisible: Boolean
+        get() {
+            val scoreboard = mc().level!!.scoreboard
+            val objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR) ?: return false
+
+            for (score in scoreboard.listPlayerScores(objective)) {
+                val line = Text(score.ownerName()).normalized
+
+                if (line.contains("War:"))
+                    return true
+            }
+
+            return false
+        }
+
     @Subscribe(priority = EventPriority.LOWEST)
     private fun TickEvent.on() {
-        lastTerritory = TerritoryModel.inside ?: return
+        val territory = TerritoryModel.inside
+        if (territory != null)
+            lastTerritory = territory
+
+        val visible = isWarTextVisible
+        if (visible == hadWarText)
+            return
+
+        if (visible)
+            WarTextEvent.Appear().post()
+        else
+            WarTextEvent.Vanish().post()
+
+        hadWarText = visible
     }
 
     override fun iterator(): Iterator<War.Results> =
-        wars!!.lock { toList() }.iterator()
+        wars.lock { toList() }.iterator()
 }

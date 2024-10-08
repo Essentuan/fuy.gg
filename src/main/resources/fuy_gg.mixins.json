@@ -15,7 +15,6 @@
     "PersistedManagerMixin",
     "PersistedValueMixin",
     "TerritoryModelMixin",
-    "WarScoreboardPartMixin",
     "WynntilsModMixin",
     "accessors.PartStyleAccessor",
     "accessors.StyledTextPartAccessor",
