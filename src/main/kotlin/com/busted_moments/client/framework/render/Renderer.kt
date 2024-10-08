@@ -1,16 +1,17 @@
 package com.busted_moments.client.framework.render
 
+import com.busted_moments.client.framework.render.Vec3f
 import com.busted_moments.client.framework.render.helpers.Context
 import com.busted_moments.client.framework.render.helpers.Percentage
 import com.busted_moments.client.framework.render.screen.Screen
 import com.mojang.blaze3d.platform.Window
 import com.mojang.blaze3d.vertex.PoseStack
-import com.wynntils.utils.colors.CustomColor
-import com.wynntils.utils.render.buffered.CustomRenderType
 import net.essentuan.esl.tuples.numbers.FloatPair
-import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Vector3f
+
+typealias Vec3f = Vector3f
 
 interface Renderer<CTX : Context> {
     val first: Boolean
@@ -25,8 +26,8 @@ interface Renderer<CTX : Context> {
     operator fun iterator(): Iterator<Element<out CTX>>
 
     companion object {
-        private val v1 = Vector3f()
-        private val v2 = Vector3f()
+        private val v1 = Vec3f()
+        private val v2 = Vec3f()
 
         private fun leftOfEdge(
             px: Float,
@@ -85,7 +86,7 @@ interface Renderer<CTX : Context> {
     }
 }
 
-private val CONTAINER = Vector3f()
+private val CONTAINER = Vec3f()
 
 fun PoseStack.applyScale(floats: FloatPair): FloatPair {
     last().pose().getScale(CONTAINER)
@@ -109,7 +110,7 @@ fun PoseStack.apply(x: Float, y: Float): FloatPair {
 fun PoseStack.apply(floats: FloatPair): FloatPair =
     apply(floats.first, floats.second)
 
-fun PoseStack.apply(vec3: Vector3f, dest: Vector3f = vec3) {
+fun PoseStack.apply(vec3: Vec3f, dest: Vec3f = vec3) {
     last().pose().transformPosition(vec3, dest)
 }
 

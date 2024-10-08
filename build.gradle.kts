@@ -240,6 +240,12 @@ tasks {
         }
     }
 
+    compileKotlin {
+        compilerOptions {
+            freeCompilerArgs.add("-Xcontext-receivers")
+        }
+    }
+
     jar {
         from("LICENSE") {
             rename { "${it}_${base.archivesName}" }
