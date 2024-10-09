@@ -566,8 +566,8 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                     ctx.graphics.renderComponentTooltip(
                         FontRenderer.getInstance().font,
                         output,
-                        (this@sidebar.x - outputOffsetX - outputWidth - 4).toInt(),
-                        (this@background.y - outputOffsetY - (outputHeight / 4f)).toInt()
+                        (this@sidebar.x - outputWidth - 4).toInt(),
+                        (this@background.y - (outputHeight / 4f)).toInt()
                     )
 
                     ctx.pose.popPose()
@@ -738,24 +738,5 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
         ctx.pose.popPose()
 
         ctx.buffer.endLastBatch()
-    }
-
-    companion object {
-        private val outputOffsetX: Float
-        private val outputOffsetY: Float
-
-        init {
-            val container = FabricLoader.getModContainer(
-                "legendarytooltips"
-            )
-
-            if (container.isPresent) {
-                outputOffsetX = 2f
-                outputOffsetY = 6.5f
-            } else {
-                outputOffsetX = 0f
-                outputOffsetY = 0f
-            }
-        }
     }
 }
