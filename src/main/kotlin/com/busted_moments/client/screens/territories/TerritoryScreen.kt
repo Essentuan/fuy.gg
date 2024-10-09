@@ -163,6 +163,8 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
         page = 0
     }
 
+    private var charTyped: (() -> Unit)? = null
+
     abstract fun TextureElement<Context>.renderSidebar(ctx: Context)
 
     @Subscribe(priority = EventPriority.HIGHEST)
@@ -514,6 +516,10 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                     this@background.x + this@background.width / 2f - this.width / 2f - (BACKGROUND_LEFT_MARGINS * BACKGROUND_SCALE)
                 y = this@background.y + 2.5f
 
+                charTyped = {
+                    this@TerritoryScreen.focused = this
+                }
+
                 texture {
                     texture = Textures.INFO.texture
                     size *= 0.35
@@ -581,6 +587,12 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
         }
 
         return false
+    }
+
+    override fun charTyped(codePoint: Char, modifiers: Int): Boolean {
+        charTyped?.invoke()
+
+        return super.charTyped(codePoint, modifiers)
     }
 
     override fun close() {
