@@ -5,6 +5,8 @@ import com.busted_moments.client.features.war.TerritoryHelperMenuFeature
 import com.busted_moments.client.features.war.wynntils.PROD_SIZE
 import com.busted_moments.client.framework.Containers
 import com.busted_moments.client.framework.FabricLoader
+import com.busted_moments.client.framework.config.Storage
+import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.wynntils.wynntils
 import com.busted_moments.client.framework.wynntils.defenseColor
 import com.busted_moments.client.framework.events.Subscribe
@@ -77,6 +79,12 @@ private const val MAX_COLS = 9
 const val BACK_SLOT = 18
 
 private const val ENTRIES_PER_PAGE = 4
+
+object Pinned : Storage {
+    @Persistent
+    var values = mutableSetOf<String>()
+        private set
+}
 
 abstract class TerritoryScreen<T : TerritoryScanner>(
     val container: Int,
@@ -278,7 +286,14 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                     null
                 else
                     it to filters
-            }.filterNotNull().toList()
+            }.filterNotNull()
+            .sortedByDescending { (territory, _) ->
+                when {
+                    territory.hq -> 999
+                    territory.name in Pinned.values -> 1
+                    else -> 0
+                }
+            }.toList()
 
         eco.mapValues { (name, territory) ->
             QuickAccess.filterIndexed { index, option ->
@@ -480,6 +495,12 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                                         )
                                     }
 
+                                    text.startsWith("Left-Click") -> listOf(
+                                        Text.component {
+                                            +"Right-Click to pin territory".gray
+                                        }, it
+                                    )
+
                                     else -> listOf(it)
                                 }
                             },
@@ -491,16 +512,30 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                 }
 
                 this@scrollable.click { mouseX, mouseY, button ->
-                    if (button != Inputs.MOUSE_BUTTON_LEFT)
-                        return@click false
-
                     val col = floor((mouseX - this@scrollable.x) / ITEM_WIDTH)
                     val row = floor((mouseY - this@scrollable.y + scrollOffset()) / ITEM_HEIGHT)
                     val index = floor(col + (row * MAX_COLS)).toInt()
 
-                    select(matched.getOrNull(index)?.first ?: return@click false)
+                    val territory = matched.getOrNull(index)?.first ?: return@click false
 
-                    true
+                    when (button) {
+                        Inputs.MOUSE_BUTTON_LEFT -> {
+                            select(territory)
+
+                            true
+                        }
+
+                        Inputs.MOUSE_BUTTON_RIGHT -> {
+                            if (territory.name in Pinned.values)
+                                Pinned.values.remove(territory.name)
+                            else
+                                Pinned.values.add(territory.name)
+
+                            true
+                        }
+
+                        else -> false
+                    }
                 }
             }
 
@@ -734,6 +769,18 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
             2f,
             scale = (1 / (split.width / (ITEM_WIDTH - 7))).coerceAtMost(maxLabelSize)
         )
+
+        if (name in Pinned.values)
+            Textures.WAYPOINT_MANAGER_ICON.texture.let {
+                it.render(
+                    ctx.pose,
+                    ctx.buffer,
+                    ITEM_WIDTH - 9,
+                    0f,
+                    width = it.width / 1.5f,
+                    height = it.height / 1.5f
+                )
+            }
 
         ctx.pose.popPose()
 
