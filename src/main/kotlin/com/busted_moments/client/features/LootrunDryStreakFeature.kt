@@ -9,6 +9,7 @@ import com.busted_moments.client.framework.config.LegacyConfig
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.File
 import com.busted_moments.client.framework.config.annotations.Persistent
+import com.busted_moments.client.framework.config.annotations.Skip
 import com.busted_moments.client.framework.config.entries.dropdown.Dropdown
 import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
@@ -282,6 +283,7 @@ object LootrunDryStreakFeature : Feature() {
         return chest?.distance(Vector2d(entity.x, entity.z)) ?: 0.0
     }
 
+    @Skip
     @File("pulls")
     private object History : Storage {
         @Persistent
