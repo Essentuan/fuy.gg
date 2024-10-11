@@ -44,7 +44,7 @@ abstract class Feature : Storage {
     @Ignored
     private var delegate: Delegate? = null
 
-    val key: String = Config.keyOf(this::class.simpleString())
+    val key: String = Config.keyOf(this.javaClass)
     val name: String = Config.nameOf(key)
 
     @Value("Enabled")
@@ -103,7 +103,7 @@ abstract class Feature : Storage {
         this@Feature::class[Replaces::class]?.let {
             val replacing = it.value
                 .asSequence()
-                .map { cls -> Base64.encode(cls.java.name) }
+                .map { cls -> cls.simpleString() }
                 .toMutableSet()
 
             if (replacing != replaced) {
@@ -114,7 +114,8 @@ abstract class Feature : Storage {
                         setUserEnabled(false)
                         userEnabled.setValue(false)
                     }
-                    replaced += Base64.encode(cls.java.name)
+
+                    replaced += cls.simpleString()
                 }
             }
         }
@@ -162,7 +163,6 @@ abstract class Feature : Storage {
 
         override fun onDisable() {
             this@Feature.enabled = false
-            0
         }
 
         override fun onEnable() {

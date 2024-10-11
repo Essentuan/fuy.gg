@@ -26,5 +26,5 @@ interface Storage : Model<Json> {
         get() = this::class.tags[Category::class]?.value ?: "General"
 
     val section: String
-        get() = this::class.tags[Section::class]?.value ?: Config.keyOf(this::class.simpleString())
+        get() = this::class.tags[Section::class]?.value ?: Config.nameOf(Config.keyOf(this::class.java))
 }

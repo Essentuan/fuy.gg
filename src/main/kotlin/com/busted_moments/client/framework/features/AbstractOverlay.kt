@@ -102,7 +102,7 @@ abstract class AbstractOverlay private constructor(
         this@AbstractOverlay::class[Replaces::class]?.let {
             val replacing = it.value
                 .asSequence()
-                .map { cls -> Base64.encode(cls.java.name) }
+                .map { cls -> cls.java.simpleString() }
                 .toMutableSet()
 
             if (replacing != replaced) {
@@ -115,7 +115,7 @@ abstract class AbstractOverlay private constructor(
                         (it as com.wynntils.core.persisted.config.Config<Boolean>).setValue(false)
                     }
 
-                    replaced+= Base64.encode(cls.java.name)
+                    replaced += cls.java.simpleString()
                 }
             }
         }
@@ -128,18 +128,24 @@ abstract class AbstractOverlay private constructor(
     }
 
     override fun ready() = link()
-    
+
     protected fun MutableSizable.frame() {
         width = this@AbstractOverlay.width
         height = this@AbstractOverlay.height
-        
+
         if (this is TextElement<*>) {
             horizontalAlignment = renderHorizontalAlignment
             verticalAlignment = renderVerticalAlignment
         }
     }
-    
-    private fun render(pose: PoseStack, buffers: MultiBufferSource.BufferSource, deltaTracker: DeltaTracker, window: Window, preview: Boolean) {
+
+    private fun render(
+        pose: PoseStack,
+        buffers: MultiBufferSource.BufferSource,
+        deltaTracker: DeltaTracker,
+        window: Window,
+        preview: Boolean
+    ) {
         this.pose = pose
         this.buffer = buffers
         this.deltaTracker = deltaTracker
@@ -189,7 +195,7 @@ abstract class AbstractOverlay private constructor(
     }
 
     override fun getJsonName(): String {
-        return Config.keyOf("${owner::class.simpleString()}).${this::class.simpleName}")
+        return Config.keyOf(this.javaClass)
     }
 
     private lateinit var pose: PoseStack

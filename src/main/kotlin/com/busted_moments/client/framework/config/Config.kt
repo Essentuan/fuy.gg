@@ -3,10 +3,9 @@ package com.busted_moments.client.framework.config
 import com.busted_moments.client.Client
 import com.busted_moments.client.events.MinecraftEvent
 import com.busted_moments.client.framework.FabricLoader
+import com.busted_moments.client.framework.config.annotations.*
 import com.busted_moments.client.framework.config.annotations.Category
-import com.busted_moments.client.framework.config.annotations.Floating
 import com.busted_moments.client.framework.config.annotations.Section
-import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.HiddenEntry
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
@@ -38,7 +37,6 @@ import net.essentuan.esl.reflections.extensions.extends
 import net.essentuan.esl.reflections.extensions.get
 import net.essentuan.esl.reflections.extensions.instance
 import net.essentuan.esl.reflections.extensions.isDelegated
-import net.essentuan.esl.reflections.extensions.simpleString
 import net.essentuan.esl.reflections.extensions.tags
 import net.essentuan.esl.result
 import net.essentuan.esl.scheduling.tasks
@@ -78,6 +76,7 @@ object Config {
 
     private val suffixes: MutableSet<String> = mutableSetOf(
         "feature",
+        "overlay",
         "model"
     )
 
@@ -177,12 +176,12 @@ object Config {
         }
 
         for (storage in storages) {
-            read(storage) {
+            read(storage) load@{
                 load(
                     it
                         .getJson(storage.category.lowercase())
-                        ?.getJson(keyOf(storage.javaClass.simpleString()))
-                        ?: return@read
+                        ?.getJson(keyOf(storage.javaClass))
+                        ?: return@load
                 )
             }
 
@@ -199,7 +198,7 @@ object Config {
             files.computeIfAbsent(str) { Json() }
 
         for (storage in storages) {
-            val name = keyOf(storage.javaClass.simpleString())
+            val name = keyOf(storage.javaClass)
             val file = file(storage.file.replace("{uuid}", mc().user.profileId.toString()))
             val category = file
                 .getJson(storage.category.lowercase())
@@ -211,8 +210,13 @@ object Config {
                 file["${storage.category.lowercase()}.$name"] = storage.export()
         }
 
-        for ((file, data) in files)
-            data.write(path / file)
+        for ((file, data) in files) {
+            try {
+                data.write(path / file)
+            } catch (ex: Exception) {
+                Client.error("An exception was thrown while saving ${file}!", ex)
+            }
+        }
     }
 
     fun open(parent: Screen?): ConfigBuilder =
@@ -249,32 +253,54 @@ object Config {
         suffixes += string
     }
 
-    fun keyOf(name: String): String {
-        val reader = name.consume()
+    fun keyOf(store: Class<*>): String {
         val result = StringBuilder()
 
-        while (reader.canRead()) {
-            if (reader.peek() == '_')
-                reader.skip()
+        val hierarchy = LinkedList<Class<*>>()
 
-            var first = true
+        var current: Class<*>? = store
+        while (current != null) {
+            if (!(current annotatedWith Skip::class))
+                hierarchy.offerFirst(current)
 
-            val part = reader.readUntil(map = Char::lowercaseChar, skip = { it == '.' }) {
-                if (first) {
-                    first = false
-                    return@readUntil false
-                }
+            current = current.enclosingClass
+        }
 
-                it.isUpperCase() || it == '_'
+        for (cls in hierarchy) {
+            if (result.isNotEmpty())
+                result.append(".")
+
+            if (cls.simpleName.lowercase() in suffixes) {
+                result.append(cls.simpleName.lowercase())
+                continue
             }
 
-            if (part in suffixes)
-                break
+            val reader = cls.simpleName.consume()
+            val initial = result.length
 
-            if (result.isNotEmpty())
-                result.append('_')
+            while (reader.canRead()) {
+                if (reader.peek() == '_')
+                    reader.skip()
 
-            result.append(part)
+                var first = true
+
+                val part = reader.readUntil(map = Char::lowercaseChar, skip = { it == '.' }) {
+                    if (first) {
+                        first = false
+                        return@readUntil false
+                    }
+
+                    it.isUpperCase() || it == '_'
+                }
+
+                if (part in suffixes)
+                    continue
+
+                if (result.length != initial)
+                    result.append('_')
+
+                result.append(part)
+            }
         }
 
         val str = result.toString()
@@ -290,14 +316,21 @@ object Config {
     fun nameOf(key: String): String {
         val builder = StringBuilder()
 
-        key.consume {
-            val char = read()
+        val reader = key.consume()
+        while (reader.canRead()) {
+            val char = reader.read()
 
-            if (char != '_')
-                builder.append(if (builder.isEmpty()) char.uppercaseChar() else char)
-            else if (canRead()) {
-                builder.append(' ')
-                builder.append(read().uppercaseChar())
+            when {
+                char == '.' ->
+                    break
+
+                char != '_' ->
+                    builder.append(if (builder.isEmpty()) char.uppercaseChar() else char)
+
+                reader.canRead() -> {
+                    builder.append(' ')
+                    builder.append(reader.read().uppercaseChar())
+                }
             }
         }
 
