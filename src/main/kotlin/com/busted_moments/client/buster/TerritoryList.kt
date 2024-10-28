@@ -62,54 +62,10 @@ object TerritoryList : Territory.List {
     override fun iterator(): Iterator<Territory> =
         territories?.iterator() ?: Iterators.empty()
 
-    private fun update() {
-        if (!GuildMapImprovementsFeature.enabled || isEmpty())
-            return
-
-        val profiles = mutableMapOf<String, WynntilsProfile>()
-
-        Models.Territory.territoryPoiMap.clear()
-
-        val pois = mutableSetOf<TerritoryPoi>()
-
-        for (it in this@TerritoryList) {
-            WynntilsProfile(
-                it.name,
-                it.name,
-                WynntilsLocation(
-                    it.location.start.x,
-                    it.location.start.z,
-                    it.location.end.x,
-                    it.location.end.z
-                ),
-                WynntilsGuild(
-                    it.owner.name,
-                    it.owner.tag
-                ),
-                it.acquired.toInstant()
-            ).also { profile ->
-                profiles[it.name] = profile
-
-                Models.Territory.territoryPoiMap[it.name] = TerritoryPoiInvoker.create(
-                    { profile },
-                    it.toTerritoryInfo(),
-                    false
-                ).also {
-                    pois += it
-                }
-            }
-        }
-
-        Models.Territory.allTerritoryPois = pois
-        Models.Territory.territoryProfileMap = profiles
-    }
-
     @Listener
     private fun Socket.on(packet: ClientboundMapPacket) {
         val before = territories
         territories = packet.wrap()
-
-        update()
 
         if (before == null)
             return
@@ -127,23 +83,6 @@ object TerritoryList : Territory.List {
                         previous?.owner ?: GuildList.NONE,
                     ).post()
             }
-    }
-
-    @Subscribe
-    private fun ProfileUpdateEvent.on() {
-        inline {
-            BusterService.send(
-                ServerboundTerritoryProfileUpdatePacket(
-                    Models.WorldState.currentWorldName,
-                    profiles
-                )
-            )
-        }
-    }
-
-    @Subscribe(priority = EventPriority.LOWEST)
-    private fun AdvancementUpdateEvent.on() {
-        update()
     }
 
     data class ProfileUpdateEvent(
@@ -169,6 +108,6 @@ object TerritoryList : Territory.List {
 
 val Territory.center: FloatPair
     get() = FloatPair(
-        location.start.x + (location.end.x - location.start.x)/2f,
-        location.start.z + (location.end.z - location.start.z)/2f,
+        location.start.x + (location.end.x - location.start.x) / 2f,
+        location.start.z + (location.end.z - location.start.z) / 2f,
     )
