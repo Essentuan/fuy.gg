@@ -210,7 +210,7 @@ class RenderDetails(
         bufferSource: MultiBufferSource.BufferSource,
         hovered: Boolean
     ) {
-        if (poi.territoryInfo.isHeadquarters)
+        if (poi.territoryInfo.isHeadquarters && poi.territoryInfo.guildName == territory.owner.name)
             Textures.GUILD_HEADQUARTERS.texture.render(
                 poseStack,
                 bufferSource,
@@ -271,7 +271,7 @@ class RenderDetails(
             else
                 ((lines + 1) * LINE_HEIGHT) / 2f
 
-            TextRenderer.split(Text(poi.territoryProfile.guildPrefix, label)).also {
+            TextRenderer.split(Text(territory.owner.tag, label)).also {
                 context.text(
                     it,
                     centerX - (it.width / 2f),
@@ -345,7 +345,7 @@ class RenderDetails(
         }
 
         if (hovered && GuildMapImprovementsFeature.showTerritory) {
-            TextRenderer.split(Text(poi.name, CommonColors.WHITE)).also {
+            TextRenderer.split(Text(territory.name, CommonColors.WHITE)).also {
                 context.text(
                     it,
                     centerX - (it.width / 2f),
@@ -355,7 +355,7 @@ class RenderDetails(
         }
 
         if (GuildMapImprovementsFeature.showTimers) {
-            TimerModel[poi.territoryProfile.name]
+            TimerModel[territory.name]
                 .asSequence()
                 .filter { it.remaining > 10.ms }
                 .minByOrNull { it.remaining }
