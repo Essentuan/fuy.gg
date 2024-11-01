@@ -52,18 +52,18 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
     private MultiBufferSource.BufferSource bufferSource;
 
     @Inject(
-        method = "renderPois*",
-        at = @At("HEAD"),
-        cancellable = true
+            method = "renderPois*",
+            at = @At("HEAD"),
+            cancellable = true
     )
     private void renderPois(
-        List<Poi> pois,
-        PoseStack poseStack,
-        BoundingBox textureBoundingBox,
-        float poiScale,
-        int mouseX,
-        int mouseY,
-        CallbackInfo ci
+            List<Poi> pois,
+            PoseStack poseStack,
+            BoundingBox textureBoundingBox,
+            float poiScale,
+            int mouseX,
+            int mouseY,
+            CallbackInfo ci
     ) {
         if (!GuildMapImprovementsFeature.INSTANCE.getEnabled() || TerritoryList.INSTANCE.isEmpty())
             return;
@@ -83,20 +83,26 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
             Poi poi = filteredPois.get(i);
 
             if (poi instanceof TerritoryPoi territory) {
+                var buster = TerritoryList.INSTANCE.get(territory.getName());
+
+                if (buster == null)
+                    continue;
+
                 var details = new RenderDetails(
-                    territory,
-                    mapCenterX,
-                    mapCenterZ,
-                    centerX,
-                    centerZ,
-                    resourceMode,
-                    zoomRenderScale
+                        territory,
+                        mapCenterX,
+                        mapCenterZ,
+                        centerX,
+                        centerZ,
+                        resourceMode,
+                        zoomRenderScale,
+                        buster
                 );
 
                 details.render(poseStack, bufferSource);
                 territories.add(details);
 
-                for (var connection : territory.getTerritoryInfo().getTradingRoutes()) {
+                for (var connection : buster.getConnections()) {
                     var link = new Link(poi.getName(), connection, territory);
 
                     if (link.getFrom().equals(poi.getName()))
@@ -107,15 +113,15 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
                 float poiRenderZ = MapRenderer.getRenderZ(poi, mapCenterZ, centerZ, zoomRenderScale);
 
                 poi.renderAt(
-                    poseStack,
-                    bufferSource,
-                    poiRenderX,
-                    poiRenderZ,
-                    hovered == poi,
-                    poiScale,
-                    zoomRenderScale,
-                    zoomLevel,
-                    true
+                        poseStack,
+                        bufferSource,
+                        poiRenderX,
+                        poiRenderZ,
+                        hovered == poi,
+                        poiScale,
+                        zoomRenderScale,
+                        zoomLevel,
+                        true
                 );
             }
         }
@@ -133,23 +139,23 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
 
         for (var link : links) {
             link.render(
-                this,
-                mapCenterX,
-                mapCenterZ,
-                centerX,
-                centerZ,
-                zoomRenderScale,
-                filterLevel,
-                filterType
+                    this,
+                    mapCenterX,
+                    mapCenterZ,
+                    centerX,
+                    centerZ,
+                    zoomRenderScale,
+                    filterLevel,
+                    filterType
             );
         }
 
         for (var territory : territories)
             territory.renderLabel(
-                this,
-                poseStack,
-                bufferSource,
-                hovered == territory.getPoi()
+                    this,
+                    poseStack,
+                    bufferSource,
+                    hovered == territory.getPoi()
             );
 
 
@@ -159,8 +165,8 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
     }
 
     @ModifyConstant(
-        method = "renderTerritoryTooltip",
-        constant = @Constant(stringValue = "Territory Defences: %s")
+            method = "renderTerritoryTooltip",
+            constant = @Constant(stringValue = "Territory Defences: %s")
     )
     private static String defenses(String constant) {
         if (GuildMapImprovementsFeature.INSTANCE.getEnabled())

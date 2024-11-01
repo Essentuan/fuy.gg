@@ -6,6 +6,7 @@ import com.busted_moments.client.buster.TerritoryList;
 import com.busted_moments.client.framework.wynntils.WynntilsKt;
 import com.busted_moments.client.framework.events.EventsKt;
 import com.busted_moments.client.models.territories.eco.EcoConstants;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.wynntils.mc.event.AdvancementUpdateEvent;
 import com.wynntils.models.territories.TerritoryInfo;
 import com.wynntils.models.territories.TerritoryModel;
@@ -33,16 +34,15 @@ public abstract class TerritoryModelMixin {
     private Set<TerritoryPoi> allTerritoryPois;
 
     @Inject(
-        method = "onAdvancementUpdate",
-        at = @At(
-            value = "INVOKE",
-            target = "Ljava/util/Set;iterator()Ljava/util/Iterator;",
-            shift = At.Shift.BEFORE
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD
+            method = "onAdvancementUpdate",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Set;iterator()Ljava/util/Iterator;",
+                    shift = At.Shift.BEFORE
+            )
     )
     public void onAdvancementUpdate(
-        AdvancementUpdateEvent event, CallbackInfo ci, Map<String, TerritoryInfo> tempMap
+            AdvancementUpdateEvent event, CallbackInfo ci, @Local Map<String, TerritoryInfo> tempMap
     ) {
         if (TerritoryList.ProfileUpdateEvent.Companion.isReady()) {
             var profiles = new HashMap<String, TerritoryProfile>();

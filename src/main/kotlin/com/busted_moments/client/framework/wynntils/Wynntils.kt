@@ -14,6 +14,8 @@ import com.wynntils.models.territories.type.GuildResourceValues
 import com.wynntils.services.map.pois.TerritoryPoi
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils.mc
+import com.wynntils.utils.type.CappedValue
+import kotlinx.serialization.StringFormat
 import net.essentuan.esl.color.Color
 import net.minecraft.client.Minecraft
 import net.minecraft.core.RegistryAccess
@@ -87,17 +89,21 @@ var TerritoryModel.allTerritoryPois: MutableSet<TerritoryPoi>
         (this as TerritoryModelAccessor).allTerritoryPois = value
     }
 
-fun Territory.toTerritoryInfo(): TerritoryInfo =
-    Objenesis<TerritoryInfo>().also {
-        (it as TerritoryCopier).copyOf(this)
-    }
-
 var ChatMessageReceivedEvent.message: StyledText
     get() = styledText!!
     set(value) = setMessage(value)
 
-internal fun interface TerritoryCopier {
-    fun copyOf(territory: Territory)
+internal interface MutableTerritoryPoi {
+    var guildName: String
+    var guildPrefix: String
+    var storage: MutableMap<GuildResource, CappedValue>
+    var generators: MutableMap<GuildResource, Int>
+    var tradingRoutes: MutableList<String>
+    var treasury: GuildResourceValues
+    var defences: GuildResourceValues
+    var headquarters: Boolean
+
+    fun generateResourceColors();
 }
 
 val Minecraft.registry: RegistryAccess

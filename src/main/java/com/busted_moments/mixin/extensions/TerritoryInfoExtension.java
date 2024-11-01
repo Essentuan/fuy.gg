@@ -2,13 +2,14 @@ package com.busted_moments.mixin.extensions;
 
 import com.busted_moments.buster.api.Territory;
 import com.busted_moments.client.framework.wynntils.WynntilsKt;
-import com.busted_moments.client.framework.wynntils.TerritoryCopier;
+import com.busted_moments.client.framework.wynntils.MutableTerritoryPoi;
 import com.busted_moments.client.models.territories.eco.EcoConstants;
 import com.wynntils.models.territories.TerritoryInfo;
 import com.wynntils.models.territories.type.GuildResource;
 import com.wynntils.models.territories.type.GuildResourceValues;
 import com.wynntils.utils.colors.CustomColor;
 import com.wynntils.utils.type.CappedValue;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -18,9 +19,11 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @Mixin(value = TerritoryInfo.class, remap = false)
-public abstract class TerritoryInfoExtension implements TerritoryCopier {
+public abstract class TerritoryInfoExtension implements MutableTerritoryPoi {
    @Shadow
    private String guildName;
 
@@ -58,39 +61,61 @@ public abstract class TerritoryInfoExtension implements TerritoryCopier {
    @Shadow
    private GuildResourceValues treasury;
 
+   @Shadow @Final private static Pattern DEFENSE_PATTERN;
+
    @Override
-   public void copyOf(Territory territory) {
-      guildName = territory.getOwner().getName();
-      guildPrefix = territory.getOwner().getTag();
+   public void setGuildName(@NotNull String s) {
+      guildName = s;
+   }
 
-      storage = new HashMap<>();
-      generators = new HashMap<>();
+   @Override
+   public void setGuildPrefix(@NotNull String s) {
 
-      for (var entry : territory.getResources().entrySet()) {
-         var resource = WynntilsKt.getWynntils(entry.getKey());
-         var storage = entry.getValue();
+   }
 
-         if (storage.getStored() != 0)
-            this.storage.put(
-                    resource,
-                    new CappedValue(
-                            storage.getStored(),
-                            capacity(territory, storage, resource)
-                    )
-            );
+   @Override
+   public void setStorage(@NotNull Map<@NotNull GuildResource, @NotNull CappedValue> guildResourceCappedValueMap) {
+      if (guildResourceCappedValueMap instanceof HashMap<GuildResource, CappedValue> hashmap)
+         storage = hashmap;
+      else
+         storage = new HashMap<>(guildResourceCappedValueMap);
+   }
 
-         var prod = Math.max(storage.getProduction(), storage.getBase());
-         if (prod != 0)
-            this.generators.put(resource, prod);
-      }
+   @Override
+   public void setGenerators(@NotNull Map<@NotNull GuildResource, @NotNull Integer> guildResourceIntegerMap) {
+      if (guildResourceIntegerMap instanceof HashMap<GuildResource, Integer> hashmap)
+         generators = hashmap;
+      else
+         generators = new HashMap<>(guildResourceIntegerMap);
+   }
 
-      tradingRoutes = new ArrayList<>(territory.getConnections());
+   @Override
+   public void setTradingRoutes(@NotNull List<@NotNull String> strings) {
+      tradingRoutes = strings;
+   }
 
-      defences = WynntilsKt.getWynntils(territory.getDefense());
-      treasury = WynntilsKt.getWynntils(territory.getTreasury());
+   @Override
+   public void setTreasury(@NotNull GuildResourceValues guildResourceValues) {
+      treasury = guildResourceValues;
+   }
 
-      headquarters = territory.getHq();
+   @Override
+   public void setDefences(@NotNull GuildResourceValues guildResourceValues) {
+      defences = guildResourceValues;
+   }
 
+   @Override
+   public boolean getHeadquarters() {
+      return headquarters;
+   }
+
+   @Override
+   public void setHeadquarters(boolean b) {
+      headquarters = b;
+   }
+
+   @Override
+   public void generateResourceColors() {
       resourceColors = new ArrayList<>();
       for (var entry : generators.entrySet()) {
          switch (entry.getKey()) {
@@ -127,6 +152,7 @@ public abstract class TerritoryInfoExtension implements TerritoryCopier {
          else
             capacity = EcoConstants.NORMAL_RESOURCE_STORAGE;
       }
+
       return capacity;
    }
 }

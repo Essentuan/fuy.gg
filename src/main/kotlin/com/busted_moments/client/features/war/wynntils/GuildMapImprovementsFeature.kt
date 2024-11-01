@@ -3,11 +3,18 @@ package com.busted_moments.client.features.war.wynntils
 import com.busted_moments.buster.api.Territory
 import com.busted_moments.client.buster.GuildList
 import com.busted_moments.client.buster.TerritoryList
+import com.busted_moments.client.buster.WynntilsGuild
+import com.busted_moments.client.buster.WynntilsLocation
+import com.busted_moments.client.buster.WynntilsProfile
 import com.busted_moments.client.buster.color
+import com.busted_moments.client.buster.events.TerritoryListUpdateEvent
 import com.busted_moments.client.features.war.timerString
+import com.busted_moments.client.framework.Objenesis
+import com.busted_moments.client.framework.Objenesis.invoke
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Tooltip
 import com.busted_moments.client.framework.config.entries.value.Value
+import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.features.Feature
 import com.busted_moments.client.framework.render.TextRenderer
 import com.busted_moments.client.framework.render.Texture
@@ -17,18 +24,30 @@ import com.busted_moments.client.framework.render.line
 import com.busted_moments.client.framework.render.text
 import com.busted_moments.client.framework.render.texture
 import com.busted_moments.client.framework.text.Text
+import com.busted_moments.client.framework.wynntils.MutableTerritoryPoi
+import com.busted_moments.client.framework.wynntils.allTerritoryPois
 import com.busted_moments.client.framework.wynntils.esl
+import com.busted_moments.client.framework.wynntils.territoryPoiMap
+import com.busted_moments.client.framework.wynntils.territoryProfileMap
 import com.busted_moments.client.framework.wynntils.wynntils
+import com.busted_moments.client.models.territories.eco.EcoConstants
 import com.busted_moments.client.models.territories.timers.TimerModel
+import com.busted_moments.mixin.invoker.TerritoryPoiInvoker
 import com.mojang.blaze3d.vertex.PoseStack
 import com.wynntils.core.components.Models
+import com.wynntils.mc.event.AdvancementUpdateEvent
+import com.wynntils.models.territories.TerritoryInfo
+import com.wynntils.models.territories.type.GuildResourceValues
+import com.wynntils.screens.maps.GuildMapScreen
 import com.wynntils.services.map.pois.TerritoryPoi
 import com.wynntils.services.map.type.TerritoryDefenseFilterType
 import com.wynntils.utils.colors.CommonColors
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.render.MapRenderer
 import com.wynntils.utils.render.buffered.BufferedRenderUtils
+import com.wynntils.utils.type.CappedValue
 import me.shedaniel.clothconfig2.impl.EasingMethod
+import net.essentuan.esl.collections.builders.mutableMap
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.time.duration.minutes
 import net.essentuan.esl.time.duration.ms
@@ -36,6 +55,7 @@ import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.time.extensions.timeSince
 import net.essentuan.esl.tuples.numbers.FloatPair
 import net.minecraft.client.renderer.MultiBufferSource
+import net.neoforged.bus.api.EventPriority
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -75,6 +95,78 @@ object GuildMapImprovementsFeature : Feature() {
     @Value("Use cooldown for color")
     @Tooltip(["Will change the fill of a territory based on how long until its off cooldown"])
     var cooldown: Boolean = true
+
+    private fun update() {
+        if (!enabled || TerritoryList.isEmpty())
+            return
+        val profiles = mutableMapOf<String, WynntilsProfile>()
+
+        val pois = mutableSetOf<TerritoryPoi>()
+        for (it in TerritoryList) {
+            WynntilsProfile(
+                it.name,
+                it.name,
+                WynntilsLocation(
+                    it.location.start.x,
+                    it.location.start.z,
+                    it.location.end.x,
+                    it.location.end.z
+                ),
+                WynntilsGuild(
+                    it.owner.name,
+                    it.owner.tag
+                ),
+                it.acquired.toInstant()
+            ).also { profile ->
+                profiles[it.name] = profile
+
+                pois.add(
+                    Models.Territory.territoryPoiMap.compute(it.name) { _, previous ->
+                        if (previous?.territoryInfo?.guildPrefix == it.owner.tag)
+                            return@compute previous
+
+                        val territory: MutableTerritoryPoi = Objenesis<TerritoryInfo>() as MutableTerritoryPoi
+
+                        territory.guildName = it.owner.name
+                        territory.guildPrefix = it.owner.tag
+                        territory.storage = mutableMapOf()
+
+                        territory.generators = mutableMap {
+                            for ((resource, store) in it.resources)
+                                if (store.base > 0)
+                                    resource.wynntils to store.base
+                        }
+
+                        territory.tradingRoutes = it.connections.toMutableList()
+                        territory.treasury = GuildResourceValues.VERY_LOW
+                        territory.defences = GuildResourceValues.VERY_LOW
+                        territory.headquarters = false
+
+                        territory.generateResourceColors()
+
+                        TerritoryPoiInvoker.create(
+                            { profile },
+                            territory as TerritoryInfo,
+                            false
+                        )
+                    }!!
+                )
+            }
+        }
+
+        Models.Territory.allTerritoryPois = pois
+        Models.Territory.territoryProfileMap = profiles
+    }
+
+    @Subscribe
+    private fun TerritoryListUpdateEvent.on() {
+        update()
+    }
+
+    @Subscribe(priority = EventPriority.LOWEST)
+    private fun AdvancementUpdateEvent.on() {
+        update()
+    }
 }
 
 class RenderDetails(
@@ -84,10 +176,9 @@ class RenderDetails(
     centerX: Float,
     centerZ: Float,
     resourceMode: Boolean,
-    private val scale: Float
+    private val scale: Float,
+    private val territory: Territory
 ) {
-    private val territory: Territory = TerritoryList[poi.name]!!
-
     private val label: CustomColor
     private val outline: List<CustomColor>
     private val background: List<CustomColor>
@@ -403,7 +494,7 @@ class Link(
         val from = poi
         val to = Models.Territory.getTerritoryPoiFromAdvancement(this.to) ?: return
 
-        when(filterType) {
+        when (filterType) {
             null -> Unit
 
             TerritoryDefenseFilterType.DEFAULT -> {

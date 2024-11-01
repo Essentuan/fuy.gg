@@ -2,31 +2,18 @@ package com.busted_moments.client.buster
 
 import com.busted_moments.buster.api.Territory
 import com.busted_moments.buster.protocol.clientbound.ClientboundMapPacket
-import com.busted_moments.buster.protocol.serverbound.ServerboundTerritoryProfileUpdatePacket
 import com.busted_moments.buster.types.guilds.TerritoryProfile
 import com.busted_moments.client.buster.events.TerritoryEvent
-import com.busted_moments.client.features.war.wynntils.GuildMapImprovementsFeature
+import com.busted_moments.client.buster.events.TerritoryListUpdateEvent
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
-import com.busted_moments.client.framework.text.FUY_PREFIX
-import com.busted_moments.client.framework.wynntils.allTerritoryPois
-import com.busted_moments.client.framework.wynntils.territoryPoiMap
-import com.busted_moments.client.framework.wynntils.territoryProfileMap
-import com.busted_moments.client.framework.wynntils.toTerritoryInfo
-import com.busted_moments.client.inline
-import com.busted_moments.mixin.invoker.TerritoryPoiInvoker
-import com.wynntils.core.components.Models
-import com.wynntils.mc.event.AdvancementUpdateEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
-import com.wynntils.services.map.pois.TerritoryPoi
 import net.essentuan.esl.iteration.Iterators
-import net.essentuan.esl.reflections.extensions.invoke
 import net.essentuan.esl.scheduling.api.schedule
 import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.tuples.numbers.FloatPair
 import net.neoforged.bus.api.Event
-import net.neoforged.bus.api.EventPriority
 import java.util.Date
 import java.util.UUID
 
@@ -66,6 +53,8 @@ object TerritoryList : Territory.List {
     private fun Socket.on(packet: ClientboundMapPacket) {
         val before = territories
         territories = packet.wrap()
+
+        TerritoryListUpdateEvent().post()
 
         if (before == null)
             return
