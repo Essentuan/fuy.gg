@@ -70,7 +70,7 @@ public abstract class TerritoryInfoExtension implements MutableTerritoryPoi {
 
    @Override
    public void setGuildPrefix(@NotNull String s) {
-
+      guildPrefix = s;
    }
 
    @Override
