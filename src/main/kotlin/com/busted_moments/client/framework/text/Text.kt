@@ -15,7 +15,9 @@ import com.wynntils.core.text.StyledTextPart
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils
 import com.wynntils.utils.mc.McUtils.mc
+import com.wynntils.utils.mc.StyledTextUtils
 import net.essentuan.esl.color.Color
+import net.essentuan.esl.iteration.extensions.appendAll
 import net.essentuan.esl.other.thread
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.components.ChatComponent
@@ -113,7 +115,14 @@ object Text {
         return builder.parts.toList()
     }
 
-    inline fun StyledText.matches(block: Matching.() -> Unit) =
+    /**
+     * Removes the soft-wrap Wynn gives to all messages post 2.1.
+     *
+     */
+    fun StyledText.unwrap(): StyledText =
+        StyledTextUtils.unwrap(this)
+
+    inline infix fun StyledText.matches(block: Matching.() -> Unit) =
         Matching(this).apply(block)
 
     fun TextParts.copy(): TextParts =
@@ -146,7 +155,7 @@ object Text {
     value class Matching(
         val text: StyledText
     ) {
-        inline operator fun Pattern.invoke(style: StyleType = StyleType.NONE, block: (Matcher, StyledText) -> Unit) {
+        inline operator fun Pattern.invoke(style: StyleType = StyleType.NONE, block: Matcher.(StyledText) -> Unit) {
             val matcher = text.getMatcher(this, style)
             if (matcher.matches())
                 block(matcher, text)
@@ -155,7 +164,7 @@ object Text {
         inline fun any(
             vararg patterns: Pattern,
             style: StyleType = StyleType.NONE,
-            block: (Matcher, StyledText) -> Unit
+            block: Matcher.(StyledText) -> Unit
         ) {
             for (pattern in patterns) {
                 val matcher = text.getMatcher(pattern, style)
@@ -164,6 +173,10 @@ object Text {
                     return
                 }
             }
+        }
+
+        inline fun unwrapped(block: Matching.() -> Unit) {
+            Matching(text.unwrap()).apply(block)
         }
 
         inline fun replaceAll(pattern: String, replacement: String, block: Matching.() -> Unit) {
@@ -183,8 +196,9 @@ object Text {
     value class Builder(
         val parts: MutableList<TextPart>
     ) {
-        operator fun Builder.unaryPlus() =
-            this@Builder.parts.addAll(this.parts)
+        fun append(builder: Builder) {
+            parts.appendAll(builder.parts)
+        }
 
         operator fun TextParts.unaryPlus() {
             parts += this

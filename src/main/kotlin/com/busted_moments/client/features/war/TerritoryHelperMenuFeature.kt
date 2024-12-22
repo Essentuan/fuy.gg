@@ -65,7 +65,7 @@ object TerritoryHelperMenuFeature : Feature() {
     @Subscribe
     private fun MenuOpenedEvent.Pre.on() {
         Text(title).matches {
-            TERRITORY_MENU_TITLE { _, _ ->
+            TERRITORY_MENU_TITLE {
                 isCanceled = true
                 ManageTerritoriesScreen(containerId).open()
 
@@ -79,14 +79,14 @@ object TerritoryHelperMenuFeature : Feature() {
                 return@matches
             }
 
-            SELECT_TERRITORIES_MENU_TITLE { _, _ ->
+            SELECT_TERRITORIES_MENU_TITLE {
                 isCanceled = true
                 SelectTerritoriesScreen(containerId).open()
 
                 return@matches
             }
 
-            GUILD_MANAGE_MENU_TITLE { _, _ ->
+            GUILD_MANAGE_MENU_TITLE {
                 if (redirect && doRedirect) {
                     isCanceled = true
                     noReset = true
@@ -100,7 +100,7 @@ object TerritoryHelperMenuFeature : Feature() {
     @Subscribe
     private fun ContainerSetContentEvent.Pre.on() {
         Text(Containers.opened?.title ?: return).matches {
-            GUILD_MANAGE_MENU_TITLE { _, _ ->
+            GUILD_MANAGE_MENU_TITLE {
                 if (redirect && doRedirect)
                     Containers.click(14, 0)
 

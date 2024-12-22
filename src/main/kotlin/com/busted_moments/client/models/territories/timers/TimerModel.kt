@@ -14,6 +14,7 @@ import com.busted_moments.client.framework.events.post
 import com.busted_moments.client.framework.text.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
+import com.busted_moments.client.framework.text.Text.unwrap
 import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.text.getValue
 import com.busted_moments.client.inline
@@ -22,6 +23,7 @@ import com.google.common.collect.SetMultimap
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.mc.event.ConnectionEvent.DisconnectedEvent
 import com.wynntils.mc.event.InventoryMouseClickedEvent
+import com.wynntils.models.players.PartyModel
 import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.collections.maps.expireAfter
 import net.essentuan.esl.collections.multimap.Multimaps
@@ -91,11 +93,11 @@ object TimerModel : Set<AttackTimer> {
     @Subscribe
     private fun ChatMessageReceivedEvent.on() {
         originalStyledText.matches {
-            mutate(Text::normalized) {
-                Patterns.TERRITORY_DEFENSE(StyleType.DEFAULT) { matcher, _ ->
-                    val territory = matcher["territory"]!!
+            mutate({ Text.normalized(it.unwrap()) }) {
+                Patterns.TERRITORY_DEFENSE(StyleType.DEFAULT) {
+                    val territory = group("territory")!!
                     val defense = unsafe {
-                        enumValueOf<Territory.Rating>(matcher["defense"]!!)
+                        enumValueOf<Territory.Rating>(group("defense")!!)
                     }.orNull() ?: return
 
                     defenses[territory] = defense
@@ -122,9 +124,9 @@ object TimerModel : Set<AttackTimer> {
                     return
                 }
 
-                Patterns.TIMER_START(StyleType.DEFAULT) { matcher, _ ->
-                    val territory by matcher
-                    val remaining = Duration(matcher["timer"]!!) ?: return
+                Patterns.TIMER_START(StyleType.DEFAULT) {
+                    val territory by this
+                    val remaining = Duration(group("timer")!!) ?: return
 
                     if (remaining <= 30.seconds)
                         return
@@ -138,7 +140,7 @@ object TimerModel : Set<AttackTimer> {
                     }
 
                     val timer = AttackTimer(
-                        territory!!,
+                        territory!!.trim(),
                         Date() + remaining,
                         defense,
                         trusted

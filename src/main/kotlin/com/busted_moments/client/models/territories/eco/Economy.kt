@@ -93,10 +93,10 @@ class Economy(
 
         for (line in stack.tooltip) {
             line.normalized.matches {
-                UPGRADE { matcher, _ ->
-                    val type = Upgrade.fromName(matcher["upgrade"]) ?: return@UPGRADE
-                    val level = matcher["level"]!!.toInt()
-                    val upgrade = type.levels[matcher["level"]!!.toInt()]
+                UPGRADE {
+                    val type = Upgrade.fromName(group("upgrade")) ?: return@UPGRADE
+                    val level = group("level")!!.toInt()
+                    val upgrade = type.levels[group("level")!!.toInt()]
 
                     upgrades[type] = level to upgrade
 
@@ -105,26 +105,26 @@ class Economy(
                     return@matches
                 }
 
-                STORAGE { matcher, _ ->
+                STORAGE {
                     resources[
-                        GuildResource.fromSymbol(matcher["type"] ?: "").buster
+                        GuildResource.fromSymbol(group("type") ?: "").buster
                     ]!!.let {
-                        it.stored = matcher["stored"]!!.toInt()
-                        it.capacity = matcher["capacity"]!!.toInt()
+                        it.stored = group("stored")!!.toInt()
+                        it.capacity = group("capacity")!!.toInt()
                     }
 
                     return@matches
                 }
 
-                PRODUCTION { matcher, _ ->
-                    resources[GuildResource.fromName(matcher["resource"]).buster]!!.production =
-                        matcher["amount"]!!.toInt()
+                PRODUCTION {
+                    resources[GuildResource.fromName(group("resource")).buster]!!.production =
+                        group("amount")!!.toInt()
 
                     return@matches
                 }
 
-                TREASURY { matcher, _ ->
-                    treasury = matcher["treasury"]!!.toDouble()
+                TREASURY {
+                    treasury = group("treasury")!!.toDouble()
                     return@matches
                 }
             }

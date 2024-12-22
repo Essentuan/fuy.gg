@@ -24,8 +24,8 @@ object ClickToCongratulateFeature : Feature() {
             any(
                 Patterns.LEVEL_UP,
                 Patterns.PROF_LEVEL_UP
-            ) { matcher, it ->
-                val player by matcher
+            ) {
+                val player by this
                 if (!Profile.isValid(player ?: return))
                     return
 

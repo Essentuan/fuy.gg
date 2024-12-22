@@ -72,13 +72,13 @@ data class Tower(
         companion object {
             operator fun invoke(text: StyledText): Stats? {
                 text.matches {
-                    Patterns.TOWER_STATS { matcher, _ ->
+                    Patterns.TOWER_STATS {
                         return Stats(
-                            matcher["health"]!!.toLong(),
-                            matcher["defense"]!!.toFloat(),
-                            matcher["damagemin"]!!.toInt(),
-                            matcher["damagemax"]!!.toInt(),
-                            matcher["attackspeed"]!!.toFloat()
+                            group("health")!!.toLong(),
+                            group("defense")!!.toFloat(),
+                            group("damagemin")!!.toInt(),
+                            group("damagemax")!!.toInt(),
+                            group("attackspeed")!!.toFloat()
                         )
                     }
                 }

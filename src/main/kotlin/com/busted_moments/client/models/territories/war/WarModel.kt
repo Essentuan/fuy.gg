@@ -110,17 +110,17 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
                     Patterns.TERRITORY_CONTROL,
                     Patterns.TERRITORY_CAPTURED,
                     style = StyleType.DEFAULT
-                ) { matcher, _ ->
+                ) {
                     TerritoryEvent.Captured(
-                        matcher["territory"]!!,
-                        matcher["guild"]!!
+                        group("territory")!!,
+                        group("guild")!!
                     ).post()
 
                     return
                 }
 
-                Patterns.WAR_SUCCESS(StyleType.DEFAULT) { matcher, _ ->
-                    val territory by matcher
+                Patterns.WAR_SUCCESS(StyleType.DEFAULT) {
+                    val territory by this
 
                     if (current == null || territory != current!!.territory.name || !current!!.hasStarted || current!!.hasEnded)
                         return

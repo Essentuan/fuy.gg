@@ -138,7 +138,7 @@ object ContentTimerFeature : Feature() {
         originalStyledText.matches {
             //Raids
             mutate(Text::normalized) {
-                Patterns.RAID_COMPLETION { _, _ ->
+                Patterns.RAID_COMPLETION {
                     raidState = RAID_READING_COMPLETION
                     raidRead = 0
 
@@ -147,7 +147,7 @@ object ContentTimerFeature : Feature() {
                     return@on
                 }
 
-                Patterns.RAID_FAIL { _, _ ->
+                Patterns.RAID_FAIL {
                     raidState = RAID_READING_FAIL
                     raidRead = 0
 
@@ -156,7 +156,7 @@ object ContentTimerFeature : Feature() {
                     return@on
                 }
 
-                Patterns.RAID_STATISTICS_END { _, _ ->
+                Patterns.RAID_STATISTICS_END {
                     raidState = RAID_NOT_READING
 
                     raidLines += originalStyledText
@@ -167,7 +167,7 @@ object ContentTimerFeature : Feature() {
                     return@on
                 }
 
-                Patterns.TIME_ELAPSED { _, _ ->
+                Patterns.TIME_ELAPSED {
                     isCanceled = true
 
                     if (raidState == RAID_READING_FAIL) {
@@ -181,16 +181,16 @@ object ContentTimerFeature : Feature() {
             }
 
             //Dungeons
-            Patterns.DUNGEON_COMPLETION { _, _ ->
+            Patterns.DUNGEON_COMPLETION {
                 isCanceled = true
 
                 return@on
             }
 
-            Patterns.DUNGEON_REWARD { matcher, _ ->
+            Patterns.DUNGEON_REWARD {
                 isCanceled = true
 
-                val reward = matcher["reward"]!!
+                val reward = group("reward")!!
                 if (reward != "0 XP")
                     dungeonRewards += reward
 
@@ -198,7 +198,7 @@ object ContentTimerFeature : Feature() {
             }
 
             //LI
-            Patterns.LI_REWARD { _, text ->
+            Patterns.LI_REWARD { text ->
                 isCanceled = true
 
                 liRewards += text.trim()
@@ -677,7 +677,8 @@ object ContentTimerFeature : Feature() {
             LegendaryIslandType,
             LegendaryIslandType,
             Triggers.nothing(),
-            emptyList()
+            emptyList(),
+            ContentTimer.Modifiers.Empty
         ).also { it.close() }
 
         override fun render(ctx: Context): Boolean {

@@ -120,9 +120,9 @@ object LootrunDryStreakFeature : Feature() {
                     .split("\n")
                     .forEach {
                         it.matches {
-                            Patterns.REWARD_PULLS { matcher, _ ->
+                            Patterns.REWARD_PULLS {
                                 chest = Vector2d(entity.x, entity.z)
-                                count = matcher["pulls"]!!.toInt()
+                                count = group("pulls")!!.toInt()
 
                                 return
                             }
