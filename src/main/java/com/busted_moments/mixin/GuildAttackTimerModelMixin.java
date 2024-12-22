@@ -60,7 +60,7 @@ public abstract class GuildAttackTimerModelMixin {
 
       EventsKt.post(new TimerEvent.ScoreboardAdded(
               new AttackTimer(
-                      timer.territoryName(),
+                      timer.territoryName().trim(),
                       new Date(timer.timerEnd()),
                       defense,
                       false
