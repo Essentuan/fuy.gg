@@ -1,22 +1,30 @@
 package com.busted_moments.client.models.content
 
+import com.busted_moments.buster.api.Party
+import com.busted_moments.buster.protocol.serverbound.ContentModifier
 import com.busted_moments.client.framework.events.post
 import com.busted_moments.client.models.content.event.ContentEvent
+import com.busted_moments.client.models.party.PartyModel
+import net.essentuan.esl.rx.publish
+import net.essentuan.esl.rx.publisher
 import net.essentuan.esl.time.duration.Duration
 import net.essentuan.esl.time.duration.seconds
 import net.essentuan.esl.time.extensions.timeSince
+import org.reactivestreams.Publisher
 import java.util.Date
-import java.util.UUID
 
 class ContentTimer(
     val type: ContentType,
     stages: List<Stage.Builder>,
     completion: Trigger.Builder,
     failure: List<Trigger.Builder>,
-    private val delegate: MutableList<Stage> = mutableListOf()
+    val modifiers: Modifiers,
+    private val delegate: MutableList<Stage> = mutableListOf(),
 ) : List<Stage> by delegate {
     private val completion = completion.build(this::finish)
     private val failure = failure.map { it.build(this::fail) }
+
+    var party: Party = Party.Empty
 
     init {
         for (stage in stages)
@@ -24,6 +32,7 @@ class ContentTimer(
     }
 
     fun start() {
+        party = PartyModel.copy()
         ContentEvent.Enter(this).post()
     }
 
@@ -38,7 +47,7 @@ class ContentTimer(
                 start != null && end == null ->
                     start!!.timeSince()
 
-                start == null || end == null ->
+                start == null ->
                     0.seconds
 
                 else ->
@@ -96,5 +105,14 @@ class ContentTimer(
 
         for (trigger in failure)
             trigger.close()
+    }
+
+    fun interface Modifiers {
+        operator fun invoke(): Publisher<ContentModifier>
+
+        companion object Empty : Modifiers {
+            override fun invoke(): Publisher<ContentModifier> =
+                publisher {  }
+        }
     }
 } 

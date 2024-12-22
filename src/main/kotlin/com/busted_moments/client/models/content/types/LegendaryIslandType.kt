@@ -90,7 +90,7 @@ object LegendaryIslandType : ContentType, List<Stage.Builder> by listOf(
             Vec2(-5605f, -2998f),
             Vec2(-5754f, -3146f)
         ).build {
-            ContentTimer(this, this, completion, failures).start()
+            ContentTimer(this, this, completion, failures, ContentTimer.Modifiers.Empty).start()
         }
     }
 

@@ -1,18 +1,44 @@
 package com.busted_moments.client.models.content.types
 
+import com.busted_moments.buster.protocol.serverbound.ContentModifier
+import com.busted_moments.client.Patterns
+import com.busted_moments.client.framework.events.Subscribe
+import com.busted_moments.client.framework.events.events
+import com.busted_moments.client.framework.render.screen.elements.HoverElement
+import com.busted_moments.client.framework.text.Text.matches
+import com.busted_moments.client.framework.text.Text.unwrap
+import com.busted_moments.client.framework.text.get
+import com.busted_moments.client.framework.text.getValue
+import com.busted_moments.client.framework.text.text
+import com.busted_moments.client.framework.util.self
 import com.busted_moments.client.models.content.ContentTimer
 import com.busted_moments.client.models.content.ContentType
 import com.busted_moments.client.models.content.Stage
 import com.busted_moments.client.models.content.stages.Stages
 import com.busted_moments.client.models.content.triggers.Triggers
+import com.wynntils.core.text.StyledText
+import com.wynntils.core.text.StyledTextPart
+import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.utils.mc.StyledTextUtils
+import com.wynntils.utils.type.IterationDecision
+import net.essentuan.esl.coroutines.delay
+import net.essentuan.esl.coroutines.timeout
+import net.essentuan.esl.future.api.Future
+import net.essentuan.esl.rx.Generator
+import net.essentuan.esl.rx.Producer
+import net.essentuan.esl.rx.publisher
+import net.essentuan.esl.time.duration.seconds
+import net.minecraft.network.chat.HoverEvent
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
 
 enum class RaidType(
     private val pretty: String,
     spawn: Vec3,
     vararg stages: Stage.Builder,
-) : ContentType, List<Stage.Builder> by stages.toList() {
+) : ContentType, List<Stage.Builder> by stages.toList(), ContentTimer.Modifiers {
     NEST_OF_THE_GROOTSLANGS(
         "Nest of The Grootslangs",
         Vec3(-1977.0, 60.0, -5599.0),
@@ -210,15 +236,77 @@ enum class RaidType(
                 listOf(
                     Triggers.title("Raid Failed!"),
                     Triggers.entersSphere(spawn, 25.0)
-                )
+                ),
+                this
             ).start()
         }
 
     override val id: String
         get() = name
 
+    override fun invoke(): Publisher<ContentModifier> =
+        Publisher { Modifiers(this, it).subscribe() }
+
     override fun print(): String =
         pretty
+
+    private class Modifiers(
+        val type: RaidType,
+        downstream: Subscriber<in ContentModifier>
+    ) : Producer<ContentModifier>(downstream) {
+        @Subscribe
+        private fun ChatMessageReceivedEvent.on() {
+            originalStyledText.unwrap().iterate { part, out ->
+                val hoverEvent = part.partStyle.hoverEvent ?: return@iterate IterationDecision.CONTINUE
+
+                if (hoverEvent.action != HoverEvent.Action.SHOW_TEXT)
+                    return@iterate IterationDecision.CONTINUE
+
+                val matcher = StyledText.fromComponent(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT))
+                    .split("\n")
+                    .asSequence()
+                    .map { it.getMatcher(StyledTextUtils.NICKNAME_PATTERN) }
+                    .firstOrNull { it.matches() } ?: return@iterate IterationDecision.CONTINUE
+
+                out.clear()
+
+                out += StyledTextPart(
+                    part.text.replace(matcher["nick"]!!, matcher["username"]!!),
+                    part.partStyle.style,
+                    null,
+                    null
+                )
+
+                IterationDecision.CONTINUE
+            } matches {
+                Patterns.GUILD_RAID {
+                    val raid by this
+
+                    if (raid != type.name)
+                        return
+
+                    if (group("players").split(Patterns.PLAYER_LIST_DELIMITER).none { it.trim() == self.name })
+                        return
+
+                    ContentModifier.GUILD_RAID.yield()
+
+                    events.unregister()
+                    complete()
+                }
+            }
+        }
+
+        override fun produce() {
+            events.register()
+
+            Future {
+                delay(15.seconds)
+                events.unregister()
+                complete()
+            }
+        }
+    }
+
 
     companion object
 }

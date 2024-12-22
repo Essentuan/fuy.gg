@@ -779,7 +779,7 @@ enum class DungeonType(
     private val completion = Triggers.chatMessage(Patterns.DUNGEON_COMPLETION)
 
     private val start = start.build {
-        ContentTimer(this, this, completion, failures).start()
+        ContentTimer(this, this, completion, failures, ContentTimer.Modifiers.Empty).start()
     }
 
     override val id: String
