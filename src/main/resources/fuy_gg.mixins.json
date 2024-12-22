@@ -15,6 +15,7 @@
     "GuildAttackTimerModelMixin",
     "PersistedManagerMixin",
     "PersistedValueMixin",
+    "SubscribeEventListenerMixin",
     "TerritoryModelMixin",
     "WynntilsModMixin",
     "accessors.PartStyleAccessor",
