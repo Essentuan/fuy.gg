@@ -39,7 +39,7 @@ private fun Text.Builder.append(member: Party.Member) {
 object PartyModel : Party {
     private var _leader: Member? = null
 
-    override val leader: Party.Member?
+    val leader: Party.Member?
         get() = _leader
 
     private val members = mutableMapOf<String, Member>()

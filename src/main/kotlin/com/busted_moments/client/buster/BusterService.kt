@@ -2,7 +2,6 @@ package com.busted_moments.client.buster
 
 import com.busted_moments.buster.Buster
 import com.busted_moments.buster.Ray
-import com.busted_moments.buster.api.Party
 import com.busted_moments.buster.exceptions.RequestException
 import com.busted_moments.buster.protocol.Packet
 import com.busted_moments.buster.protocol.Request
@@ -10,9 +9,8 @@ import com.busted_moments.buster.protocol.Response
 import com.busted_moments.buster.protocol.clientbound.ClientboundLoginPacket
 import com.busted_moments.buster.protocol.requests.AuthRequest
 import com.busted_moments.buster.protocol.serverbound.ContentStage
-import com.busted_moments.buster.protocol.serverbound.ServerboundContentCompletion
+import com.busted_moments.buster.protocol.serverbound.ServerboundContentCompletionPacket
 import com.busted_moments.client.Client
-import com.busted_moments.client.Patterns
 import com.busted_moments.client.buster.events.BusterEvent
 import com.busted_moments.client.framework.config.Storage
 import com.busted_moments.client.framework.config.annotations.Category
@@ -21,26 +19,16 @@ import com.busted_moments.client.framework.config.entries.value.Value
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
 import com.busted_moments.client.framework.text.FUY_PREFIX
-import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.invoke
-import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.Text.send
-import com.busted_moments.client.framework.text.Text.unwrap
-import com.busted_moments.client.framework.text.get
-import com.busted_moments.client.framework.text.text
-import com.busted_moments.client.framework.wynntils.Ticks
+import com.busted_moments.client.inline
 import com.busted_moments.client.models.content.event.ContentEvent
 import com.busted_moments.client.models.content.stages.TextStage
 import com.wynntils.core.components.Models
-import com.wynntils.core.text.StyledText
-import com.wynntils.core.text.StyledTextPart
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.mc.event.ConnectionEvent.DisconnectedEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
 import com.wynntils.utils.mc.McUtils.mc
-import com.wynntils.utils.mc.StyledTextUtils
-import com.wynntils.utils.type.IterationDecision
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -49,11 +37,8 @@ import net.essentuan.esl.collections.synchronized
 import net.essentuan.esl.coroutines.delay
 import net.essentuan.esl.other.lock
 import net.essentuan.esl.reflections.Reflections
-import net.essentuan.esl.rx.toList
-import net.essentuan.esl.rx.toSet
 import net.essentuan.esl.scheduling.annotations.Auto
 import net.essentuan.esl.time.duration.seconds
-import net.minecraft.network.chat.HoverEvent
 import java.util.EnumSet
 import java.util.LinkedList
 import kotlin.coroutines.Continuation
@@ -125,10 +110,10 @@ object BusterService : Storage {
 
     @Subscribe
     private fun ContentEvent.Finish.on() {
-        client.launch {
+        inline {
             try {
                 send(
-                    ServerboundContentCompletion(
+                    ServerboundContentCompletionPacket(
                         timer.type.id,
                         timer.type.print(),
                         timer.party,
@@ -138,7 +123,7 @@ object BusterService : Storage {
                         timer.modifiers().await()
                     )
                 )
-            } catch(ex: Exception) {
+            } catch (ex: Exception) {
                 Client.error("Error sending content completion packet packet", ex)
             }
         }

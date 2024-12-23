@@ -3,6 +3,8 @@ package com.busted_moments.client.models.content
 import com.busted_moments.buster.api.Party
 import com.busted_moments.buster.protocol.serverbound.ContentModifier
 import com.busted_moments.client.framework.events.post
+import com.busted_moments.client.framework.text.Text
+import com.busted_moments.client.framework.text.Text.send
 import com.busted_moments.client.models.content.event.ContentEvent
 import com.busted_moments.client.models.party.PartyModel
 import net.essentuan.esl.future.api.Future
