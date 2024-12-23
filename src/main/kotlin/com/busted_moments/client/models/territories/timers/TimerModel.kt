@@ -69,9 +69,7 @@ object TimerModel : Set<AttackTimer> {
         }
 
         return timers.lock {
-            val previous = this[timer.territory].firstOrNull {
-                it.territory == timer.territory && (it.remaining - timer.remaining).abs() < 10.seconds
-            }
+            val previous = this[timer.territory].firstOrNull { (it.remaining - timer.remaining).abs() < 10.seconds }
 
             if (previous == null) {
                 TimerEvent.Enqueued(timer, source).post()
