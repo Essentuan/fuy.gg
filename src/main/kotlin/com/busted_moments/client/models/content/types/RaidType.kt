@@ -1,6 +1,7 @@
 package com.busted_moments.client.models.content.types
 
 import com.busted_moments.buster.protocol.serverbound.ContentModifier
+import com.busted_moments.client.Client
 import com.busted_moments.client.Patterns
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
@@ -264,7 +265,9 @@ enum class RaidType(
             events.register()
 
             handlers.add(launch {
-                delay(15.seconds)
+                delay(20.seconds)
+
+                Client.info("Raid expired")
 
                 complete(emptySet())
             })
@@ -300,7 +303,7 @@ enum class RaidType(
                 Patterns.GUILD_RAID {
                     val raid by this
 
-                    if (raid != type.name)
+                    if (raid != type.pretty)
                         return
 
                     if (group("players").split(Patterns.PLAYER_LIST_DELIMITER).none { it.trim() == self.name })
