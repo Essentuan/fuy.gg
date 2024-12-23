@@ -198,7 +198,7 @@ object PartyModel : Party {
         if (newState == WorldState.WORLD)
             schedule {
                 Models.Party.requestData()
-            } after 100.ms
+            } after 300.ms
     }
 
     @Subscribe
