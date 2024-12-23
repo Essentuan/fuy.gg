@@ -5,7 +5,9 @@ import com.busted_moments.client.Patterns
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
 import com.busted_moments.client.framework.render.screen.elements.HoverElement
+import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
+import com.busted_moments.client.framework.text.Text.send
 import com.busted_moments.client.framework.text.Text.unwrap
 import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.text.getValue
@@ -21,8 +23,11 @@ import com.wynntils.core.text.StyledTextPart
 import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.utils.mc.StyledTextUtils
 import com.wynntils.utils.type.IterationDecision
+import kotlinx.coroutines.DelicateCoroutinesApi
 import net.essentuan.esl.coroutines.delay
+import net.essentuan.esl.coroutines.launch
 import net.essentuan.esl.coroutines.timeout
+import net.essentuan.esl.future.AbstractFuture
 import net.essentuan.esl.future.api.Future
 import net.essentuan.esl.rx.Generator
 import net.essentuan.esl.rx.Producer
@@ -33,6 +38,7 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import java.util.concurrent.TimeoutException
 
 enum class RaidType(
     private val pretty: String,
@@ -244,16 +250,28 @@ enum class RaidType(
     override val id: String
         get() = name
 
-    override fun invoke(): Publisher<ContentModifier> =
-        Publisher { Modifiers(this, it).subscribe() }
+    override fun invoke(): Future<Set<ContentModifier>> =
+        Modifiers(this)
 
     override fun print(): String =
         pretty
 
+    @OptIn(DelicateCoroutinesApi::class)
     private class Modifiers(
         val type: RaidType,
-        downstream: Subscriber<in ContentModifier>
-    ) : Producer<ContentModifier>(downstream) {
+    ) : AbstractFuture<Set<ContentModifier>>() {
+        init {
+            events.register()
+
+            handlers.add(launch {
+                delay(15.seconds)
+
+                complete(emptySet())
+            })
+
+            push { events.unregister() }
+        }
+
         @Subscribe
         private fun ChatMessageReceivedEvent.on() {
             originalStyledText.unwrap().iterate { part, out ->
@@ -288,21 +306,8 @@ enum class RaidType(
                     if (group("players").split(Patterns.PLAYER_LIST_DELIMITER).none { it.trim() == self.name })
                         return
 
-                    ContentModifier.GUILD_RAID.yield()
-
-                    events.unregister()
-                    complete()
+                    complete(setOf(ContentModifier.GUILD_RAID))
                 }
-            }
-        }
-
-        override fun produce() {
-            events.register()
-
-            Future {
-                delay(15.seconds)
-                events.unregister()
-                complete()
             }
         }
     }

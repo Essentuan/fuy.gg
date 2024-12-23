@@ -30,6 +30,7 @@ import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.text.text
 import com.busted_moments.client.framework.wynntils.Ticks
 import com.busted_moments.client.models.content.event.ContentEvent
+import com.busted_moments.client.models.content.stages.TextStage
 import com.wynntils.core.components.Models
 import com.wynntils.core.text.StyledText
 import com.wynntils.core.text.StyledTextPart
@@ -125,17 +126,21 @@ object BusterService : Storage {
     @Subscribe
     private fun ContentEvent.Finish.on() {
         client.launch {
-            send(
-                ServerboundContentCompletion(
-                    timer.type.id,
-                    timer.type.print(),
-                    timer.party,
-                    timer.start!!,
-                    timer.map { ContentStage(it.name, it.start!!, it.end!!) },
-                    timer.end!!,
-                    timer.modifiers().toSet()
+            try {
+                send(
+                    ServerboundContentCompletion(
+                        timer.type.id,
+                        timer.type.print(),
+                        timer.party,
+                        timer.start!!,
+                        timer.filterNot { it is TextStage }.map { ContentStage(it.name, it.start!!, it.end!!) },
+                        timer.end!!,
+                        timer.modifiers().await()
+                    )
                 )
-            )
+            } catch(ex: Exception) {
+                Client.error("Error sending content completion packet packet", ex)
+            }
         }
     }
 

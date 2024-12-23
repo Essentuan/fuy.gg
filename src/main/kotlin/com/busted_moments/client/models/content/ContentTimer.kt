@@ -5,6 +5,7 @@ import com.busted_moments.buster.protocol.serverbound.ContentModifier
 import com.busted_moments.client.framework.events.post
 import com.busted_moments.client.models.content.event.ContentEvent
 import com.busted_moments.client.models.party.PartyModel
+import net.essentuan.esl.future.api.Future
 import net.essentuan.esl.rx.publish
 import net.essentuan.esl.rx.publisher
 import net.essentuan.esl.time.duration.Duration
@@ -108,11 +109,11 @@ class ContentTimer(
     }
 
     fun interface Modifiers {
-        operator fun invoke(): Publisher<ContentModifier>
+        operator fun invoke(): Future<Set<ContentModifier>>
 
         companion object Empty : Modifiers {
-            override fun invoke(): Publisher<ContentModifier> =
-                publisher {  }
+            override fun invoke(): Future<Set<ContentModifier>> =
+                Future(emptySet())
         }
     }
 } 
