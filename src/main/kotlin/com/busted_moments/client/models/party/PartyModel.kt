@@ -18,6 +18,7 @@ import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
 import com.wynntils.utils.mc.StyledTextUtils
+import net.essentuan.esl.scheduling.annotations.Every
 import net.essentuan.esl.scheduling.api.schedule
 import net.essentuan.esl.time.duration.ms
 import net.minecraft.network.chat.HoverEvent
@@ -191,6 +192,12 @@ object PartyModel : Party {
                 }
             }
         }
+    }
+
+    @Every(seconds = 5.0)
+    private fun update() {
+        if (Models.WorldState.currentState == WorldState.WORLD)
+            Models.Party.requestData()
     }
 
     @Subscribe
