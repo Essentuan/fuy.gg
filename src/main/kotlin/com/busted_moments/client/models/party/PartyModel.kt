@@ -194,12 +194,6 @@ object PartyModel : Party {
         }
     }
 
-    @Every(seconds = 5.0)
-    private fun update() {
-        if (Models.WorldState.currentState == WorldState.WORLD)
-            Models.Party.requestData()
-    }
-
     @Subscribe
     private fun WorldStateEvent.on() {
         if (newState == WorldState.WORLD)
