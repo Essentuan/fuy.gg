@@ -301,11 +301,6 @@ enum class RaidType(
                 IterationDecision.CONTINUE
             } matches {
                 Patterns.GUILD_RAID {
-                    val raid by this
-
-                    if (raid != type.pretty)
-                        return
-
                     if (group("players").split(Patterns.PLAYER_LIST_DELIMITER).none { it.trim() == self.name })
                         return
 
