@@ -11,6 +11,7 @@ import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.util.mc
 import com.busted_moments.client.framework.util.self
+import com.busted_moments.client.models.content.event.ContentEvent
 import com.busted_moments.client.models.party.events.PartyEvent
 import com.wynntils.core.components.Models
 import com.wynntils.core.text.StyledText
@@ -18,9 +19,11 @@ import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
 import com.wynntils.utils.mc.StyledTextUtils
+import net.essentuan.esl.coroutines.delay
 import net.essentuan.esl.scheduling.annotations.Every
 import net.essentuan.esl.scheduling.api.schedule
 import net.essentuan.esl.time.duration.ms
+import net.essentuan.esl.time.duration.seconds
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.world.entity.player.Player
 import java.util.UUID
@@ -200,6 +203,28 @@ object PartyModel : Party {
             schedule {
                 Models.Party.requestData()
             } after 300.ms
+    }
+
+    @Subscribe
+    private fun ContentEvent.Fail.on() {
+        schedule {
+            Models.Party.requestData()
+
+            delay(15.seconds)
+
+            Models.Party.requestData()
+        } after 300.ms
+    }
+
+    @Subscribe
+    private fun ContentEvent.Finish.on() {
+        schedule {
+            Models.Party.requestData()
+
+            delay(15.seconds)
+
+            Models.Party.requestData()
+        } after 300.ms
     }
 
     @Subscribe
