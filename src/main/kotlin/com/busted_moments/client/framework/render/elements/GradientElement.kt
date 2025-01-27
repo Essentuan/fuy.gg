@@ -9,6 +9,7 @@ import com.busted_moments.client.framework.render.builder.upload
 import com.busted_moments.client.framework.render.builder.vertex
 import com.busted_moments.client.framework.render.helpers.Context
 import net.essentuan.esl.color.Color
+import net.minecraft.client.renderer.CoreShaders
 import net.minecraft.client.renderer.GameRenderer
 import kotlin.experimental.ExperimentalTypeInference
 
@@ -21,7 +22,7 @@ abstract class  GradientElement<CTX : Context> : RectElement<CTX>() {
         upload(ctx) {
             quad {
                 +RenderMode.BLEND
-                shader(GameRenderer::getPositionColorShader)
+                shader(CoreShaders.POSITION_COLOR)
 
                 val x2 = x + width
                 val y2 = y + height

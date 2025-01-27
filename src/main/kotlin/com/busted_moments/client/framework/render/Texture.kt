@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.render.buffered.CustomRenderType
 import net.essentuan.esl.color.Color
+import net.minecraft.client.renderer.CoreShaders
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.resources.ResourceLocation
@@ -58,7 +59,7 @@ interface Texture : Sizable {
         uy: Int = 0,
         color: Color = CustomColor.NONE.esl
     ) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader)
+        RenderSystem.setShader(CoreShaders.POSITION_TEX)
         RenderSystem.setShaderTexture(0, resource)
         val builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
 

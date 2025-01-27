@@ -12,11 +12,11 @@ import com.wynntils.utils.colors.CommonColors
 import com.wynntils.utils.render.buffered.CustomRenderType
 import net.essentuan.esl.color.Color
 import net.essentuan.esl.tuples.numbers.FloatPair
+import net.minecraft.client.renderer.CompiledShaderProgram
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.client.renderer.ShaderProgram
 import java.io.Closeable
-import java.util.function.Supplier
 
 interface UploadScope : Closeable {
     val pose: PoseStack
@@ -231,7 +231,7 @@ private object UploadScopeImpl : UploadScope {
     }
 
     object Shaders : Shader {
-        var startInstance: ShaderInstance? = null
+        var startInstance: CompiledShaderProgram? = null
         var startColor: FloatArray = RenderSystem.getShaderColor()
 
         override var color: Color = Defaults.color
@@ -244,13 +244,13 @@ private object UploadScopeImpl : UploadScope {
             }
         }
 
-        override fun invoke(supplier: Supplier<ShaderInstance?>) {
-            RenderSystem.setShader(supplier)
+        override fun invoke(shader: ShaderProgram?) {
+            RenderSystem.setShader(shader)
         }
 
 
         fun end() {
-            RenderSystem.setShader { startInstance }
+            RenderSystem.setShader(startInstance)
             startInstance = null
 
             RenderSystem.setShaderColor(startColor[0], startColor[1], startColor[2], startColor[3])
