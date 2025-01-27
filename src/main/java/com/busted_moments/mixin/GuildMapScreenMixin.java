@@ -74,7 +74,7 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
         List<Poi> filteredPois = getRenderedPois(pois, textureBoundingBox, poiScale, mouseX, mouseY);
 
         bufferSource = McUtils.mc().renderBuffers().bufferSource();
-        deltaTracker = McUtils.mc().getTimer();
+        deltaTracker = McUtils.mc().getDeltaTracker();
 
         List<RenderDetails> territories = new ArrayList<>(filteredPois.size());
         List<Link> links = new ArrayList<>(filteredPois.size());
