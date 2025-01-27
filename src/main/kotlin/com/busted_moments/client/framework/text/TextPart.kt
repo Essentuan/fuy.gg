@@ -137,6 +137,7 @@ data class TextPart(
     fun toStyle(): Style {
         return Style(
             TextColor.fromRgb(color),
+            null,
             isBold,
             isItalic,
             isUnderline,
