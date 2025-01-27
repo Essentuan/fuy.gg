@@ -36,7 +36,8 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
     override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         this.graphics = guiGraphics
         this.mouse = FloatPair(mouseX.toFloat(), mouseY.toFloat())
-        this.deltaTracker = mc().timer
+
+        this.deltaTracker = mc().deltaTracker
         this.window = mc().window
 
         if (render(context))
@@ -46,7 +47,7 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
 
         first = elements.isEmpty()
 
-        guiGraphics.bufferSource().endBatch()
+        guiGraphics
     }
 
     override fun init() {
@@ -101,7 +102,7 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
         override val pose: PoseStack
             get() = this@Screen.graphics.pose()
         override val buffer: MultiBufferSource.BufferSource
-            get() = this@Screen.graphics.bufferSource()
+            get() = this@Screen.graphics.bufferSource
         override val deltaTracker: DeltaTracker
             get() = this@Screen.deltaTracker
         override val window: Window
