@@ -6,6 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
+import kotlin.jvm.optionals.getOrNull
 
 object SoundProvider : Dropdown.Provider<SoundEvent> {
     override fun get(key: String): SoundEvent? {
@@ -13,7 +14,7 @@ object SoundProvider : Dropdown.Provider<SoundEvent> {
             ResourceLocation.parse(
                 key
             )
-        )
+        ).getOrNull()?.value()
     }
 
     override fun iterator(): Iterator<SoundEvent> =

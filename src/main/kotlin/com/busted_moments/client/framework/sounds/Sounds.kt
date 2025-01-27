@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.util.RandomSource
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
+import kotlin.jvm.optionals.getOrNull
 
 object Sounds : Collection<SoundEvent> {
     val WAR_HORN = register("wynntils:war.horn")
@@ -24,7 +25,6 @@ object Sounds : Collection<SoundEvent> {
     override val size: Int
         get() = BuiltInRegistries.SOUND_EVENT.size()
 
-    @Suppress("ReplaceSizeZeroCheckWithIsEmpty")
     override fun isEmpty(): Boolean =
         size == 0
 
@@ -49,10 +49,10 @@ object Sounds : Collection<SoundEvent> {
         }
 
     operator fun get(location: ResourceLocation) =
-        BuiltInRegistries.SOUND_EVENT[location]
+        BuiltInRegistries.SOUND_EVENT[location]?.getOrNull()?.value()
 
     operator fun get(location: String) =
-        BuiltInRegistries.SOUND_EVENT[ResourceLocation.parse(location)]
+        BuiltInRegistries.SOUND_EVENT[ResourceLocation.parse(location)]?.getOrNull()?.value()
 
     override fun contains(element: SoundEvent): Boolean =
         BuiltInRegistries.SOUND_EVENT.containsKey(element.location)

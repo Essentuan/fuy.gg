@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Type
+import kotlin.jvm.optionals.getOrNull
 
 object SoundWriter : StringBasedEncoder<SoundEvent>() {
     override fun decode(
@@ -17,7 +18,7 @@ object SoundWriter : StringBasedEncoder<SoundEvent>() {
     ): SoundEvent? {
         return BuiltInRegistries.SOUND_EVENT.get(
             ResourceLocation.parse(obj)
-        )
+        ).getOrNull()?.value()
     }
 
     override fun encode(
