@@ -205,7 +205,7 @@ object LootrunDryStreakFeature : Feature() {
 
     @Subscribe(EventPriority.HIGHEST)
     private fun MythicFoundEvent.on() {
-        if (isLootrunEndReward)
+        if (mythicSource == MythicFoundEvent.MythicSource.LOOTRUN_REWARD_CHEST)
             (this as ICancellableEvent).isCanceled = true
     }
 
