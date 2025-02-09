@@ -41,7 +41,7 @@ jobs:
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
 
       - name: Upload build jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "[CI-${{ env.SHORT_SHA }}][${{ env.BRANCH }}]fuy_gg.zip"
           path: build/libs/
