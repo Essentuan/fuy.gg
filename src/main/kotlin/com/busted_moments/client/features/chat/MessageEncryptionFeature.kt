@@ -29,6 +29,7 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.Style
 import net.neoforged.bus.api.EventPriority
+import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
@@ -383,10 +384,6 @@ private fun pad(string: String): ByteArray {
     if (string.isEmpty())
         return ByteArray(0)
 
-    val bytes = string.toByteArray()
-    val i = bytes.size
-
-    return bytes.copyOf(
-        max(2.0.pow(32 - Integer.numberOfLeadingZeros(i - 1)).toInt(), 16)
-    )
+    val digest = MessageDigest.getInstance("SHA-256")
+    return digest.digest(string.toByteArray())
 }
