@@ -77,6 +77,10 @@ object MessageEncryptionFeature : Feature() {
     @Value("Encrypt Prefix")
     @Tooltip(["The prefix used when you want to encrypt a message"])
     private var prefix: String = "@"
+        set(value) {
+            field = value
+            hasSentWarning = false
+        }
 
     @Value("Replace invalid messages")
     @Tooltip(["Replaces messages that could not be decrypted with an error"])
@@ -137,10 +141,10 @@ object MessageEncryptionFeature : Feature() {
 
     @Subscribe
     private fun ChatSentEvent.on() {
-        if (prefix.contains('$')) {
+        if (prefix.contains('$') || prefix.contains('-') || prefix.contains('!')) {
             if (!hasSentWarning) {
                 FUY_PREFIX {
-                    +"WARNING: Your prefix cannot contain '$'".red
+                    +"WARNING: Your prefix cannot contain '$', '-', '!'".red
                 }.send()
 
                 hasSentWarning = true
@@ -196,10 +200,10 @@ object MessageEncryptionFeature : Feature() {
 
     @Subscribe(priority = EventPriority.HIGHEST)
     private fun CommandSentEvent.on() {
-        if (prefix.contains('$')) {
+        if (prefix.contains('$') || prefix.contains('-') || prefix.contains('!')) {
             if (!hasSentWarning) {
                 FUY_PREFIX {
-                    +"WARNING: Your prefix cannot contain '$'".red
+                    +"WARNING: Your prefix cannot contain '$', '-', or '!'".red
                 }.send()
 
                 hasSentWarning = true
