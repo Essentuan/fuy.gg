@@ -136,6 +136,19 @@ object MessageEncryptionFeature : Feature() {
 
     @Subscribe
     private fun ChatSentEvent.on() {
+        if (prefix.contains('$')) {
+            if (!hasSentWarning) {
+                FUY_PREFIX {
+                    +"WARNING: Your prefix cannot contain '$'".red
+                }.send()
+
+                hasSentWarning = true
+                isCanceled = true
+            }
+
+            return
+        }
+
         if (prefix.isEmpty()) return
 
         val index = indexOfPrefix(message)
@@ -182,6 +195,19 @@ object MessageEncryptionFeature : Feature() {
 
     @Subscribe(priority = EventPriority.HIGHEST)
     private fun CommandSentEvent.on() {
+        if (prefix.contains('$')) {
+            if (!hasSentWarning) {
+                FUY_PREFIX {
+                    +"WARNING: Your prefix cannot contain '$'".red
+                }.send()
+
+                hasSentWarning = true
+                isCanceled = true
+            }
+
+            return
+        }
+
         if (prefix.isEmpty()) return
 
         val parts = command.split(' ', limit = 2)
