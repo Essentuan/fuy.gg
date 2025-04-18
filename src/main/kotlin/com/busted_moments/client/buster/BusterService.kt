@@ -102,6 +102,10 @@ object BusterService : Storage {
     @Value("Verbose")
     private var verbose: Boolean = false
 
+    @Floating
+    @Value("Disable connection messages")
+    private var disableMessages: Boolean = false
+
     private var waiting: Boolean = false
     private var socket: Socket? = null
 
@@ -154,15 +158,16 @@ object BusterService : Storage {
                 if (seconds != 0.0)
                     delay(seconds.coerceAtMost(20.0).seconds)
 
-                if (verbose)
+                if (verbose && !disableMessages)
                     FUY_PREFIX {
                         +"Connecting to Buster.".yellow
                     }.send()
 
                 client.webSocket(BUSTER_URL) {
-                    FUY_PREFIX {
-                        +"Logging into Buster.".yellow
-                    }.send()
+                    if (!disableMessages)
+                        FUY_PREFIX {
+                            +"Logging into Buster.".yellow
+                        }.send()
 
                     socket = Socket(this)
 
@@ -203,9 +208,10 @@ object BusterService : Storage {
             BusterEvent.Auth(it, account).post()
         }
 
-        FUY_PREFIX {
-            +"Successfully logged into buster!".green
-        }.send()
+        if (!disableMessages)
+            FUY_PREFIX {
+                +"Successfully logged into buster!".green
+            }.send()
     }
 
     suspend fun <T> Request<T>.execute(): T? {
@@ -234,7 +240,7 @@ object BusterService : Storage {
     }
 
     private fun error(message: String = "You have been disconnected from Buster!", debug: Boolean = false) {
-        if (!debug || verbose)
+        if ((!debug || verbose) && !disableMessages)
             FUY_PREFIX {
                 +message.red
             }.send()
