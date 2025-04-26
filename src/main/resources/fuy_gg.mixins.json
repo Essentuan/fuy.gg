@@ -17,6 +17,7 @@
     "PersistedValueMixin",
     "SubscribeEventListenerMixin",
     "TerritoryModelMixin",
+    "UpdateServiceMixin",
     "WynntilsModMixin",
     "accessors.PartStyleAccessor",
     "accessors.StyledTextPartAccessor",
