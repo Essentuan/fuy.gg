@@ -141,13 +141,14 @@ abstract class AbstractOverlay private constructor(
     }
 
     private fun render(
-        pose: PoseStack,
+        graphics: GuiGraphics,
         buffers: MultiBufferSource.BufferSource,
         deltaTracker: DeltaTracker,
         window: Window,
         preview: Boolean
     ) {
-        this.pose = pose
+        this.guiGraphics = graphics
+        this.pose = graphics.pose()
         this.buffer = buffers
         this.deltaTracker = deltaTracker
         this.window = window
@@ -169,11 +170,11 @@ abstract class AbstractOverlay private constructor(
     }
 
     override fun render(p0: GuiGraphics, p1: MultiBufferSource, p2: DeltaTracker, p3: Window) {
-        render(p0.pose(), p1 as MultiBufferSource.BufferSource, p2, p3, false)
+        render(p0, p1 as MultiBufferSource.BufferSource, p2, p3, false)
     }
 
     override fun renderPreview(p0: GuiGraphics, p1: MultiBufferSource, p2: DeltaTracker, p3: Window) =
-        render(p0.pose(), p1 as MultiBufferSource.BufferSource, p2, p3, true)
+        render(p0, p1 as MultiBufferSource.BufferSource, p2, p3, true)
 
     override fun onConfigUpdate(p0: com.wynntils.core.persisted.config.Config<*>?) = Unit
 
@@ -199,6 +200,7 @@ abstract class AbstractOverlay private constructor(
         return Config.keyOf(this.javaClass)
     }
 
+    private lateinit var guiGraphics: GuiGraphics
     private lateinit var pose: PoseStack
     private lateinit var buffer: MultiBufferSource.BufferSource
     private lateinit var deltaTracker: DeltaTracker
@@ -212,6 +214,9 @@ abstract class AbstractOverlay private constructor(
 
         val preview: Boolean
             get() = overlay.preview
+
+        override val graphics: GuiGraphics
+            get() = guiGraphics
 
         override val pose: PoseStack
             get() = this@AbstractOverlay.pose

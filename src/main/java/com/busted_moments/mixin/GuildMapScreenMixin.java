@@ -17,6 +17,7 @@ import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.MapRenderer;
 import com.wynntils.utils.type.BoundingBox;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,6 +43,10 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
     private GuildResourceValues territoryDefenseFilterLevel;
     @Shadow
     private TerritoryDefenseFilterType territoryDefenseFilterType;
+
+    @Unique
+    private GuiGraphics guiGraphics;
+
     @Unique
     private PoseStack poseStack;
 
@@ -164,6 +169,11 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
         ci.cancel();
     }
 
+    @Inject(method = "doRender", at = @At("HEAD"))
+    private void doRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+        this.guiGraphics = guiGraphics;
+    }
+
     @ModifyConstant(
             method = "renderTerritoryTooltip",
             constant = @Constant(stringValue = "Territory Defences: %s")
@@ -173,6 +183,12 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
             return "⛨ " + constant;
         else
             return constant;
+    }
+
+    @NotNull
+    @Override
+    public GuiGraphics getGraphics() {
+        return guiGraphics;
     }
 
     @NotNull

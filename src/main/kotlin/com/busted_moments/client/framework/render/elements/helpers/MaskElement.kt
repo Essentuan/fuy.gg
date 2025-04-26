@@ -31,6 +31,7 @@ abstract class MaskElement<CTX : Context> : Element<CTX>(), MutableSizable {
         val area = ctx.pose.applyScale(size)
 
         RenderUtils.enableScissor(
+            ctx.graphics,
             pos.first.toInt(),
             pos.second.toInt(),
             area.first.toInt(),
@@ -40,7 +41,7 @@ abstract class MaskElement<CTX : Context> : Element<CTX>(), MutableSizable {
 
     override fun post(ctx: CTX) {
         ctx.buffer.endBatch()
-        RenderUtils.disableScissor()
+        RenderUtils.disableScissor(ctx.graphics)
     }
 }
 

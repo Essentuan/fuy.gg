@@ -450,7 +450,7 @@ abstract class TerritoryScreen<T : TerritoryScanner>(
                     }
 
                     ctx.buffer.endBatch()
-                    RenderUtils.disableScissor()
+                    RenderUtils.disableScissor(ctx.graphics)
 
                     if (hovered != null) {
                         var added = false

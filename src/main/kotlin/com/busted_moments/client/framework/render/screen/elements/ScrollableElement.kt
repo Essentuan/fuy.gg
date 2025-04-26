@@ -124,6 +124,7 @@ abstract class ScrollableElement : Element<Screen.Context>(), MutableSizable, Gu
         val area = ctx.pose.applyScale(size)
 
         RenderUtils.enableScissor(
+            ctx.graphics,
             pos.first.toInt(),
             pos.second.toInt(),
             area.first.toInt(),
@@ -142,7 +143,7 @@ abstract class ScrollableElement : Element<Screen.Context>(), MutableSizable, Gu
 
     override fun post(ctx: Screen.Context) {
         ctx.buffer.endBatch()
-        RenderUtils.disableScissor()
+        RenderUtils.disableScissor(ctx.graphics)
 
         texture.render(
             ctx.pose,

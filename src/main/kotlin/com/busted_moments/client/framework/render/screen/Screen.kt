@@ -87,7 +87,7 @@ abstract class Screen : McScreen(Title.find(Constructors.trace())), Renderer<Scr
         val screen: Screen
             get() = this@Screen
 
-        val graphics: GuiGraphics
+        override val graphics: GuiGraphics
             get() = this@Screen.graphics
 
         val mouse: FloatPair
