@@ -32,6 +32,7 @@ import net.essentuan.esl.reflections.extensions.simpleString
 import net.essentuan.esl.reflections.extensions.tags
 import net.essentuan.esl.tuples.numbers.FloatPair
 import net.minecraft.client.DeltaTracker
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.MultiBufferSource
 import kotlin.reflect.KClass
 
@@ -167,12 +168,12 @@ abstract class AbstractOverlay private constructor(
         buffers.endBatch()
     }
 
-    override fun render(p0: PoseStack, p1: MultiBufferSource, p2: DeltaTracker, p3: Window) {
-        render(p0, p1 as MultiBufferSource.BufferSource, p2, p3, false)
+    override fun render(p0: GuiGraphics, p1: MultiBufferSource, p2: DeltaTracker, p3: Window) {
+        render(p0.pose(), p1 as MultiBufferSource.BufferSource, p2, p3, false)
     }
 
-    override fun renderPreview(p0: PoseStack, p1: MultiBufferSource, p2: DeltaTracker, p3: Window) =
-        render(p0, p1 as MultiBufferSource.BufferSource, p2, p3, true)
+    override fun renderPreview(p0: GuiGraphics, p1: MultiBufferSource, p2: DeltaTracker, p3: Window) =
+        render(p0.pose(), p1 as MultiBufferSource.BufferSource, p2, p3, true)
 
     override fun onConfigUpdate(p0: com.wynntils.core.persisted.config.Config<*>?) = Unit
 
