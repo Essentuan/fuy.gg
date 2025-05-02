@@ -27,21 +27,23 @@ abstract class MaskElement<CTX : Context> : Element<CTX>(), MutableSizable {
     override fun pre(ctx: CTX) {
         ctx.buffer.endBatch()
 
-        val pos = ctx.pose.apply(pos)
-        val area = ctx.pose.applyScale(size)
-
         RenderUtils.enableScissor(
             ctx.graphics,
             pos.first.toInt(),
             pos.second.toInt(),
-            area.first.toInt(),
-            area.second.toInt()
+            size.first.toInt(),
+            size.second.toInt()
         )
     }
 
     override fun post(ctx: CTX) {
         ctx.buffer.endBatch()
-        RenderUtils.disableScissor(ctx.graphics)
+
+        try {
+            RenderUtils.disableScissor(ctx.graphics)
+        } catch(ex: IllegalStateException) {
+            //Ignored for now
+        }
     }
 }
 

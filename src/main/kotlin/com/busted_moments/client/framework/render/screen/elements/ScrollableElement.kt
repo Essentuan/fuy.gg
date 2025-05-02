@@ -120,15 +120,12 @@ abstract class ScrollableElement : Element<Screen.Context>(), MutableSizable, Gu
 
         ctx.buffer.endBatch()
 
-        val pos = ctx.pose.apply(pos)
-        val area = ctx.pose.applyScale(size)
-
         RenderUtils.enableScissor(
             ctx.graphics,
             pos.first.toInt(),
             pos.second.toInt(),
-            area.first.toInt(),
-            area.second.toInt()
+            size.first.toInt(),
+            size.second.toInt()
         )
     }
 
@@ -143,7 +140,12 @@ abstract class ScrollableElement : Element<Screen.Context>(), MutableSizable, Gu
 
     override fun post(ctx: Screen.Context) {
         ctx.buffer.endBatch()
-        RenderUtils.disableScissor(ctx.graphics)
+
+        try {
+            RenderUtils.disableScissor(ctx.graphics)
+        } catch(ex: IllegalStateException) {
+            //Ignored for now
+        }
 
         texture.render(
             ctx.pose,
