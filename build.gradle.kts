@@ -191,7 +191,7 @@ dependencies {
     include("io.ktor:ktor-serialization-jvm:$ktor_version")
     include("io.ktor:ktor-utils-jvm:$ktor_version")
 
-    shadow("com.github.essentuan:buster:v$buster_version")
+    shadow("com.github.Essentuan:buster:v$buster_version")
 
     //DevAuth
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${devauth_version}")
