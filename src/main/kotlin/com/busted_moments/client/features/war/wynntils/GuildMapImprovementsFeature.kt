@@ -32,6 +32,7 @@ import com.busted_moments.client.framework.wynntils.territoryProfileMap
 import com.busted_moments.client.framework.wynntils.wynntils
 import com.busted_moments.client.models.territories.eco.EcoConstants
 import com.busted_moments.client.models.territories.timers.TimerModel
+import com.busted_moments.mixin.accessors.TerritoryModelAccessor
 import com.busted_moments.mixin.invoker.TerritoryPoiInvoker
 import com.mojang.blaze3d.vertex.PoseStack
 import com.wynntils.core.components.Models
@@ -492,7 +493,7 @@ class Link(
         filterType: TerritoryDefenseFilterType?
     ) {
         val from = poi
-        val to = Models.Territory.getTerritoryPoiFromAdvancement(this.to) ?: return
+        val to = (Models.Territory as TerritoryModelAccessor).callGetTerritoryPoiFromAdvancement(this.to) ?: return
 
         when (filterType) {
             null -> Unit
