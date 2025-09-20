@@ -32,7 +32,7 @@ import com.wynntils.core.components.Models
 import com.wynntils.core.text.StyledText
 import com.wynntils.mc.event.PlayerInteractEvent
 import com.wynntils.mc.event.TickEvent
-import com.wynntils.models.containers.event.MythicFoundEvent
+import com.wynntils.models.containers.event.ValuableFoundEvent
 import com.wynntils.models.gear.type.GearTier
 import com.wynntils.models.items.items.game.GearItem
 import com.wynntils.models.items.items.game.InsulatorItem
@@ -204,8 +204,8 @@ object LootrunDryStreakFeature : Feature() {
     }
 
     @Subscribe(EventPriority.HIGHEST)
-    private fun MythicFoundEvent.on() {
-        if (mythicSource == MythicFoundEvent.MythicSource.LOOTRUN_REWARD_CHEST)
+    private fun ValuableFoundEvent.on() {
+        if (itemSource == ValuableFoundEvent.ItemSource.LOOTRUN_REWARD_CHEST)
             (this as ICancellableEvent).isCanceled = true
     }
 

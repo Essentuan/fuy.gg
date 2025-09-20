@@ -24,7 +24,7 @@
     "accessors.TerritoryModelAccessor",
     "extensions.AttackTimerExtension",
     "extensions.CustomColorExtension",
-    "extensions.MythicFoundEventExtension",
+    "extensions.ValuableFoundEventExtension",
     "extensions.TerritoryInfoExtension",
     "extensions.TextureExtension",
     "invoker.FeatureManagerInvoker",

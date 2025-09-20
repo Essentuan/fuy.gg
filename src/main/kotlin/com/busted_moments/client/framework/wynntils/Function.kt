@@ -3,7 +3,9 @@ package com.busted_moments.client.framework.wynntils
 import com.busted_moments.mixin.invoker.FunctionManagerInvoker
 import com.google.common.primitives.Primitives
 import com.wynntils.core.components.Managers
+import com.wynntils.core.consumers.functions.arguments.Argument
 import com.wynntils.core.consumers.functions.arguments.FunctionArguments
+import com.wynntils.core.consumers.functions.arguments.ListArgument
 import net.essentuan.esl.reflections.Reflections
 import net.essentuan.esl.reflections.extensions.annotatedWith
 import net.essentuan.esl.reflections.extensions.classOf
@@ -60,7 +62,7 @@ abstract class Function<T>(private vararg val aliases: String) : WynntilsFunctio
         if (optional == null)
             return FunctionArguments.RequiredArgumentBuilder.EMPTY
 
-        val args = mutableListOf<FunctionArguments.Argument<*>>()
+        val args = mutableListOf<Argument<*>>()
         for (arg in func.parameters) {
             if (arg.kind != KParameter.Kind.VALUE)
                 continue
@@ -72,7 +74,7 @@ abstract class Function<T>(private vararg val aliases: String) : WynntilsFunctio
                 List::class.java -> {
                     @Suppress("UNCHECKED_CAST")
                     args.add(
-                        FunctionArguments.ListArgument(
+                        ListArgument(
                             arg.name!!,
                             type.typeArgs().getOrNull(0)?.classOf() as Class<Any>? ?: Any::class.java
                         )
@@ -82,7 +84,7 @@ abstract class Function<T>(private vararg val aliases: String) : WynntilsFunctio
                 else -> {
                     @Suppress("UNCHECKED_CAST")
                     args.add(
-                        FunctionArguments.Argument<Any?>(
+                        Argument<Any?>(
                             arg.name,
                             Primitives.wrap(cls as Class<Any?>),
                             if (arg.isOptional) DEFAULT_ARG else null
@@ -105,7 +107,7 @@ abstract class Function<T>(private vararg val aliases: String) : WynntilsFunctio
             if (param.kind == KParameter.Kind.INSTANCE)
                 result[param] = this
             else {
-                val value = args.getArgument<Any?>(param.name!!).value
+                val value = args.getArgument(param.name!!).value
 
                 if (value != DEFAULT_ARG)
                     result[param] = value
