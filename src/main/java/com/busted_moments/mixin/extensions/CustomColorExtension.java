@@ -84,13 +84,13 @@ public abstract class CustomColorExtension implements Color {
    @NotNull
    @Override
    public Color with(int i, int i1, int i2, int i3) {
-      return (Color) new CustomColor(i, i1, i2, i3);
+      return (Color) (Object) new CustomColor(i, i1, i2, i3);
    }
 
    @NotNull
    @Override
    public Color with(float v, float v1, float v2, float v3) {
-      return (Color) new CustomColor(v, v1, v2, v3);
+      return (Color) (Object) new CustomColor(v, v1, v2, v3);
    }
 
    @Override
