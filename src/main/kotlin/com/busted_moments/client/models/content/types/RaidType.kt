@@ -21,7 +21,7 @@ import com.busted_moments.client.models.content.stages.Stages
 import com.busted_moments.client.models.content.triggers.Triggers
 import com.wynntils.core.text.StyledText
 import com.wynntils.core.text.StyledTextPart
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.utils.mc.StyledTextUtils
 import com.wynntils.utils.type.IterationDecision
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -276,8 +276,8 @@ enum class RaidType(
         }
 
         @Subscribe
-        private fun ChatMessageReceivedEvent.on() {
-            originalStyledText.unwrap().iterate { part, out ->
+        private fun ChatMessageEvent.Match.on() {
+            message.unwrap().iterate { part, out ->
                 val hoverEvent = part.partStyle.hoverEvent ?: return@iterate IterationDecision.CONTINUE
 
                 if (hoverEvent.action != HoverEvent.Action.SHOW_TEXT)

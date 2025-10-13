@@ -1,6 +1,7 @@
 package com.busted_moments.client.features.chat
 
 import com.busted_moments.client.Client
+import com.busted_moments.client.events.chat.originalMessage
 import com.busted_moments.client.framework.Commands
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.config.annotations.Persistent
@@ -18,7 +19,7 @@ import com.mojang.brigadier.StringReader
 import com.wynntils.core.components.Managers
 import com.wynntils.core.text.StyledTextPart
 import com.wynntils.features.chat.ChatItemFeature
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.mc.event.ChatSentEvent
 import com.wynntils.mc.event.CommandSentEvent
 import com.wynntils.utils.EncodedByteBuffer
@@ -253,9 +254,9 @@ object MessageEncryptionFeature : Feature() {
     }
 
     @Subscribe(priority = EventPriority.HIGHEST)
-    private fun ChatMessageReceivedEvent.on() {
+    private fun ChatMessageEvent.Edit.on() {
         //Unfortunately, we need to avoid conflicts with ChatItemFeature
-        val message = originalStyledText.unwrap()
+        val message = originalMessage.unwrap()
 
         var changed = false
 

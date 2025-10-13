@@ -15,7 +15,7 @@ import com.busted_moments.client.models.content.event.ContentEvent
 import com.busted_moments.client.models.party.events.PartyEvent
 import com.wynntils.core.components.Models
 import com.wynntils.core.text.StyledText
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.models.worlds.event.WorldStateEvent
 import com.wynntils.models.worlds.type.WorldState
 import com.wynntils.utils.mc.StyledTextUtils
@@ -53,8 +53,8 @@ object PartyModel : Party {
         get() = members.size
 
     @Subscribe(receiveCanceled = true)
-    private fun ChatMessageReceivedEvent.on() {
-        originalStyledText matches {
+    private fun ChatMessageEvent.Match.on() {
+        message matches {
             unwrapped {
                 Patterns.PARTY_LIST_ALL {
                     val leader: String?

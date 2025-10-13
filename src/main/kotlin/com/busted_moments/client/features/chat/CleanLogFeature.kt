@@ -1,13 +1,11 @@
 package com.busted_moments.client.features.chat
 
 import com.busted_moments.client.events.chat.LogChatMessageEvent
-import com.busted_moments.client.features.chat.CleanLogFeature.logged
 import com.busted_moments.client.framework.config.annotations.Category
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.features.Feature
 import com.busted_moments.mixin.accessors.MinecraftAccessor
 import com.wynntils.core.components.Models
-import com.wynntils.mc.event.ClientsideMessageEvent
 import com.wynntils.models.worlds.type.WorldState
 import net.essentuan.esl.collections.maps.expireAfter
 import net.essentuan.esl.collections.setOf
@@ -32,13 +30,13 @@ object CleanLogFeature : Feature() {
         isCanceled = true
     }
 
-    @Subscribe(priority = EventPriority.LOWEST)
-    private fun ClientsideMessageEvent.on() {
-        if (Models.WorldState.currentState == WorldState.NOT_CONNECTED)
-            return
-
-        MinecraftAccessor.getLogger().info("[CHAT] ${styledText.stringWithoutFormatting}")
-    }
+//    @Subscribe(priority = EventPriority.LOWEST)
+//    private fun ClientsideMessageEvent.on() {
+//        if (Models.WorldState.currentState == WorldState.NOT_CONNECTED)
+//            return
+//
+//        MinecraftAccessor.getLogger().info("[CHAT] ${styledText.stringWithoutFormatting}")
+//    }
 
     @Every(seconds = 1.0)
     private fun cleanse() {

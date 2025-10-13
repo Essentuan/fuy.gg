@@ -1,12 +1,8 @@
 package com.busted_moments.client.framework.wynntils
 
 import com.busted_moments.buster.api.Territory
-import com.busted_moments.client.framework.Objenesis
 import com.busted_moments.mixin.accessors.TerritoryModelAccessor
 import com.wynntils.core.components.Managers
-import com.wynntils.core.text.StyledText
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
-import com.wynntils.models.territories.TerritoryInfo
 import com.wynntils.models.territories.TerritoryModel
 import com.wynntils.models.territories.profile.TerritoryProfile
 import com.wynntils.models.territories.type.GuildResource
@@ -15,7 +11,6 @@ import com.wynntils.services.map.pois.TerritoryPoi
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils.mc
 import com.wynntils.utils.type.CappedValue
-import kotlinx.serialization.StringFormat
 import net.essentuan.esl.color.Color
 import net.minecraft.client.Minecraft
 import net.minecraft.core.RegistryAccess
@@ -88,10 +83,6 @@ var TerritoryModel.allTerritoryPois: MutableSet<TerritoryPoi>
     set(value) {
         (this as TerritoryModelAccessor).allTerritoryPois = value
     }
-
-var ChatMessageReceivedEvent.message: StyledText
-    get() = styledText!!
-    set(value) = setMessage(value)
 
 internal interface MutableTerritoryPoi {
     var guildName: String

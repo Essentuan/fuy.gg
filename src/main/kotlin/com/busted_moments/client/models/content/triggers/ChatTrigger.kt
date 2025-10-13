@@ -3,7 +3,7 @@ package com.busted_moments.client.models.content.triggers
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
 import com.busted_moments.client.framework.text.StyleType
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 
 class ChatTrigger(
     predicate: Any,
@@ -15,8 +15,8 @@ class ChatTrigger(
     }
     
     @Subscribe(receiveCanceled = true)
-    private fun ChatMessageReceivedEvent.on() =
-        test(originalStyledText)
+    private fun ChatMessageEvent.Match.on() =
+        test(message)
     
     override fun close() {
         events.unregister()

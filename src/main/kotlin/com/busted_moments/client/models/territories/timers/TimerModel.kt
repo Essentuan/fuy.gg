@@ -20,10 +20,9 @@ import com.busted_moments.client.framework.text.getValue
 import com.busted_moments.client.inline
 import com.busted_moments.client.models.territories.timers.events.TimerEvent
 import com.google.common.collect.SetMultimap
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.mc.event.ConnectionEvent.DisconnectedEvent
 import com.wynntils.mc.event.InventoryMouseClickedEvent
-import com.wynntils.models.players.PartyModel
 import com.wynntils.utils.mc.McUtils.mc
 import net.essentuan.esl.collections.maps.expireAfter
 import net.essentuan.esl.collections.multimap.Multimaps
@@ -89,8 +88,8 @@ object TimerModel : Set<AttackTimer> {
     }
 
     @Subscribe
-    private fun ChatMessageReceivedEvent.on() {
-        originalStyledText.matches {
+    private fun ChatMessageEvent.Match.on() {
+        message.matches {
             mutate({ Text.normalized(it.unwrap()) }) {
                 Patterns.TERRITORY_DEFENSE(StyleType.DEFAULT) {
                     val territory = group("territory")!!

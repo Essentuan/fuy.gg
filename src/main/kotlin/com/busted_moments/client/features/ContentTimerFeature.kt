@@ -1,6 +1,7 @@
 package com.busted_moments.client.features
 
 import com.busted_moments.client.Patterns
+import com.busted_moments.client.events.chat.originalMessage
 import com.busted_moments.client.framework.wynntils.Ticks
 import com.busted_moments.client.framework.wynntils.esl
 import com.busted_moments.client.framework.config.annotations.Persistent
@@ -27,7 +28,7 @@ import com.busted_moments.client.models.content.types.LegendaryIslandType
 import com.busted_moments.client.models.content.types.RaidType
 import com.wynntils.core.text.StyledText
 import com.wynntils.features.overlays.RaidProgressFeature
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.overlays.RaidProgressOverlay
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils.mc
@@ -131,11 +132,11 @@ object ContentTimerFeature : Feature() {
     }
 
     @Subscribe(priority = EventPriority.LOW)
-    private fun ChatMessageReceivedEvent.on() {
+    private fun ChatMessageEvent.Match.on() {
         if (pending == null)
             return
 
-        originalStyledText.matches {
+        message.matches {
             //Raids
             mutate(Text::normalized) {
                 Patterns.RAID_COMPLETION {
@@ -159,7 +160,7 @@ object ContentTimerFeature : Feature() {
                 Patterns.RAID_STATISTICS_END {
                     raidState = RAID_NOT_READING
 
-                    raidLines += originalStyledText
+                    raidLines += message
                     isCanceled = true
 
                     raid()
@@ -216,7 +217,7 @@ object ContentTimerFeature : Feature() {
             isCanceled = true
 
             if (raidState == RAID_READING_COMPLETION)
-                raidLines += originalStyledText
+                raidLines += message
         }
     }
 

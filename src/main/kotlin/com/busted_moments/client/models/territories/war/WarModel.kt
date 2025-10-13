@@ -9,18 +9,14 @@ import com.busted_moments.client.framework.config.annotations.File
 import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
-import com.busted_moments.client.framework.text.FUY_PREFIX
 import com.busted_moments.client.framework.text.StyleType
 import com.busted_moments.client.framework.text.Text
-import com.busted_moments.client.framework.text.Text.invoke
 import com.busted_moments.client.framework.text.Text.matches
-import com.busted_moments.client.framework.text.Text.send
-import com.busted_moments.client.framework.text.get
 import com.busted_moments.client.framework.text.getValue
 import com.busted_moments.client.models.territories.TerritoryModel
 import com.busted_moments.client.models.territories.war.events.WarEvent
 import com.busted_moments.client.models.territories.war.events.WarTextEvent
-import com.wynntils.handlers.chat.event.ChatMessageReceivedEvent
+import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.mc.event.BossHealthUpdateEvent
 import com.wynntils.mc.event.TickEvent
 import com.wynntils.models.character.event.CharacterDeathEvent
@@ -103,8 +99,8 @@ object WarModel : Storage, ClientboundBossEventPacket.Handler, Iterable<War.Resu
     }
 
     @Subscribe
-    private fun ChatMessageReceivedEvent.on() {
-        originalStyledText.matches {
+    private fun ChatMessageEvent.Match.on() {
+        message.matches {
             mutate(Text::normalized) {
                 any(
                     Patterns.TERRITORY_CONTROL,
