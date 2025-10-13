@@ -28,6 +28,7 @@ import com.busted_moments.client.models.content.types.LegendaryIslandType
 import com.busted_moments.client.models.content.types.RaidType
 import com.wynntils.core.text.StyledText
 import com.wynntils.features.overlays.RaidProgressFeature
+import com.wynntils.handlers.chat.ChatHandler
 import com.wynntils.handlers.chat.event.ChatMessageEvent
 import com.wynntils.overlays.RaidProgressOverlay
 import com.wynntils.utils.colors.CustomColor
@@ -60,6 +61,7 @@ object ContentTimerFeature : Feature() {
     @Persistent
     private var pbs: MutableMap<String, Duration> = mutableMapOf()
 
+    private var sentMessage: Boolean = false
     private var pending: ContentTimer? = null
     private var fail: Boolean = false
 
@@ -97,6 +99,7 @@ object ContentTimerFeature : Feature() {
 
     private fun complete(timer: ContentTimer, fail: Boolean) {
         pending = timer
+        sentMessage = false
         this.fail = fail
 
         when (timer.type) {
@@ -133,8 +136,7 @@ object ContentTimerFeature : Feature() {
 
     @Subscribe(priority = EventPriority.LOW)
     private fun ChatMessageEvent.Match.on() {
-        if (pending == null)
-            return
+        if (pending == null || sentMessage) return
 
         message.matches {
             //Raids
@@ -336,7 +338,10 @@ object ContentTimerFeature : Feature() {
 
                 raidLines.clear()
             }
-        }.send()
+        }.apply {
+            sentMessage = true
+            send()
+        }
 
         pending = null
     }
@@ -496,7 +501,10 @@ object ContentTimerFeature : Feature() {
 
                     dungeonRewards.clear()
                 }
-            }.send()
+            }.apply {
+                sentMessage = true
+                send()
+            }
 
             pending = null
         }
@@ -635,7 +643,10 @@ object ContentTimerFeature : Feature() {
 
                     liRewards.clear()
                 }
-            }.send()
+            }.apply {
+                sentMessage = true
+                send()
+            }
 
             pending = null
         }
