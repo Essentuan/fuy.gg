@@ -2,7 +2,7 @@ package com.busted_moments.client.models.content.types
 
 import com.busted_moments.client.Patterns
 import com.busted_moments.client.framework.text.RED
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.models.content.ContentTimer
 import com.busted_moments.client.models.content.ContentType
 import com.busted_moments.client.models.content.Stage

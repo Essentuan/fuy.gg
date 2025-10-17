@@ -1,6 +1,6 @@
 package com.busted_moments.client.models.content.triggers
 
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.models.content.Trigger
 import com.wynntils.core.text.StyledText
 import java.util.regex.Pattern

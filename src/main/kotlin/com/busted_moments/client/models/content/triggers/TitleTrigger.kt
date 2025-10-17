@@ -2,7 +2,7 @@ package com.busted_moments.client.models.content.triggers
 
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.wynntils.mc.event.TitleSetTextEvent
 import net.neoforged.bus.api.EventPriority

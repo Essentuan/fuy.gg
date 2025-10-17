@@ -13,7 +13,7 @@ import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.features.Feature
 import com.busted_moments.client.framework.features.Replaces
 import com.busted_moments.client.framework.render.screen.open
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.screens.territories.ManageTerritoriesScreen

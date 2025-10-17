@@ -11,7 +11,7 @@ import com.busted_moments.client.buster.events.BusterEvent
 import com.busted_moments.client.buster.events.TerritoryEvent
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.Text.unwrap

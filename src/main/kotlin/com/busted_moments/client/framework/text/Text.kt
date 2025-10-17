@@ -12,6 +12,7 @@ import com.busted_moments.mixin.accessors.StyledTextPartAccessor
 import com.wynntils.core.text.PartStyle
 import com.wynntils.core.text.StyledText
 import com.wynntils.core.text.StyledTextPart
+import com.wynntils.core.text.type.StyleType
 import com.wynntils.utils.colors.CustomColor
 import com.wynntils.utils.mc.McUtils
 import com.wynntils.utils.mc.McUtils.mc
@@ -33,7 +34,6 @@ import kotlin.math.max
 import kotlin.reflect.KProperty
 
 
-typealias StyleType = PartStyle.StyleType
 typealias TextParts = List<TextPart>
 
 val FUY_PREFIX: TextParts = Text.parts {
@@ -79,7 +79,7 @@ object Text {
     }
 
     fun strip(string: String): String =
-        Text(string).getString(PartStyle.StyleType.NONE)
+        Text(string).getString(StyleType.NONE)
 
     fun literal(string: String): StyledText =
         StyledText.fromUnformattedString(string)

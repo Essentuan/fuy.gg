@@ -1,6 +1,6 @@
 package com.busted_moments.client.models.content.stages
 
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.models.content.Stage
 import com.busted_moments.client.models.content.Tracker

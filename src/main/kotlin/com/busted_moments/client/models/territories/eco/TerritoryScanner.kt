@@ -6,7 +6,7 @@ import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.events
 import com.busted_moments.client.framework.keybind.Inputs
 import com.busted_moments.client.framework.sounds.Sounds.play
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.inline
 import com.wynntils.mc.event.ContainerSetContentEvent

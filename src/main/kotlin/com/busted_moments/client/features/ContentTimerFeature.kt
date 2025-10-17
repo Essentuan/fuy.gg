@@ -145,7 +145,7 @@ object ContentTimerFeature : Feature() {
                     raidState = RAID_READING_COMPLETION
                     raidRead = 0
 
-                    isCanceled = true
+                    cancelChat()
 
                     return@on
                 }
@@ -154,7 +154,7 @@ object ContentTimerFeature : Feature() {
                     raidState = RAID_READING_FAIL
                     raidRead = 0
 
-                    isCanceled = true
+                    cancelChat()
 
                     return@on
                 }
@@ -163,7 +163,7 @@ object ContentTimerFeature : Feature() {
                     raidState = RAID_NOT_READING
 
                     raidLines += message
-                    isCanceled = true
+                    cancelChat()
 
                     raid()
 
@@ -171,7 +171,7 @@ object ContentTimerFeature : Feature() {
                 }
 
                 Patterns.TIME_ELAPSED {
-                    isCanceled = true
+                    cancelChat()
 
                     if (raidState == RAID_READING_FAIL) {
                         raidState = RAID_NOT_READING
@@ -185,13 +185,13 @@ object ContentTimerFeature : Feature() {
 
             //Dungeons
             Patterns.DUNGEON_COMPLETION {
-                isCanceled = true
+                cancelChat()
 
                 return@on
             }
 
             Patterns.DUNGEON_REWARD {
-                isCanceled = true
+                cancelChat()
 
                 val reward = group("reward")!!
                 if (reward != "0 XP")
@@ -202,7 +202,7 @@ object ContentTimerFeature : Feature() {
 
             //LI
             Patterns.LI_REWARD { text ->
-                isCanceled = true
+                cancelChat()
 
                 liRewards += text.trim()
 
@@ -216,7 +216,7 @@ object ContentTimerFeature : Feature() {
                 return
             }
 
-            isCanceled = true
+            cancelChat()
 
             if (raidState == RAID_READING_COMPLETION)
                 raidLines += message

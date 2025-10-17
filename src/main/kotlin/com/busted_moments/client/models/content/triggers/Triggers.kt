@@ -1,6 +1,6 @@
 package com.busted_moments.client.models.content.triggers
 
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.models.content.Trigger
 import com.wynntils.core.text.PartStyle
 import com.wynntils.core.text.StyledText
@@ -61,7 +61,7 @@ object Triggers {
         Trigger.Builder { SphereTrigger(pos, radius, false, it) }
 
     fun title(text: StyledText) =
-        Trigger.Builder { TitleTrigger(text, PartStyle.StyleType.DEFAULT, it) }
+        Trigger.Builder { TitleTrigger(text, StyleType.DEFAULT, it) }
 
     fun title(text: String, style: StyleType = StyleType.NONE) =
         Trigger.Builder { TitleTrigger(text, style, it) }
@@ -70,7 +70,7 @@ object Triggers {
         Trigger.Builder { TitleTrigger(pattern, style, it) }
 
     fun subtitle(text: StyledText) =
-        Trigger.Builder { SubtitleTrigger(text, PartStyle.StyleType.DEFAULT, it) }
+        Trigger.Builder { SubtitleTrigger(text, StyleType.DEFAULT, it) }
 
     fun subtitle(text: String, style: StyleType = StyleType.NONE) =
         Trigger.Builder { SubtitleTrigger(text, style, it) }
@@ -79,7 +79,7 @@ object Triggers {
         Trigger.Builder { SubtitleTrigger(pattern, style, it) }
 
     fun chatMessage(text: StyledText) =
-        Trigger.Builder { ChatTrigger(text, PartStyle.StyleType.DEFAULT, it) }
+        Trigger.Builder { ChatTrigger(text, StyleType.DEFAULT, it) }
 
     fun chatMessage(text: String, style: StyleType = StyleType.NONE) =
         Trigger.Builder { ChatTrigger(text, style, it) }

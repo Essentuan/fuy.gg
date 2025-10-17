@@ -9,7 +9,7 @@ import com.busted_moments.client.framework.config.annotations.File
 import com.busted_moments.client.framework.config.annotations.Persistent
 import com.busted_moments.client.framework.events.Subscribe
 import com.busted_moments.client.framework.events.post
-import com.busted_moments.client.framework.text.StyleType
+import com.wynntils.core.text.type.StyleType
 import com.busted_moments.client.framework.text.Text
 import com.busted_moments.client.framework.text.Text.matches
 import com.busted_moments.client.framework.text.getValue
