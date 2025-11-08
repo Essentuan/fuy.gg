@@ -1,6 +1,7 @@
 package com.busted_moments.client.models.territories.timers
 
 import com.busted_moments.buster.api.Territory
+import com.busted_moments.buster.protocol.clientbound.ClientboundSetAttackTimerMarginOfErrorPacket
 import com.busted_moments.buster.protocol.clientbound.ClientboundTerritoryAttackedPacket
 import com.busted_moments.buster.protocol.serverbound.ServerboundTerritoryAttackedPacket
 import com.busted_moments.buster.types.guilds.AttackTimer
@@ -41,6 +42,8 @@ import net.essentuan.esl.unsafe
 import java.util.ArrayList
 import java.util.Date
 
+private var marginOfError: Duration = 10.seconds
+
 object TimerModel : Set<AttackTimer> {
     private val timers: SetMultimap<String, AttackTimer> =
         Multimaps.hashKeys().hashSetValues()
@@ -68,7 +71,7 @@ object TimerModel : Set<AttackTimer> {
         }
 
         return timers.lock {
-            val previous = this[timer.territory].firstOrNull { (it.remaining - timer.remaining).abs() < 10.seconds }
+            val previous = this[timer.territory].firstOrNull { (it.remaining - timer.remaining).abs() < marginOfError }
 
             if (previous == null) {
                 TimerEvent.Enqueued(timer, source).post()
@@ -179,6 +182,14 @@ object TimerModel : Set<AttackTimer> {
 
     @Subscribe
     private fun BusterEvent.Packet.on() {
+        when (packet) {
+            is ClientboundTerritoryAttackedPacket ->
+                enqueue(packet.timer, source = TimerEvent.Source.BUSTER)
+
+            is ClientboundSetAttackTimerMarginOfErrorPacket ->
+                marginOfError = packet.marginOfError
+        }
+
         if (packet is ClientboundTerritoryAttackedPacket)
             enqueue(packet.timer, source = TimerEvent.Source.BUSTER)
     }
