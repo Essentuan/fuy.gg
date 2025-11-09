@@ -71,7 +71,16 @@ repositories {
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 
     maven("https://maven.shedaniel.me/")
-    maven("https://maven.terraformersmc.com/releases/")
+    exclusiveContent {
+        forRepository {
+            maven("https://api.modrinth.com/maven")
+        }
+
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
+//    maven("https://maven.terraformersmc.com/releases/")
 
     flatDir {
         dirs("./libs/acf")
@@ -146,7 +155,7 @@ dependencies {
         exclude(group = "net.fabricmc.fabric-api")
     }
 
-    modApi("com.terraformersmc:modmenu:$mod_menu_version")
+    modApi("maven.modrinth:modmenu:$mod_menu_version")
 
     //ESL
     shadow("org.reactivestreams:reactive-streams:$rx_streams_version")
