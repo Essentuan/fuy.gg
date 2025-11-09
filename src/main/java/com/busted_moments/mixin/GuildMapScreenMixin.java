@@ -5,8 +5,11 @@ import com.busted_moments.client.features.war.wynntils.GuildMapImprovementsFeatu
 import com.busted_moments.client.features.war.wynntils.Link;
 import com.busted_moments.client.features.war.wynntils.RenderDetails;
 import com.busted_moments.client.framework.render.helpers.Context;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.wynntils.models.territories.profile.TerritoryProfile;
 import com.wynntils.models.territories.type.GuildResourceValues;
 import com.wynntils.screens.maps.AbstractMapScreen;
 import com.wynntils.screens.maps.GuildMapScreen;
@@ -16,6 +19,7 @@ import com.wynntils.services.map.type.TerritoryDefenseFilterType;
 import com.wynntils.utils.mc.McUtils;
 import com.wynntils.utils.render.MapRenderer;
 import com.wynntils.utils.type.BoundingBox;
+import net.essentuan.esl.time.duration.Duration;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -88,12 +92,12 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
             Poi poi = filteredPois.get(i);
 
             if (poi instanceof TerritoryPoi territory) {
-                var buster = TerritoryList.INSTANCE.get(territory.getName());
+                final var buster = TerritoryList.INSTANCE.get(territory.getName());
 
                 if (buster == null)
                     continue;
 
-                var details = new RenderDetails(
+               final var details = new RenderDetails(
                         territory,
                         mapCenterX,
                         mapCenterZ,
@@ -183,6 +187,24 @@ public abstract class GuildMapScreenMixin extends AbstractMapScreen implements C
             return "⛨ " + constant;
         else
             return constant;
+    }
+
+    @WrapOperation(
+            method = "renderTerritoryTooltip",
+            at = @At(value = "INVOKE", target = "Lcom/wynntils/models/territories/profile/TerritoryProfile;getReadableRelativeTimeAcquired()Ljava/lang/String;")
+    )
+    private static String getReadableRelativeTimeAcquired(
+            TerritoryProfile instance,
+            Operation<String> original
+    ) {
+        if (!GuildMapImprovementsFeature.INSTANCE.getEnabled())
+            return original.call(instance);
+
+        final var buster = TerritoryList.INSTANCE.get(instance.getName());
+        if (buster == null)
+            return original.call(instance);
+
+        return GuildMapImprovementsFeature.INSTANCE.formatRelativeTimeAcquired$fuy_gg(buster);
     }
 
     @NotNull

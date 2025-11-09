@@ -50,6 +50,9 @@ import com.wynntils.utils.type.CappedValue
 import me.shedaniel.clothconfig2.impl.EasingMethod
 import net.essentuan.esl.collections.builders.mutableMap
 import net.essentuan.esl.color.Color
+import net.essentuan.esl.time.TimeUnit
+import net.essentuan.esl.time.duration.FormatFlag
+import net.essentuan.esl.time.duration.hours
 import net.essentuan.esl.time.duration.minutes
 import net.essentuan.esl.time.duration.ms
 import net.essentuan.esl.time.duration.seconds
@@ -96,6 +99,10 @@ object GuildMapImprovementsFeature : Feature() {
     @Value("Use cooldown for color")
     @Tooltip(["Will change the fill of a territory based on how long until its off cooldown"])
     var cooldown: Boolean = true
+
+    @Value("Hide seconds after 1 hour")
+    @Tooltip(["Hides the seconds in the territory held tooltip after its been held for more than 1 hour"])
+    var compactTerritoryHeldFor: Boolean = false
 
     private fun update() {
         if (!enabled || TerritoryList.isEmpty())
@@ -167,6 +174,18 @@ object GuildMapImprovementsFeature : Feature() {
     @Subscribe(priority = EventPriority.LOWEST)
     private fun AdvancementUpdateEvent.on() {
         update()
+    }
+
+    internal fun formatRelativeTimeAcquired(territory: Territory): String {
+        val timeSince = territory.acquired.timeSince()
+
+        if (timeSince < 1.minutes)
+            return timeSince.print(TimeUnit.SECONDS)
+
+        if (compactTerritoryHeldFor && timeSince >= 1.hours)
+            return timeSince.print(FormatFlag.COMPACT, TimeUnit.MINUTES)
+
+        return timeSince.print(FormatFlag.COMPACT, TimeUnit.SECONDS)
     }
 }
 
