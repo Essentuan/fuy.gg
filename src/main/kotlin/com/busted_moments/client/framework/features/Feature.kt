@@ -17,6 +17,8 @@ import com.wynntils.core.consumers.features.Feature
 import com.wynntils.core.consumers.overlays.RenderState
 import com.wynntils.core.persisted.config.Category
 import com.wynntils.core.persisted.config.ConfigCategory
+import com.wynntils.core.consumers.features.ProfileDefault
+import com.wynntils.core.persisted.config.ConfigProfile
 import com.wynntils.mc.event.ConnectionEvent.ConnectedEvent
 import com.wynntils.mc.event.RenderEvent
 import net.essentuan.esl.Rating
@@ -158,7 +160,11 @@ abstract class Feature : Storage {
     }
 
     @ConfigCategory(Category.OVERLAYS)
-    private inner class Delegate : WynntilsFeature() {
+    private inner class Delegate : WynntilsFeature(
+        ProfileDefault.Builder().apply {
+                disableFor(ConfigProfile.BLANK_SLATE)
+        }.build()
+    ) {
         val description: String = this::class.tags[Description::class]?.value ?: "No Description"
 
         override fun onDisable() {
