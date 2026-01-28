@@ -60,6 +60,7 @@ import net.essentuan.esl.time.extensions.timeSince
 import net.essentuan.esl.tuples.numbers.FloatPair
 import net.minecraft.client.renderer.MultiBufferSource
 import net.neoforged.bus.api.EventPriority
+import java.util.Optional
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -122,7 +123,8 @@ object GuildMapImprovementsFeature : Feature() {
                 ),
                 WynntilsGuild(
                     it.owner.name,
-                    it.owner.tag
+                    it.owner.tag,
+                    Optional.of<CustomColor>(Models.Guild.getColor(it.name))
                 ),
                 it.acquired.toInstant()
             ).also { profile ->

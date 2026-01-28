@@ -6,9 +6,11 @@ import com.busted_moments.client.framework.config.entries.HiddenEntry
 import com.busted_moments.client.framework.config.entries.value.ColorValue
 import com.wynntils.core.consumers.features.AbstractConfigurable
 import com.wynntils.core.persisted.PersistedOwner
+import com.wynntils.core.persisted.config.ConfigProfile
 import com.wynntils.core.persisted.type.PersistedMetadata
 import net.essentuan.esl.model.Model
 import java.lang.reflect.Type
+import java.util.EnumMap
 import kotlin.reflect.jvm.javaField
 
 typealias Store<T> = com.wynntils.core.persisted.config.Config<T>
@@ -26,11 +28,17 @@ open class LinkedConfig<T>(
         entry.element.name,
         type,
         default,
+        createDefaultValues(),
         "",
         entry.type.isNullable,
         entry.key
     )
 
+    fun createDefaultValues(): Map<ConfigProfile, T> {
+        return ConfigProfile.values().associateWithTo(EnumMap(ConfigProfile::class.java)) {
+            entry.default as T
+        }
+    }
     override fun touched() = Config.write()
 
     override fun get(): T =
